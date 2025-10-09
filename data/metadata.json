@@ -1,6 +1,8 @@
-{
-    "url": "",
-    "commit_hash": "",
-    "last_updated": "",
-    "successful": ""
-}
+[
+    {
+        "game": "pokemon",
+        "source": "<data url>",
+        "version": "<commit hash>",
+        "successful": true
+    }
+]

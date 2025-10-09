@@ -29,3 +29,11 @@ This will startup the following services:
 - Frontend
   - Uses the `Dockerfile` within the frontend directory
   - Static React site using NGINX Proxy
+
+## Data
+
+The TCG card data is stored inside of the [data](/data/) directory. It is pulled
+and populated into the database via an scheduled GitLab workflow.
+
+The `metadata.json` keeps track of the _version_ of the data based on it's
+source.
