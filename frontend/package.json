@@ -1,5 +1,5 @@
 {
-	"name": "tcg-decklists-frontend",
+	"name": "tcg-decklists-ui",
 	"private": true,
 	"version": "0.0.0",
 	"type": "module",
