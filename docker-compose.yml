@@ -1,0 +1,5 @@
+name: tcg-decklist
+
+services:
+  hello-world:
+    image: hello-world

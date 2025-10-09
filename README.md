@@ -10,3 +10,22 @@ Monorepo for TCG Decklists projects.
   - Card data for the different TCGs
 - [api-requests](/api-requests/)
   - Bruno collection for testing API requests
+
+## Docker
+
+The whole stack can be run using the `docker-compose.yml`.
+
+```sh
+docker compose up -d
+```
+
+This will startup the following services:
+
+- Database
+  - This is pulled using the official PosgreSQL alpine image
+- Backend
+  - Uses the `Dockerfile` within the backend directory
+  - Java SpringBoot API
+- Frontend
+  - Uses the `Dockerfile` within the frontend directory
+  - Static React site using NGINX Proxy
