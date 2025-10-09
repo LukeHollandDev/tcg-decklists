@@ -11,6 +11,9 @@ Monorepo for TCG Decklists projects.
 - [api-requests](/api-requests/)
   - Bruno collection for testing API requests
 
+The outstanding and completed tasks are stored in the [TODO.md](/TODO.md) file.
+It organises the tasks into various categories.
+
 ## Docker
 
 The whole stack can be run using the `docker-compose.yml`.
