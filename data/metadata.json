@@ -1,8 +1,9 @@
 [
     {
-        "game": "pokemon",
-        "source": "<data url>",
-        "version": "<commit hash>",
+        "name": "pokemon",
+        "source": "https://github.com/PokemonTCG/pokemon-tcg-data",
+        "context": "cards/en",
+        "version": "",
         "successful": true
     }
 ]

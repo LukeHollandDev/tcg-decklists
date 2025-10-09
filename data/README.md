@@ -11,9 +11,10 @@ updated whenever the pipeline is run to update the database.
 ```json
 [
     {
-        "game": "pokemon",
+        "name": "pokemon",
         "source": "https://github.com/PokemonTCG/pokemon-tcg-data",
         "version": "37d13b7cd2ff04c41a319ecf9b5d854328a8a390",
+        "timestamp": "",
         "successful": true
     }
 ]
