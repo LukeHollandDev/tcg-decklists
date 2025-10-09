@@ -128,20 +128,20 @@ for item in "${items[@]}"; do
 done
 
 # --- COMMIT AND PUSH CHANGES IF ANY ---
-if git diff --quiet "$DATA_DIR" "$METADATA_FILE"; then
-  echo "No updates to commit."
-else
-  echo "Committing and pushing changes..."
-  git add "$DATA_DIR" "$METADATA_FILE"
-  git commit -m "Automated data update: $(date -u +"%Y-%m-%dT%H:%M:%SZ")"
-  git push
-  updates_made=true
-fi
+# if git diff --quiet "$DATA_DIR" "$METADATA_FILE"; then
+#   echo "No updates to commit."
+# else
+#   echo "Committing and pushing changes..."
+#   git add "$DATA_DIR" "$METADATA_FILE"
+#   git commit -m "Automated data update: $(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+#   git push
+#   updates_made=true
+# fi
 
-if [[ "$updates_made" == true ]]; then
-  echo "All updates processed successfully."
-else
-  echo "No updates were required."
-fi
+# if [[ "$updates_made" == true ]]; then
+#   echo "All updates processed successfully."
+# else
+#   echo "No updates were required."
+# fi
 
 exit 0
