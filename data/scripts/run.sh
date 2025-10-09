@@ -5,6 +5,8 @@ set -euo pipefail
 DATA_DIR="data"
 SCRIPTS_DIR="$DATA_DIR/scripts"
 METADATA_FILE="$DATA_DIR/metadata.json"
+SCHEMA_DIR="$DATA_DIR/schema"
+mkdir -p "$SCHEMA_DIR"
 
 # --- PRECHECKS ---
 if ! command -v jq &>/dev/null; then
@@ -21,6 +23,20 @@ if ! [ -f "$METADATA_FILE" ]; then
   echo "Error: $METADATA_FILE not found." >&2
   exit 1
 fi
+
+# --- FUNCTIONS ---
+update_metadata() {
+  jq --arg name "$name" \
+      --arg sha "$latest_sha" \
+      --arg date "$latest_date" \
+      --argjson success "$success" \
+      'map(if .name == $name then
+            .version = $sha |
+            .timestamp = $date |
+            .successful = $success
+          else . end)' \
+      "$METADATA_FILE" > "${METADATA_FILE}.tmp" && mv "${METADATA_FILE}.tmp" "$METADATA_FILE"
+}
 
 # --- MAIN LOOP ---
 updates_made=false
@@ -79,7 +95,6 @@ for item in "${items[@]}"; do
   # Run prepare and migrate scripts if they exist
   prepare_script="$SCRIPTS_DIR/${name}-prepare.sh"
   migrate_script="$SCRIPTS_DIR/${name}-migrate.sh"
-  success=false
 
   if [[ -x "$prepare_script" ]]; then
     echo "Running prepare script for $name..."
@@ -88,7 +103,6 @@ for item in "${items[@]}"; do
     else
       echo "Prepare failed."
       success=false
-      # Update metadata immediately and skip migration
       update_metadata
       updates_made=true
       continue
@@ -111,20 +125,25 @@ for item in "${items[@]}"; do
   fi
 
   # --- Update metadata for this item ---
-  update_metadata() {
-    jq --arg name "$name" \
-       --arg sha "$latest_sha" \
-       --arg date "$latest_date" \
-       --argjson success "$success" \
-       'map(if .name == $name then
-              .version = $sha |
-              .timestamp = $date |
-              .successful = $success
-            else . end)' \
-       "$METADATA_FILE" > "${METADATA_FILE}.tmp" && mv "${METADATA_FILE}.tmp" "$METADATA_FILE"
-  }
   update_metadata
   updates_made=true
+
+  # --- Generate JSON Schema if genson is available ---
+  if command -v genson &>/dev/null; then
+    echo "Generating/updating schema for $name..."
+    SCHEMA_FILE="$SCHEMA_DIR/$name.json"
+    JSON_FILES=$(find "$data_path" -name '*.json')
+
+    if [[ -n "$JSON_FILES" ]]; then
+      genson -i 2 $JSON_FILES > "$SCHEMA_FILE"
+      echo "Schema written to $SCHEMA_FILE"
+    else
+      echo "No JSON files found in $data_path for schema generation."
+    fi
+  else
+    echo "Genson not installed, skipping schema generation."
+  fi
+
 done
 
 # --- COMMIT AND PUSH CHANGES IF ANY ---
@@ -132,8 +151,8 @@ done
 #   echo "No updates to commit."
 # else
 #   echo "Committing and pushing changes..."
-#   git add "$DATA_DIR" "$METADATA_FILE"
-#   git commit -m "Automated data update: $(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+#   git add "$DATA_DIR" "$METADATA_FILE" "$SCHEMA_FILE"
+#   git commit -m "[AUTO] data update: $(date -u +"%Y-%m-%dT%H:%M:%SZ")"
 #   git push
 #   updates_made=true
 # fi
