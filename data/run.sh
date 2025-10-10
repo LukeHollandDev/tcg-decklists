@@ -19,6 +19,11 @@ if ! command -v curl &>/dev/null; then
   exit 1
 fi
 
+if ! command -v python3 &>/dev/null; then
+  echo "Error: python3 is required but not installed." >&2
+  exit 1
+fi
+
 if ! [ -f "$METADATA_FILE" ]; then
   echo "Error: $METADATA_FILE not found." >&2
   exit 1
@@ -37,6 +42,14 @@ update_metadata() {
           else . end)' \
       "$METADATA_FILE" > "${METADATA_FILE}.tmp" && mv "${METADATA_FILE}.tmp" "$METADATA_FILE"
 }
+
+# --- PYTHON ENV SETUP ---
+REQUIREMENTS_FILE="$DATA_DIR/requirements.txt"
+venv_dir=$(mktemp -d)
+python3 -m venv "$venv_dir"
+source "$venv_dir/bin/activate"
+pip install --upgrade pip >/dev/null 2>&1
+pip install -r "$REQUIREMENTS_FILE" >/dev/null 2>&1
 
 # --- MAIN LOOP ---
 updates_made=false
@@ -92,28 +105,11 @@ for item in "${items[@]}"; do
 
   success=false
 
-  # Run prepare and migrate scripts if they exist
-  prepare_script="$SCRIPTS_DIR/${name}-prepare.sh"
-  migrate_script="$SCRIPTS_DIR/${name}-migrate.sh"
-
-  if [[ -x "$prepare_script" ]]; then
-    echo "Running prepare script for $name..."
-    if "$prepare_script"; then
-      echo "Prepare succeeded."
-    else
-      echo "Prepare failed."
-      success=false
-      update_metadata
-      updates_made=true
-      continue
-    fi
-  else
-    echo "No prepare script found for $name."
-  fi
-
-  if [[ -x "$migrate_script" ]]; then
-    echo "Running migrate script for $name..."
-    if "$migrate_script"; then
+  # --- Run Python migration script in shared virtual environment ---
+  migrate_py="$SCRIPTS_DIR/${name}-migrate.py"
+  if [[ -f "$migrate_py" ]]; then
+    echo "Running Python migrate script for $name..."
+    if python "$migrate_py"; then
       echo "Migration succeeded."
       success=true
     else
@@ -121,7 +117,7 @@ for item in "${items[@]}"; do
       success=false
     fi
   else
-    echo "No migrate script found for $name."
+    echo "No Python migrate script found for $name."
   fi
 
   # --- Update metadata for this item ---
@@ -145,6 +141,9 @@ for item in "${items[@]}"; do
   fi
 
 done
+
+deactivate
+rm -rf "$venv_dir"
 
 # --- COMMIT AND PUSH CHANGES IF ANY ---
 # if git diff --quiet "$DATA_DIR" "$METADATA_FILE"; then
