@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.ResponseEntity;
 
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/api/card/pokemon")
 public class PokemonController {
@@ -20,12 +22,8 @@ public class PokemonController {
     }
 
     @GetMapping
-    public ResponseEntity<PokemonCard> getCardByName(@RequestParam("name") String name) {
-        PokemonCard card = pokemonCardRepository.findByName(name);
-        if (card == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(card);
+    public ResponseEntity<PokemonCard> getCardByName(@RequestParam("id") String id) {
+        Optional<PokemonCard> card = pokemonCardRepository.findById(id);
+        return card.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 }
-
