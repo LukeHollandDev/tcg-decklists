@@ -6,7 +6,7 @@ services:
     restart: always
     environment:
       POSTGRES_PASSWORD: testing1234
-      POSTGRES_DB: tcg_decklist
+      POSTGRES_DB: tcg_decklists
     ports:
       - "5432:5432"
     volumes:
