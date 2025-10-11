@@ -1,5 +1,6 @@
 package dev.lukeholland.tcg.decklists.api.entities.pokemon;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -16,6 +17,7 @@ public class PokemonCardNationalPokedexNumber {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "card_id", nullable = false)
+    @JsonBackReference
     private PokemonCard card;
 
     @Column(name = "pokedex_number", nullable = false)

@@ -72,31 +72,31 @@ public class PokemonCard {
     private Set<PokemonAttack> pokemonAttacks = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "card")
-    private Set<dev.lukeholland.tcg.decklists.api.entities.pokemon.PokemonCardEvolvesTo> pokemonCardEvolvesTos = new LinkedHashSet<>();
+    private Set<PokemonCardEvolvesTo> pokemonCardEvolvesTos = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "card")
-    private Set<dev.lukeholland.tcg.decklists.api.entities.pokemon.PokemonCardNationalPokedexNumber> pokemonCardNationalPokedexNumbers = new LinkedHashSet<>();
+    private Set<PokemonCardNationalPokedexNumber> pokemonCardNationalPokedexNumbers = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "card")
-    private Set<dev.lukeholland.tcg.decklists.api.entities.pokemon.PokemonCardRetreatCost> pokemonCardRetreatCosts = new LinkedHashSet<>();
+    private Set<PokemonCardRetreatCost> pokemonCardRetreatCosts = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "card")
-    private Set<dev.lukeholland.tcg.decklists.api.entities.pokemon.PokemonCardSubtype> pokemonCardSubtypes = new LinkedHashSet<>();
+    private Set<PokemonCardSubtype> pokemonCardSubtypes = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "card")
-    private Set<dev.lukeholland.tcg.decklists.api.entities.pokemon.PokemonCardType> pokemonCardTypes = new LinkedHashSet<>();
+    private Set<PokemonCardType> pokemonCardTypes = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "card")
-    private Set<dev.lukeholland.tcg.decklists.api.entities.pokemon.PokemonLegality> pokemonLegalities = new LinkedHashSet<>();
+    private Set<PokemonLegality> pokemonLegalities = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "card")
-    private Set<dev.lukeholland.tcg.decklists.api.entities.pokemon.PokemonResistance> pokemonResistances = new LinkedHashSet<>();
+    private Set<PokemonResistance> pokemonResistances = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "card")
-    private Set<dev.lukeholland.tcg.decklists.api.entities.pokemon.PokemonRule> pokemonRules = new LinkedHashSet<>();
+    private Set<PokemonRule> pokemonRules = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "card")
-    private Set<dev.lukeholland.tcg.decklists.api.entities.pokemon.PokemonWeakness> pokemonWeaknesses = new LinkedHashSet<>();
+    private Set<PokemonWeakness> pokemonWeaknesses = new LinkedHashSet<>();
 
     public String getId() {
         return id;
@@ -250,75 +250,75 @@ public class PokemonCard {
         this.pokemonAttacks = pokemonAttacks;
     }
 
-    public Set<dev.lukeholland.tcg.decklists.api.entities.pokemon.PokemonCardEvolvesTo> getPokemonCardEvolvesTos() {
+    public Set<PokemonCardEvolvesTo> getPokemonCardEvolvesTos() {
         return pokemonCardEvolvesTos;
     }
 
-    public void setPokemonCardEvolvesTos(Set<dev.lukeholland.tcg.decklists.api.entities.pokemon.PokemonCardEvolvesTo> pokemonCardEvolvesTos) {
+    public void setPokemonCardEvolvesTos(Set<PokemonCardEvolvesTo> pokemonCardEvolvesTos) {
         this.pokemonCardEvolvesTos = pokemonCardEvolvesTos;
     }
 
-    public Set<dev.lukeholland.tcg.decklists.api.entities.pokemon.PokemonCardNationalPokedexNumber> getPokemonCardNationalPokedexNumbers() {
+    public Set<PokemonCardNationalPokedexNumber> getPokemonCardNationalPokedexNumbers() {
         return pokemonCardNationalPokedexNumbers;
     }
 
-    public void setPokemonCardNationalPokedexNumbers(Set<dev.lukeholland.tcg.decklists.api.entities.pokemon.PokemonCardNationalPokedexNumber> pokemonCardNationalPokedexNumbers) {
+    public void setPokemonCardNationalPokedexNumbers(Set<PokemonCardNationalPokedexNumber> pokemonCardNationalPokedexNumbers) {
         this.pokemonCardNationalPokedexNumbers = pokemonCardNationalPokedexNumbers;
     }
 
-    public Set<dev.lukeholland.tcg.decklists.api.entities.pokemon.PokemonCardRetreatCost> getPokemonCardRetreatCosts() {
+    public Set<PokemonCardRetreatCost> getPokemonCardRetreatCosts() {
         return pokemonCardRetreatCosts;
     }
 
-    public void setPokemonCardRetreatCosts(Set<dev.lukeholland.tcg.decklists.api.entities.pokemon.PokemonCardRetreatCost> pokemonCardRetreatCosts) {
+    public void setPokemonCardRetreatCosts(Set<PokemonCardRetreatCost> pokemonCardRetreatCosts) {
         this.pokemonCardRetreatCosts = pokemonCardRetreatCosts;
     }
 
-    public Set<dev.lukeholland.tcg.decklists.api.entities.pokemon.PokemonCardSubtype> getPokemonCardSubtypes() {
+    public Set<PokemonCardSubtype> getPokemonCardSubtypes() {
         return pokemonCardSubtypes;
     }
 
-    public void setPokemonCardSubtypes(Set<dev.lukeholland.tcg.decklists.api.entities.pokemon.PokemonCardSubtype> pokemonCardSubtypes) {
+    public void setPokemonCardSubtypes(Set<PokemonCardSubtype> pokemonCardSubtypes) {
         this.pokemonCardSubtypes = pokemonCardSubtypes;
     }
 
-    public Set<dev.lukeholland.tcg.decklists.api.entities.pokemon.PokemonCardType> getPokemonCardTypes() {
+    public Set<PokemonCardType> getPokemonCardTypes() {
         return pokemonCardTypes;
     }
 
-    public void setPokemonCardTypes(Set<dev.lukeholland.tcg.decklists.api.entities.pokemon.PokemonCardType> pokemonCardTypes) {
+    public void setPokemonCardTypes(Set<PokemonCardType> pokemonCardTypes) {
         this.pokemonCardTypes = pokemonCardTypes;
     }
 
-    public Set<dev.lukeholland.tcg.decklists.api.entities.pokemon.PokemonLegality> getPokemonLegalities() {
+    public Set<PokemonLegality> getPokemonLegalities() {
         return pokemonLegalities;
     }
 
-    public void setPokemonLegalities(Set<dev.lukeholland.tcg.decklists.api.entities.pokemon.PokemonLegality> pokemonLegalities) {
+    public void setPokemonLegalities(Set<PokemonLegality> pokemonLegalities) {
         this.pokemonLegalities = pokemonLegalities;
     }
 
-    public Set<dev.lukeholland.tcg.decklists.api.entities.pokemon.PokemonResistance> getPokemonResistances() {
+    public Set<PokemonResistance> getPokemonResistances() {
         return pokemonResistances;
     }
 
-    public void setPokemonResistances(Set<dev.lukeholland.tcg.decklists.api.entities.pokemon.PokemonResistance> pokemonResistances) {
+    public void setPokemonResistances(Set<PokemonResistance> pokemonResistances) {
         this.pokemonResistances = pokemonResistances;
     }
 
-    public Set<dev.lukeholland.tcg.decklists.api.entities.pokemon.PokemonRule> getPokemonRules() {
+    public Set<PokemonRule> getPokemonRules() {
         return pokemonRules;
     }
 
-    public void setPokemonRules(Set<dev.lukeholland.tcg.decklists.api.entities.pokemon.PokemonRule> pokemonRules) {
+    public void setPokemonRules(Set<PokemonRule> pokemonRules) {
         this.pokemonRules = pokemonRules;
     }
 
-    public Set<dev.lukeholland.tcg.decklists.api.entities.pokemon.PokemonWeakness> getPokemonWeaknesses() {
+    public Set<PokemonWeakness> getPokemonWeaknesses() {
         return pokemonWeaknesses;
     }
 
-    public void setPokemonWeaknesses(Set<dev.lukeholland.tcg.decklists.api.entities.pokemon.PokemonWeakness> pokemonWeaknesses) {
+    public void setPokemonWeaknesses(Set<PokemonWeakness> pokemonWeaknesses) {
         this.pokemonWeaknesses = pokemonWeaknesses;
     }
 

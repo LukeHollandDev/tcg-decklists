@@ -1,5 +1,6 @@
 package dev.lukeholland.tcg.decklists.api.entities.pokemon;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -19,7 +20,8 @@ public class PokemonAttack {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "card_id", nullable = false)
-    private dev.lukeholland.tcg.decklists.api.entities.pokemon.PokemonCard card;
+    @JsonBackReference
+    private PokemonCard card;
 
     @Column(name = "name", nullable = false)
     private String name;
@@ -37,7 +39,7 @@ public class PokemonAttack {
     private Integer position;
 
     @OneToMany(mappedBy = "attack")
-    private Set<dev.lukeholland.tcg.decklists.api.entities.pokemon.PokemonAttackCost> pokemonAttackCosts = new LinkedHashSet<>();
+    private Set<PokemonAttackCost> pokemonAttackCosts = new LinkedHashSet<>();
 
     public Long getId() {
         return id;
@@ -47,11 +49,11 @@ public class PokemonAttack {
         this.id = id;
     }
 
-    public dev.lukeholland.tcg.decklists.api.entities.pokemon.PokemonCard getCard() {
+    public PokemonCard getCard() {
         return card;
     }
 
-    public void setCard(dev.lukeholland.tcg.decklists.api.entities.pokemon.PokemonCard card) {
+    public void setCard(PokemonCard card) {
         this.card = card;
     }
 
@@ -95,11 +97,11 @@ public class PokemonAttack {
         this.position = position;
     }
 
-    public Set<dev.lukeholland.tcg.decklists.api.entities.pokemon.PokemonAttackCost> getPokemonAttackCosts() {
+    public Set<PokemonAttackCost> getPokemonAttackCosts() {
         return pokemonAttackCosts;
     }
 
-    public void setPokemonAttackCosts(Set<dev.lukeholland.tcg.decklists.api.entities.pokemon.PokemonAttackCost> pokemonAttackCosts) {
+    public void setPokemonAttackCosts(Set<PokemonAttackCost> pokemonAttackCosts) {
         this.pokemonAttackCosts = pokemonAttackCosts;
     }
 
