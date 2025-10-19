@@ -1,29 +1,22 @@
 package dev.lukeholland.tcg.decklists.api.controllers;
 
-import dev.lukeholland.tcg.decklists.api.entities.pokemon.PokemonCard;
-import dev.lukeholland.tcg.decklists.api.repositories.PokemonCardRepository;
+import dev.lukeholland.tcg.decklists.api.services.PokemonCardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.util.Optional;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/card/pokemon")
 public class PokemonController {
-    private final PokemonCardRepository pokemonCardRepository;
+    private final PokemonCardService pokemonCardService;
 
     @Autowired
-    public PokemonController(PokemonCardRepository pokemonCardRepository) {
-        this.pokemonCardRepository = pokemonCardRepository;
+    public PokemonController(PokemonCardService pokemonCardService) {
+        this.pokemonCardService = pokemonCardService;
     }
 
-    @GetMapping
-    public ResponseEntity<PokemonCard> getCardByName(@RequestParam("id") String id) {
-        Optional<PokemonCard> card = pokemonCardRepository.findById(id);
-        return card.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    @PostMapping("/search")
+    public ResponseEntity<String> searchCards() {
+        return ResponseEntity.ok(pokemonCardService.search("hello"));
     }
 }

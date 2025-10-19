@@ -63,197 +63,400 @@ def consolidate_and_load_cards() -> List[Dict[str, Any]]:
     return all_cards
 
 
+def get_or_create_id(cursor, table: str, name_col: str, value: str) -> Optional[int]:
+    """Get or create a record in a lookup table and return its ID."""
+    if not value:
+        return None
+
+    cursor.execute(
+        sql.SQL("SELECT id FROM {} WHERE {} = %s").format(
+            sql.Identifier(table),
+            sql.Identifier(name_col)
+        ),
+        (value,)
+    )
+    result = cursor.fetchone()
+
+    if result:
+        return result[0]
+
+    cursor.execute(
+        sql.SQL("INSERT INTO {} ({}) VALUES (%s) RETURNING id").format(
+            sql.Identifier(table),
+            sql.Identifier(name_col)
+        ),
+        (value,)
+    )
+    return cursor.fetchone()[0]
+
+
+def get_or_create_pokedex_id(cursor, number: int) -> int:
+    """Get or create a pokedex entry and return its ID."""
+    cursor.execute("SELECT id FROM pokemon_pokedex WHERE number = %s", (number,))
+    result = cursor.fetchone()
+
+    if result:
+        return result[0]
+
+    cursor.execute("INSERT INTO pokemon_pokedex (number) VALUES (%s) RETURNING id", (number,))
+    return cursor.fetchone()[0]
+
+
+def get_or_create_ancient_trait_id(cursor, name: str, text: str) -> Optional[int]:
+    """Get or create an ancient trait and return its ID."""
+    if not name or not text:
+        return None
+
+    cursor.execute(
+        "SELECT id FROM pokemon_ancient_trait WHERE name = %s AND text = %s",
+        (name, text)
+    )
+    result = cursor.fetchone()
+
+    if result:
+        return result[0]
+
+    cursor.execute(
+        "INSERT INTO pokemon_ancient_trait (name, text) VALUES (%s, %s) RETURNING id",
+        (name, text)
+    )
+    return cursor.fetchone()[0]
+
+
+def get_or_create_ability_id(cursor, name: str, text: str, ability_type: Optional[str]) -> int:
+    """Get or create an ability and return its ID."""
+    cursor.execute(
+        "SELECT id FROM pokemon_ability WHERE name = %s AND text = %s AND type IS NOT DISTINCT FROM %s",
+        (name, text, ability_type)
+    )
+    result = cursor.fetchone()
+
+    if result:
+        return result[0]
+
+    cursor.execute(
+        "INSERT INTO pokemon_ability (name, text, type) VALUES (%s, %s, %s) RETURNING id",
+        (name, text, ability_type)
+    )
+    return cursor.fetchone()[0]
+
+
+def parse_damage(damage_str: Optional[str]) -> tuple[Optional[int], Optional[str]]:
+    """Parse damage string into numeric and modifier parts."""
+    if not damage_str:
+        return None, None
+
+    # Remove any whitespace
+    damage_str = damage_str.strip()
+
+    # Check for modifiers
+    if '+' in damage_str or '-' in damage_str or '×' in damage_str:
+        # Extract numeric part and modifier
+        import re
+        match = re.match(r'^(\d+)(.*)$', damage_str)
+        if match:
+            return int(match.group(1)), match.group(2).strip()
+        return None, damage_str
+
+    # Pure numeric
+    try:
+        return int(damage_str), None
+    except ValueError:
+        return None, damage_str
+
+
+def get_or_create_attack_id(cursor, name: str, converted_cost: int, damage: Optional[str], text: Optional[str]) -> int:
+    """Get or create an attack and return its ID."""
+    damage_numeric, damage_modifier = parse_damage(damage)
+
+    cursor.execute(
+        """SELECT id FROM pokemon_attack 
+           WHERE name = %s 
+           AND converted_cost = %s 
+           AND damage IS NOT DISTINCT FROM %s 
+           AND text IS NOT DISTINCT FROM %s""",
+        (name, converted_cost, damage, text)
+    )
+    result = cursor.fetchone()
+
+    if result:
+        return result[0]
+
+    cursor.execute(
+        """INSERT INTO pokemon_attack (name, converted_cost, damage, damage_numeric, damage_modifier, text) 
+           VALUES (%s, %s, %s, %s, %s, %s) RETURNING id""",
+        (name, converted_cost, damage, damage_numeric, damage_modifier, text)
+    )
+    return cursor.fetchone()[0]
+
+
+def get_or_create_resistance_id(cursor, type_id: Optional[int], value: str) -> int:
+    """Get or create a resistance and return its ID."""
+    cursor.execute(
+        "SELECT id FROM pokemon_resistance WHERE type_id IS NOT DISTINCT FROM %s AND value = %s",
+        (type_id, value)
+    )
+    result = cursor.fetchone()
+
+    if result:
+        return result[0]
+
+    cursor.execute(
+        "INSERT INTO pokemon_resistance (type_id, value) VALUES (%s, %s) RETURNING id",
+        (type_id, value)
+    )
+    return cursor.fetchone()[0]
+
+
+def get_or_create_weakness_id(cursor, type_id: Optional[int], value: str) -> int:
+    """Get or create a weakness and return its ID."""
+    cursor.execute(
+        "SELECT id FROM pokemon_weakness WHERE type_id IS NOT DISTINCT FROM %s AND value = %s",
+        (type_id, value)
+    )
+    result = cursor.fetchone()
+
+    if result:
+        return result[0]
+
+    cursor.execute(
+        "INSERT INTO pokemon_weakness (type_id, value) VALUES (%s, %s) RETURNING id",
+        (type_id, value)
+    )
+    return cursor.fetchone()[0]
+
+
+def get_or_create_rule_id(cursor, text: str) -> int:
+    """Get or create a rule and return its ID."""
+    cursor.execute("SELECT id FROM pokemon_rule WHERE text = %s", (text,))
+    result = cursor.fetchone()
+
+    if result:
+        return result[0]
+
+    cursor.execute("INSERT INTO pokemon_rule (text) VALUES (%s) RETURNING id", (text,))
+    return cursor.fetchone()[0]
+
+
+def parse_hp(hp_str: Optional[str]) -> Optional[int]:
+    """Parse HP string to numeric value."""
+    if not hp_str:
+        return None
+    try:
+        return int(hp_str)
+    except ValueError:
+        return None
+
+
 def upsert_card(cursor, card: Dict[str, Any]) -> None:
     """Upsert a single card and all its related data."""
     card_id = card['id']
 
+    # Get or create foreign key IDs
+    set_id = get_or_create_id(cursor, 'pokemon_set', 'name', card.get('set', {}).get('name'))
+    artist_id = get_or_create_id(cursor, 'pokemon_artist', 'name', card.get('artist'))
+    rarity_id = get_or_create_id(cursor, 'pokemon_rarity', 'name', card.get('rarity'))
+
+    # Handle ancient trait
+    ancient_trait_id = None
+    if 'ancientTrait' in card and card['ancientTrait']:
+        trait = card['ancientTrait']
+        ancient_trait_id = get_or_create_ancient_trait_id(
+            cursor,
+            trait.get('name'),
+            trait.get('text')
+        )
+
+    # Parse HP
+    hp_str = card.get('hp')
+    hp_numeric = parse_hp(hp_str)
+
     # Upsert main card
     cursor.execute("""
         INSERT INTO pokemon_card (
-            id, name, supertype, hp, number, artist, rarity, flavor_text,
-            evolves_from, level, regulation_mark, converted_retreat_cost,
-            image_small, image_large, created_at, updated_at
+            id, name, supertype, hp, hp_numeric, number, set_id, artist_id, rarity_id,
+            flavor_text, level, regulation_mark, converted_retreat_cost,
+            image_low, image_high, ancient_trait_id
         ) VALUES (
-            %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
-            CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
+            %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
         )
         ON CONFLICT (id) DO UPDATE SET
             name = EXCLUDED.name,
             supertype = EXCLUDED.supertype,
             hp = EXCLUDED.hp,
+            hp_numeric = EXCLUDED.hp_numeric,
             number = EXCLUDED.number,
-            artist = EXCLUDED.artist,
-            rarity = EXCLUDED.rarity,
+            set_id = EXCLUDED.set_id,
+            artist_id = EXCLUDED.artist_id,
+            rarity_id = EXCLUDED.rarity_id,
             flavor_text = EXCLUDED.flavor_text,
-            evolves_from = EXCLUDED.evolves_from,
             level = EXCLUDED.level,
             regulation_mark = EXCLUDED.regulation_mark,
             converted_retreat_cost = EXCLUDED.converted_retreat_cost,
-            image_small = EXCLUDED.image_small,
-            image_large = EXCLUDED.image_large,
-            updated_at = CURRENT_TIMESTAMP
+            image_low = EXCLUDED.image_low,
+            image_high = EXCLUDED.image_high,
+            ancient_trait_id = EXCLUDED.ancient_trait_id
     """, (
         card_id,
         card.get('name'),
         card.get('supertype'),
-        card.get('hp'),
+        hp_str,
+        hp_numeric,
         card.get('number'),
-        card.get('artist'),
-        card.get('rarity'),
+        set_id,
+        artist_id,
+        rarity_id,
         card.get('flavorText'),
-        card.get('evolvesFrom'),
         card.get('level'),
         card.get('regulationMark'),
         card.get('convertedRetreatCost'),
         card.get('images', {}).get('small'),
-        card.get('images', {}).get('large')
+        card.get('images', {}).get('large'),
+        ancient_trait_id
     ))
 
-    # Delete existing related records (we'll re-insert them)
-    # This is safe because we're not deleting the main card
+    # Delete existing junction table records
     cursor.execute("DELETE FROM pokemon_card_type WHERE card_id = %s", (card_id,))
     cursor.execute("DELETE FROM pokemon_card_subtype WHERE card_id = %s", (card_id,))
-    cursor.execute("DELETE FROM pokemon_card_evolves_to WHERE card_id = %s", (card_id,))
-    cursor.execute("DELETE FROM pokemon_card_national_pokedex_number WHERE card_id = %s", (card_id,))
+    cursor.execute("DELETE FROM pokemon_card_pokedex WHERE card_id = %s", (card_id,))
     cursor.execute("DELETE FROM pokemon_card_retreat_cost WHERE card_id = %s", (card_id,))
-    cursor.execute("DELETE FROM pokemon_weakness WHERE card_id = %s", (card_id,))
-    cursor.execute("DELETE FROM pokemon_resistance WHERE card_id = %s", (card_id,))
-    cursor.execute("DELETE FROM pokemon_legality WHERE card_id = %s", (card_id,))
-    cursor.execute("DELETE FROM pokemon_rule WHERE card_id = %s", (card_id,))
-    cursor.execute("DELETE FROM pokemon_ancient_trait WHERE card_id = %s", (card_id,))
-
-    # Delete attacks (cascade will delete attack_costs)
-    cursor.execute("DELETE FROM pokemon_attack WHERE card_id = %s", (card_id,))
-    cursor.execute("DELETE FROM pokemon_ability WHERE card_id = %s", (card_id,))
+    cursor.execute("DELETE FROM pokemon_card_ability WHERE card_id = %s", (card_id,))
+    cursor.execute("DELETE FROM pokemon_card_attack WHERE card_id = %s", (card_id,))
+    cursor.execute("DELETE FROM pokemon_card_weakness WHERE card_id = %s", (card_id,))
+    cursor.execute("DELETE FROM pokemon_card_resistance WHERE card_id = %s", (card_id,))
+    cursor.execute("DELETE FROM pokemon_card_legality WHERE card_id = %s", (card_id,))
+    cursor.execute("DELETE FROM pokemon_card_rule WHERE card_id = %s", (card_id,))
+    cursor.execute("DELETE FROM pokemon_card_evolution WHERE card_id = %s", (card_id,))
 
     # Insert types
     if 'types' in card and card['types']:
-        types_data = [(card_id, t, i) for i, t in enumerate(card['types'])]
-        execute_batch(cursor, """
-            INSERT INTO pokemon_card_type (card_id, type, position)
-            VALUES (%s, %s, %s)
-        """, types_data)
+        for card_type in card['types']:
+            type_id = get_or_create_id(cursor, 'pokemon_type', 'name', card_type)
+            cursor.execute(
+                "INSERT INTO pokemon_card_type (card_id, type_id) VALUES (%s, %s)",
+                (card_id, type_id)
+            )
 
     # Insert subtypes
     if 'subtypes' in card and card['subtypes']:
-        subtypes_data = [(card_id, st, i) for i, st in enumerate(card['subtypes'])]
-        execute_batch(cursor, """
-            INSERT INTO pokemon_card_subtype (card_id, subtype, position)
-            VALUES (%s, %s, %s)
-        """, subtypes_data)
-
-    # Insert evolvesTo
-    if 'evolvesTo' in card and card['evolvesTo']:
-        evolves_data = [(card_id, evo, i) for i, evo in enumerate(card['evolvesTo'])]
-        execute_batch(cursor, """
-            INSERT INTO pokemon_card_evolves_to (card_id, evolves_to_name, position)
-            VALUES (%s, %s, %s)
-        """, evolves_data)
+        for subtype in card['subtypes']:
+            subtype_id = get_or_create_id(cursor, 'pokemon_subtype', 'name', subtype)
+            cursor.execute(
+                "INSERT INTO pokemon_card_subtype (card_id, subtype_id) VALUES (%s, %s)",
+                (card_id, subtype_id)
+            )
 
     # Insert national pokedex numbers
     if 'nationalPokedexNumbers' in card and card['nationalPokedexNumbers']:
-        pokedex_data = [(card_id, num, i) for i, num in enumerate(card['nationalPokedexNumbers'])]
-        execute_batch(cursor, """
-            INSERT INTO pokemon_card_national_pokedex_number (card_id, pokedex_number, position)
-            VALUES (%s, %s, %s)
-        """, pokedex_data)
+        for num in card['nationalPokedexNumbers']:
+            pokedex_id = get_or_create_pokedex_id(cursor, num)
+            cursor.execute(
+                "INSERT INTO pokemon_card_pokedex (card_id, pokedex_id) VALUES (%s, %s)",
+                (card_id, pokedex_id)
+            )
 
     # Insert retreat costs
     if 'retreatCost' in card and card['retreatCost']:
-        retreat_data = [(card_id, cost, i) for i, cost in enumerate(card['retreatCost'])]
-        execute_batch(cursor, """
-            INSERT INTO pokemon_card_retreat_cost (card_id, energy_type, position)
-            VALUES (%s, %s, %s)
-        """, retreat_data)
-
-    # Insert attacks with their costs
-    if 'attacks' in card and card['attacks']:
-        for i, attack in enumerate(card['attacks']):
-            cursor.execute("""
-                INSERT INTO pokemon_attack (
-                    card_id, name, converted_energy_cost, damage, text, position
-                ) VALUES (%s, %s, %s, %s, %s, %s)
-                RETURNING id
-            """, (
-                card_id,
-                attack.get('name'),
-                attack.get('convertedEnergyCost'),
-                attack.get('damage'),
-                attack.get('text'),
-                i
-            ))
-            attack_id = cursor.fetchone()[0]
-
-            # Insert attack costs
-            if 'cost' in attack and attack['cost']:
-                cost_data = [(attack_id, cost, j) for j, cost in enumerate(attack['cost'])]
-                execute_batch(cursor, """
-                    INSERT INTO pokemon_attack_cost (attack_id, energy_type, position)
-                    VALUES (%s, %s, %s)
-                """, cost_data)
+        for energy_type in card['retreatCost']:
+            type_id = get_or_create_id(cursor, 'pokemon_type', 'name', energy_type)
+            cursor.execute(
+                "INSERT INTO pokemon_card_retreat_cost (card_id, type_id) VALUES (%s, %s)",
+                (card_id, type_id)
+            )
 
     # Insert abilities
     if 'abilities' in card and card['abilities']:
-        abilities_data = [
-            (card_id, ability.get('name'), ability.get('text'), ability.get('type'), i)
-            for i, ability in enumerate(card['abilities'])
-        ]
-        execute_batch(cursor, """
-            INSERT INTO pokemon_ability (card_id, name, text, type, position)
-            VALUES (%s, %s, %s, %s, %s)
-        """, abilities_data)
+        for ability in card['abilities']:
+            ability_id = get_or_create_ability_id(
+                cursor,
+                ability.get('name'),
+                ability.get('text'),
+                ability.get('type')
+            )
+            cursor.execute(
+                "INSERT INTO pokemon_card_ability (card_id, ability_id) VALUES (%s, %s)",
+                (card_id, ability_id)
+            )
+
+    # Insert attacks
+    if 'attacks' in card and card['attacks']:
+        for attack in card['attacks']:
+            attack_id = get_or_create_attack_id(
+                cursor,
+                attack.get('name'),
+                attack.get('convertedEnergyCost', 0),
+                attack.get('damage'),
+                attack.get('text')
+            )
+            cursor.execute(
+                "INSERT INTO pokemon_card_attack (card_id, attack_id) VALUES (%s, %s)",
+                (card_id, attack_id)
+            )
+
+            # Insert attack costs
+            if 'cost' in attack and attack['cost']:
+                for cost_type in attack['cost']:
+                    type_id = get_or_create_id(cursor, 'pokemon_type', 'name', cost_type)
+                    cursor.execute(
+                        "INSERT INTO pokemon_attack_cost (attack_id, type_id) VALUES (%s, %s)",
+                        (attack_id, type_id)
+                    )
 
     # Insert weaknesses
     if 'weaknesses' in card and card['weaknesses']:
-        weakness_data = [
-            (card_id, w.get('type'), w.get('value'))
-            for w in card['weaknesses']
-        ]
-        execute_batch(cursor, """
-            INSERT INTO pokemon_weakness (card_id, type, value)
-            VALUES (%s, %s, %s)
-        """, weakness_data)
+        for weakness in card['weaknesses']:
+            type_id = get_or_create_id(cursor, 'pokemon_type', 'name', weakness.get('type'))
+            weakness_id = get_or_create_weakness_id(cursor, type_id, weakness.get('value'))
+            cursor.execute(
+                "INSERT INTO pokemon_card_weakness (card_id, weakness_id) VALUES (%s, %s)",
+                (card_id, weakness_id)
+            )
 
     # Insert resistances
     if 'resistances' in card and card['resistances']:
-        resistance_data = [
-            (card_id, r.get('type'), r.get('value'))
-            for r in card['resistances']
-        ]
-        execute_batch(cursor, """
-            INSERT INTO pokemon_resistance (card_id, type, value)
-            VALUES (%s, %s, %s)
-        """, resistance_data)
+        for resistance in card['resistances']:
+            type_id = get_or_create_id(cursor, 'pokemon_type', 'name', resistance.get('type'))
+            resistance_id = get_or_create_resistance_id(cursor, type_id, resistance.get('value'))
+            cursor.execute(
+                "INSERT INTO pokemon_card_resistance (card_id, resistance_id) VALUES (%s, %s)",
+                (card_id, resistance_id)
+            )
 
     # Insert legalities
     if 'legalities' in card:
         legalities = card['legalities']
-        legality_data = []
-        for format_name in ['unlimited', 'expanded', 'standard']:
-            if format_name in legalities:
-                legality_data.append((card_id, format_name, legalities[format_name]))
-
-        if legality_data:
-            execute_batch(cursor, """
-                INSERT INTO pokemon_legality (card_id, format, status)
-                VALUES (%s, %s, %s)
-            """, legality_data)
+        for format_name, status in legalities.items():
+            format_id = get_or_create_id(cursor, 'pokemon_format', 'name', format_name)
+            cursor.execute(
+                "INSERT INTO pokemon_card_legality (card_id, format_id, status) VALUES (%s, %s, %s)",
+                (card_id, format_id, status.lower())
+            )
 
     # Insert rules
     if 'rules' in card and card['rules']:
-        rules_data = [(card_id, rule, i) for i, rule in enumerate(card['rules'])]
-        execute_batch(cursor, """
-            INSERT INTO pokemon_rule (card_id, rule_text, position)
-            VALUES (%s, %s, %s)
-        """, rules_data)
+        for rule_text in card['rules']:
+            rule_id = get_or_create_rule_id(cursor, rule_text)
+            cursor.execute(
+                "INSERT INTO pokemon_card_rule (card_id, rule_id) VALUES (%s, %s)",
+                (card_id, rule_id)
+            )
 
-    # Insert ancient trait
-    if 'ancientTrait' in card and card['ancientTrait']:
-        trait = card['ancientTrait']
-        cursor.execute("""
-            INSERT INTO pokemon_ancient_trait (card_id, name, text)
-            VALUES (%s, %s, %s)
-        """, (card_id, trait.get('name'), trait.get('text')))
+    # Insert evolvesFrom
+    if 'evolvesFrom' in card and card['evolvesFrom']:
+        name_id = get_or_create_id(cursor, 'pokemon_name', 'name', card['evolvesFrom'])
+        cursor.execute(
+            "INSERT INTO pokemon_card_evolution (card_id, name_id, direction) VALUES (%s, %s, 'from')",
+            (card_id, name_id)
+        )
+
+    # Insert evolvesTo
+    if 'evolvesTo' in card and card['evolvesTo']:
+        for evolves_to_name in card['evolvesTo']:
+            name_id = get_or_create_id(cursor, 'pokemon_name', 'name', evolves_to_name)
+            cursor.execute(
+                "INSERT INTO pokemon_card_evolution (card_id, name_id, direction) VALUES (%s, %s, 'to')",
+                (card_id, name_id)
+            )
 
 
 def main():

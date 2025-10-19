@@ -1,4 +1,4 @@
-name: tcg-decklists
+name: tcg-decklists-new
 
 services:
   database:
