@@ -1,0 +1,19 @@
+meta {
+  name: By ID
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{BASE_URL}}/card/pokemon?id=swsh8-4
+  body: none
+  auth: inherit
+}
+
+params:query {
+  id: swsh8-4
+}
+
+settings {
+  encodeUrl: true
+}
