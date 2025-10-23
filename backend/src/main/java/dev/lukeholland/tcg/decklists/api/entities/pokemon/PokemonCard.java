@@ -192,6 +192,10 @@ public class PokemonCard {
         this.pokemonSet = pokemonSet;
     }
 
+    public String getSetId() {
+        return pokemonSet != null ? pokemonSet.getSetId() : null;
+    }
+
     public PokemonArtist getArtist() {
         return artist;
     }

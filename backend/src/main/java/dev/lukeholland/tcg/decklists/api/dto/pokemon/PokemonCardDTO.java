@@ -13,6 +13,7 @@ public class PokemonCardDTO {
     private Integer hpNumeric;
     private Integer convertedRetreatCost;
     private String number;
+    private String setId;
     private String setName;
     private String artistName;
     private String rarityName;
@@ -110,6 +111,7 @@ public class PokemonCardDTO {
         this.hpNumeric = card.getHpNumeric();
         this.convertedRetreatCost = card.getConvertedRetreatCost();
         this.number = card.getNumber();
+        this.setId = card.getSetId();
         this.setName = card.getPokemonSet() != null ? card.getPokemonSet().getName() : null;
         this.artistName = card.getArtist() != null ? card.getArtist().getName() : null;
         this.rarityName = card.getRarity() != null ? card.getRarity().getName() : null;
@@ -155,6 +157,8 @@ public class PokemonCardDTO {
     public void setConvertedRetreatCost(Integer convertedRetreatCost) { this.convertedRetreatCost = convertedRetreatCost; }
     public String getNumber() { return number; }
     public void setNumber(String number) { this.number = number; }
+    public String getSetId() { return setId; }
+    public void setSetId(String setId) { this.setId = setId; }
     public String getSetName() { return setName; }
     public void setSetName(String setName) { this.setName = setName; }
     public String getArtistName() { return artistName; }

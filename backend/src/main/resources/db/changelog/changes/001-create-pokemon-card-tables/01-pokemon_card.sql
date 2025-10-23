@@ -1,8 +1,9 @@
 -- Sets
 CREATE TABLE pokemon_set
 (
-    id   SERIAL PRIMARY KEY,
-    name TEXT NOT NULL
+    id     SERIAL PRIMARY KEY,
+    set_id TEXT NOT NULL UNIQUE,
+    name   TEXT
 );
 
 -- Artists

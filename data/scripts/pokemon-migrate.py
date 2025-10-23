@@ -90,6 +90,21 @@ def get_or_create_id(cursor, table: str, name_col: str, value: str) -> Optional[
     return cursor.fetchone()[0]
 
 
+def get_or_create_set_id(cursor, set_id: str) -> Optional[int]:
+    """Get or create a set by set_id and return its ID."""
+    if not set_id:
+        return None
+
+    cursor.execute("SELECT id FROM pokemon_set WHERE set_id = %s", (set_id,))
+    result = cursor.fetchone()
+
+    if result:
+        return result[0]
+
+    cursor.execute("INSERT INTO pokemon_set (set_id, name) VALUES (%s, %s) RETURNING id", (set_id, None))
+    return cursor.fetchone()[0]
+
+
 def get_or_create_pokedex_id(cursor, number: int) -> int:
     """Get or create a pokedex entry and return its ID."""
     cursor.execute("SELECT id FROM pokemon_pokedex WHERE number = %s", (number,))
@@ -252,8 +267,11 @@ def upsert_card(cursor, card: Dict[str, Any]) -> None:
     """Upsert a single card and all its related data."""
     card_id = card['id']
 
+    # Extract set_id from card ID (e.g., "base1-1" -> "base1")
+    set_id_str = card_id.rsplit('-', 1)[0] if '-' in card_id else None
+
     # Get or create foreign key IDs
-    set_id = get_or_create_id(cursor, 'pokemon_set', 'name', card.get('set', {}).get('name'))
+    set_id = get_or_create_set_id(cursor, set_id_str)
     artist_id = get_or_create_id(cursor, 'pokemon_artist', 'name', card.get('artist'))
     rarity_id = get_or_create_id(cursor, 'pokemon_rarity', 'name', card.get('rarity'))
 
