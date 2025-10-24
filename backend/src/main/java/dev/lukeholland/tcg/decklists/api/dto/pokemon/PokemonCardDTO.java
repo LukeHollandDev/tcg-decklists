@@ -2,6 +2,7 @@ package dev.lukeholland.tcg.decklists.api.dto.pokemon;
 
 import dev.lukeholland.tcg.decklists.api.entities.pokemon.*;
 
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -72,7 +73,7 @@ public class PokemonCardDTO {
         private Integer damageNumeric;
         private String damageModifier;
         private String text;
-        private Set<String> cost;
+        private List<String> cost;
 
         public AttackDTO(PokemonAttack attack) {
             this.name = attack.getName();
@@ -83,7 +84,7 @@ public class PokemonCardDTO {
             this.text = attack.getText();
             this.cost = attack.getCosts().stream()
                     .map(c -> c.getType().getName())
-                    .collect(Collectors.toSet());
+                    .collect(Collectors.toList());
         }
 
         public String getName() { return name; }
@@ -98,8 +99,8 @@ public class PokemonCardDTO {
         public void setDamageModifier(String damageModifier) { this.damageModifier = damageModifier; }
         public String getText() { return text; }
         public void setText(String text) { this.text = text; }
-        public Set<String> getCost() { return cost; }
-        public void setCost(Set<String> cost) { this.cost = cost; }
+        public List<String> getCost() { return cost; }
+        public void setCost(List<String> cost) { this.cost = cost; }
     }
 
     // Constructor that converts from entity

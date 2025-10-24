@@ -11,8 +11,10 @@ CREATE TABLE pokemon_attack
 );
 
 -- Attack ↔ Type cost
+-- Note: Uses surrogate key to allow duplicate (attack_id, type_id) pairs (e.g., 2x Colorless)
 CREATE TABLE pokemon_attack_cost
 (
+    id        SERIAL PRIMARY KEY,
     attack_id INT REFERENCES pokemon_attack (id) ON DELETE CASCADE,
     type_id   INT REFERENCES pokemon_type (id) ON DELETE CASCADE
 );

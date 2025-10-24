@@ -76,10 +76,13 @@ npm run check
 
 ```bash
 # Start PostgreSQL database only
-docker compose up database -d
+docker compose up -d
 
 # Stop database
 docker compose down
+
+# Stop database and remove volumes (fresh start - RECOMMENDED for full cleanup)
+docker compose down -v
 
 # View database logs
 docker compose logs -f database
@@ -90,6 +93,17 @@ Database connection details:
 - Database: tcg_decklists
 - Username: postgres (default, override with DB_USER env var)
 - Password: testing1234 (default, override with DB_PASSWORD env var)
+
+**Important Notes:**
+- Liquibase migrations run automatically when Spring Boot starts
+- If you modify a Liquibase migration file that was already applied, you'll get a checksum validation error
+- **To completely reset the database:**
+  1. `docker compose down -v` (stops containers and removes volumes)
+  2. `docker compose up -d` (starts fresh database)
+  3. Start Spring Boot (`./gradlew bootRun` in backend/) - migrations will run automatically
+  4. Run data migration: `python3 data/scripts/pokemon-migrate.py`
+- The data pipeline (`./data/run.sh`) only runs migrations when upstream data changes
+- To force a re-migration without changing data, run `python3 data/scripts/pokemon-migrate.py` directly
 
 ### Data Pipeline
 
@@ -186,7 +200,7 @@ The schema is highly normalized to enable efficient querying and filtering acros
 
 **Core Tables:**
 - `pokemon_card` - Main card data with TEXT id, name, supertype, hp (TEXT + hp_numeric INT), converted_retreat_cost, number, flavor_text, image_low, image_high, regulation_mark, level
-- `pokemon_set` - Card sets (many-to-one with cards)
+- `pokemon_set` - Card sets with set_id (extracted from card ID, e.g., "base1" from "base1-1") and optional name field for future metadata (many-to-one with cards)
 - `pokemon_artist` - Card artists (many-to-one with cards)
 - `pokemon_rarity` - Rarity values (many-to-one with cards)
 - `pokemon_ancient_trait` - Ancient trait definitions with name and text (many-to-one with cards)
@@ -198,7 +212,7 @@ The schema is highly normalized to enable efficient querying and filtering acros
 - `pokemon_ability` + `pokemon_card_ability` - Abilities with name, text, and type
 - `pokemon_format` + `pokemon_card_legality` - Format legality (uses `legality_status` enum: legal, illegal, banned, unlimited)
 - `pokemon_attack` + `pokemon_card_attack` - Attacks with converted_cost, damage (TEXT + damage_numeric INT), damage_modifier, and text
-- `pokemon_attack_cost` - Links attacks to required energy types (no primary key, allows duplicates)
+- `pokemon_attack_cost` - Links attacks to required energy types (uses surrogate PK to allow duplicate type entries like "2x Colorless")
 - `pokemon_name` + `pokemon_card_evolution` - Evolution chains with `evolution_direction` enum (from, to)
 - `pokemon_resistance` + `pokemon_card_resistance` - Resistances with type and value
 - `pokemon_rule` + `pokemon_card_rule` - Card rules text
@@ -206,11 +220,13 @@ The schema is highly normalized to enable efficient querying and filtering acros
 - `pokemon_card_retreat_cost` - Links cards to retreat cost types (no primary key)
 
 **Key Schema Decisions:**
-- Card IDs are TEXT (matches source data format like "xy1-1")
+- Card IDs are TEXT (matches source data format like "xy1-1"), with set_id extracted as the portion before the final hyphen
 - `pokemon_name` is separate from `pokemon_pokedex` to handle special names like "Brock's Vulpix"
+- `pokemon_set.set_id` stores the extracted set identifier (e.g., "base1", "swsh8") and is populated automatically by the migration script
 - `pokemon_card_evolution` uses direction enum to track both "evolves from" and "evolves to" in one table
 - Numeric fields (hp_numeric, damage_numeric) are pre-converted from strings for faster filtering/sorting
-- Attack costs stored as many-to-many through `pokemon_attack_cost` (e.g., one Fire + two Colorless)
+- Attack costs stored through `pokemon_attack_cost` with surrogate PK (e.g., one Fire + two Colorless requires 3 rows)
+- **Attack Uniqueness**: Attacks are considered unique based on name, converted_cost, damage, text, AND cost types. This ensures "Tackle" with [Grass] is different from "Tackle" with [Fire] or [Colorless, Colorless]
 - Two PostgreSQL enums: `legality_status` and `evolution_direction`
 - ON DELETE CASCADE used for junction tables to maintain referential integrity
 - ON DELETE SET NULL used for nullable foreign keys (set_id, artist_id, etc.)

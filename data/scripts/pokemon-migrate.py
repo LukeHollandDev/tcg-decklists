@@ -180,25 +180,43 @@ def parse_damage(damage_str: Optional[str]) -> tuple[Optional[int], Optional[str
         return None, damage_str
 
 
-def get_or_create_attack_id(cursor, name: str, converted_cost: int, damage: Optional[str], text: Optional[str]) -> int:
-    """Get or create an attack and return its ID."""
+def get_or_create_attack_id(cursor, name: str, converted_cost: int, damage: Optional[str], text: Optional[str], cost_types: List[str]) -> int:
+    """Get or create an attack and return its ID.
+
+    NOTE: Attacks are considered unique based on name, converted_cost, damage, text, AND cost types.
+    This ensures that "Tackle" with 1 Grass is different from "Tackle" with 1 Fire.
+    """
     damage_numeric, damage_modifier = parse_damage(damage)
 
+    # First, find candidates with matching name, converted_cost, damage, and text
     cursor.execute(
-        """SELECT id FROM pokemon_attack 
-           WHERE name = %s 
-           AND converted_cost = %s 
-           AND damage IS NOT DISTINCT FROM %s 
-           AND text IS NOT DISTINCT FROM %s""",
+        """SELECT a.id FROM pokemon_attack a
+           WHERE a.name = %s
+           AND a.converted_cost = %s
+           AND a.damage IS NOT DISTINCT FROM %s
+           AND a.text IS NOT DISTINCT FROM %s""",
         (name, converted_cost, damage, text)
     )
-    result = cursor.fetchone()
+    candidates = cursor.fetchall()
 
-    if result:
-        return result[0]
+    # For each candidate, check if the cost types match exactly
+    for (candidate_id,) in candidates:
+        cursor.execute(
+            """SELECT t.name FROM pokemon_attack_cost ac
+               JOIN pokemon_type t ON ac.type_id = t.id
+               WHERE ac.attack_id = %s
+               ORDER BY t.name""",
+            (candidate_id,)
+        )
+        existing_costs = [row[0] for row in cursor.fetchall()]
 
+        # Compare sorted cost lists (order-independent but count-aware)
+        if sorted(existing_costs) == sorted(cost_types):
+            return candidate_id
+
+    # No match found, create new attack
     cursor.execute(
-        """INSERT INTO pokemon_attack (name, converted_cost, damage, damage_numeric, damage_modifier, text) 
+        """INSERT INTO pokemon_attack (name, converted_cost, damage, damage_numeric, damage_modifier, text)
            VALUES (%s, %s, %s, %s, %s, %s) RETURNING id""",
         (name, converted_cost, damage, damage_numeric, damage_modifier, text)
     )
@@ -399,26 +417,39 @@ def upsert_card(cursor, card: Dict[str, Any]) -> None:
     # Insert attacks
     if 'attacks' in card and card['attacks']:
         for attack in card['attacks']:
+            # Get cost types for this attack
+            cost_types = attack.get('cost', [])
+
             attack_id = get_or_create_attack_id(
                 cursor,
                 attack.get('name'),
                 attack.get('convertedEnergyCost', 0),
                 attack.get('damage'),
-                attack.get('text')
+                attack.get('text'),
+                cost_types  # Pass cost types to ensure uniqueness
             )
             cursor.execute(
                 "INSERT INTO pokemon_card_attack (card_id, attack_id) VALUES (%s, %s)",
                 (card_id, attack_id)
             )
 
-            # Insert attack costs
-            if 'cost' in attack and attack['cost']:
-                for cost_type in attack['cost']:
-                    type_id = get_or_create_id(cursor, 'pokemon_type', 'name', cost_type)
-                    cursor.execute(
-                        "INSERT INTO pokemon_attack_cost (attack_id, type_id) VALUES (%s, %s)",
-                        (attack_id, type_id)
-                    )
+            # Insert attack costs (only if they don't already exist for this attack)
+            if cost_types:
+                # Check if this attack already has costs defined
+                cursor.execute(
+                    "SELECT COUNT(*) FROM pokemon_attack_cost WHERE attack_id = %s",
+                    (attack_id,)
+                )
+                existing_costs = cursor.fetchone()[0]
+
+                # Only insert costs if none exist yet
+                if existing_costs == 0:
+                    for cost_type in attack['cost']:
+                        type_id = get_or_create_id(cursor, 'pokemon_type', 'name', cost_type)
+                        cursor.execute(
+                            "INSERT INTO pokemon_attack_cost (attack_id, type_id) VALUES (%s, %s)",
+                            (attack_id, type_id)
+                        )
 
     # Insert weaknesses
     if 'weaknesses' in card and card['weaknesses']:
