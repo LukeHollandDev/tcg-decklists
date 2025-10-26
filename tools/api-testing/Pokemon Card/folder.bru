@@ -45,11 +45,12 @@ tests {
   function convertAttacksToSourceFormat(normalizedAttacks) {
     return (normalizedAttacks || []).map(attack => ({
       name: attack.name,
-      cost: attack.cost || [],
+      cost: (attack.cost || []).slice().sort().reverse(),
       convertedEnergyCost: attack.convertedCost ?? 0,
       damage: attack.damage || "",
       text: attack.text || ""
     }));
   }
+  
   
 }

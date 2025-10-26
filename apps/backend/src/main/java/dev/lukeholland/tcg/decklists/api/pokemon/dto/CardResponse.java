@@ -36,6 +36,7 @@ public class CardResponse {
     private Map<String, String> legalities;
     private List<String> evolvesFrom;
     private List<String> evolvesTo;
+    private Set<ResistanceDTO> resistances;
 
     // Constructor that converts from entity
     public CardResponse(Card card) {
@@ -97,6 +98,9 @@ public class CardResponse {
                 .filter(evo -> evo.getDirection() == EvolutionDirection.to)
                 .map(evo -> evo.getName().getName())
                 .collect(Collectors.toList());
+        this.resistances = card.getResistances().stream()
+                .map(cr -> new ResistanceDTO(cr.getResistance()))
+                .collect(Collectors.toSet());
     }
 
     // Getters and Setters
@@ -316,6 +320,14 @@ public class CardResponse {
         this.evolvesTo = evolvesTo;
     }
 
+    public Set<ResistanceDTO> getResistances() {
+        return resistances;
+    }
+
+    public void setResistances(Set<ResistanceDTO> resistances) {
+        this.resistances = resistances;
+    }
+
     // Nested DTOs for complex objects
     public static class AncientTraitDTO {
         private String name;
@@ -460,6 +472,32 @@ public class CardResponse {
 
         public void setCost(List<String> cost) {
             this.cost = cost;
+        }
+    }
+
+    public static class ResistanceDTO {
+        private String type;
+        private String value;
+
+        public ResistanceDTO(Resistance resistance) {
+            this.type = resistance.getType() != null ? resistance.getType().getName() : null;
+            this.value = resistance.getValue();
+        }
+
+        public String getType() {
+            return type;
+        }
+
+        public void setType(String type) {
+            this.type = type;
+        }
+
+        public String getValue() {
+            return value;
+        }
+
+        public void setValue(String value) {
+            this.value = value;
         }
     }
 }
