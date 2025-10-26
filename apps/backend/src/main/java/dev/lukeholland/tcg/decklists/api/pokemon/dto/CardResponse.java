@@ -1,6 +1,7 @@
 package dev.lukeholland.tcg.decklists.api.pokemon.dto;
 
 import dev.lukeholland.tcg.decklists.api.pokemon.entities.*;
+import dev.lukeholland.tcg.decklists.api.pokemon.enums.EvolutionDirection;
 
 import java.util.List;
 import java.util.Map;
@@ -33,6 +34,8 @@ public class CardResponse {
     private Set<String> rules;
     private Set<Integer> pokedexNumbers;
     private Map<String, String> legalities;
+    private List<String> evolvesFrom;
+    private List<String> evolvesTo;
 
     // Constructor that converts from entity
     public CardResponse(Card card) {
@@ -86,6 +89,14 @@ public class CardResponse {
                         legality -> legality.getFormat().getName(),
                         legality -> legality.getStatus().name()
                 ));
+        this.evolvesFrom = card.getEvolutions().stream()
+                .filter(evo -> evo.getDirection() == EvolutionDirection.from)
+                .map(evo -> evo.getName().getName())
+                .collect(Collectors.toList());
+        this.evolvesTo = card.getEvolutions().stream()
+                .filter(evo -> evo.getDirection() == EvolutionDirection.to)
+                .map(evo -> evo.getName().getName())
+                .collect(Collectors.toList());
     }
 
     // Getters and Setters
@@ -287,6 +298,22 @@ public class CardResponse {
 
     public void setLegalities(Map<String, String> legalities) {
         this.legalities = legalities;
+    }
+
+    public List<String> getEvolvesFrom() {
+        return evolvesFrom;
+    }
+
+    public void setEvolvesFrom(List<String> evolvesFrom) {
+        this.evolvesFrom = evolvesFrom;
+    }
+
+    public List<String> getEvolvesTo() {
+        return evolvesTo;
+    }
+
+    public void setEvolvesTo(List<String> evolvesTo) {
+        this.evolvesTo = evolvesTo;
     }
 
     // Nested DTOs for complex objects
