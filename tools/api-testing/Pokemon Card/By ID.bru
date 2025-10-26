@@ -11,14 +11,17 @@ get {
 }
 
 params:path {
-  id: bw1-6
+  id: bw1-5
 }
 
 tests {
   // Following methods come from the folder TEST tab:
   // - loadPokemonSourceData
-  // - convertAttacksToSourceFormat
   // - sortByName
+  
+  function sortByName(arr) {
+    return arr.slice().sort((a, b) => a.name.localeCompare(b.name));
+  }
   
   const idFromReq = req.getUrl().split('/').at(-1);
   const sourceData = loadPokemonSourceData()[idFromReq];

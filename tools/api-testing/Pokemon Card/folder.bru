@@ -8,10 +8,6 @@ auth {
 }
 
 tests {
-  function sortByName(arr) {
-    return arr.slice().sort((a, b) => a.name.localeCompare(b.name));
-  }
-  
   function loadPokemonSourceData() {
     const fs = require('fs');
     const path = require('path');
@@ -41,16 +37,5 @@ tests {
     
     return allPokemon;
   }
-  
-  function convertAttacksToSourceFormat(normalizedAttacks) {
-    return (normalizedAttacks || []).map(attack => ({
-      name: attack.name,
-      cost: (attack.cost || []).slice().sort().reverse(),
-      convertedEnergyCost: attack.convertedCost ?? 0,
-      damage: attack.damage || "",
-      text: attack.text || ""
-    }));
-  }
-  
   
 }

@@ -1,5 +1,6 @@
 package dev.lukeholland.tcg.decklists.api.pokemon.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import dev.lukeholland.tcg.decklists.api.pokemon.entities.*;
 import dev.lukeholland.tcg.decklists.api.pokemon.enums.EvolutionDirection;
 
@@ -8,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class CardResponse {
     private String id;
     private String name;
@@ -341,6 +343,7 @@ public class CardResponse {
     }
 
     // Nested DTOs for complex objects
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     public static class AncientTraitDTO {
         private String name;
         private String text;
@@ -367,6 +370,7 @@ public class CardResponse {
         }
     }
 
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     public static class AbilityDTO {
         private String name;
         private String text;
@@ -403,6 +407,7 @@ public class CardResponse {
         }
     }
 
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     public static class AttackDTO {
         private String name;
         private Integer convertedCost;
@@ -487,6 +492,7 @@ public class CardResponse {
         }
     }
 
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     public static class ResistanceDTO {
         private String type;
         private String value;
@@ -513,6 +519,7 @@ public class CardResponse {
         }
     }
 
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     public static class WeaknessDTO {
         private String type;
         private String value;
