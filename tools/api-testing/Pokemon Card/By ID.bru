@@ -11,7 +11,7 @@ get {
 }
 
 params:path {
-  id: swsh8-1
+  id: swsh8-2
 }
 
 tests {
@@ -21,10 +21,10 @@ tests {
   // - sortByName
   
   const idFromReq = req.getUrl().split('/').at(-1);
-  const sourceData = loadPokemonSourceData()[idFromReq]
+  const sourceData = loadPokemonSourceData()[idFromReq];
   
   test("Data Matches Source", function () {
-    const body = res.getBody()
+    const body = res.getBody();
   
     // REQUIRED - id, images, legalities, name, number and supertype
     expect(body.id).to.equal(sourceData.id);
@@ -32,28 +32,32 @@ tests {
     expect(body.imageHigh).to.equal(sourceData.images.large);
     // TODO add legalities
     expect(body.name).to.equal(sourceData.name);
-    // TODO add number, this can be inferred by ID but might as well add it
+    expect(body.number).to.equal(sourceData.number);
     expect(body.supertype).to.equal(sourceData.supertype);
   
     // OPTIONAL - most cards will have a lot of these
-    expect(body.subtypes).to.have.all.members(sourceData.subtypes);
-    expect(body.hp).to.equal(sourceData.hp);
-    expect(body.types).to.have.all.members(sourceData.types);
+    if (sourceData.subtypes) expect(body.subtypes).to.have.all.members(sourceData.subtypes);
+    if (sourceData.hp) expect(body.hp).to.equal(sourceData.hp);
+    if (sourceData.types) expect(body.types).to.have.all.members(sourceData.types);
     // TODO add evolvesTo and evolvesFrom
-    const responseAttacks = convertAttacksToSourceFormat(body.attacks);
-    expect(sortByName(responseAttacks)).to.deep.equal(sortByName(sourceData.attacks));
+    if (sourceData.attacks) {
+      const responseAttacks = convertAttacksToSourceFormat(body.attacks);
+      expect(sortByName(responseAttacks)).to.deep.equal(sortByName(sourceData.attacks));
+    }
     // TODO add weaknesses
-    // TODO add retreatCost
-    expect(body.convertedRetreatCost).to.equal(sourceData.convertedRetreatCost);
-    expect(body.artistName).to.equal(sourceData.artist);
-    expect(body.rarityName).to.equal(sourceData.rarity);
-    expect(body.flavorText).to.equal(sourceData.flavorText);
-    expect(body.pokedexNumbers).to.have.all.members(sourceData.nationalPokedexNumbers);
-    expect(body.regulationMark).to.equal(sourceData.regulationMark);
+    if (sourceData.retreatCost) expect(body.retreatCost).to.have.all.members(sourceData.retreatCost);
+    if (sourceData.convertedRetreatCost) expect(body.convertedRetreatCost).to.equal(sourceData.convertedRetreatCost);
+    if (sourceData.artist) expect(body.artistName).to.equal(sourceData.artist);
+    if (sourceData.rarity) expect(body.rarityName).to.equal(sourceData.rarity);
+    if (sourceData.flavorText) expect(body.flavorText).to.equal(sourceData.flavorText);
+    if (sourceData.nationalPokedexNumbers)
+      expect(body.pokedexNumbers).to.have.all.members(sourceData.nationalPokedexNumbers);
+    if (sourceData.regulationMark) expect(body.regulationMark).to.equal(sourceData.regulationMark);
     // TODO add abilities
     // TODO add rules
+    if (sourceData.rules) expect(body.rules).to.have.all.members(sourceData.rules);
     // TODO add resistance
-    // TODO add level
+    if (sourceData.level) expect(body.level).to.equal(sourceData.level);
     // TODO add ancientTrait
   });
   
