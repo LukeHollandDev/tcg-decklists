@@ -22,151 +22,175 @@ tests {
   
   const idFromReq = req.getUrl().split('/').at(-1);
   const sourceData = loadPokemonSourceData()[idFromReq];
+  const body = res.getBody();
   
-  test("Response from API matches source data", function () {
-    const body = res.getBody();
+  // ------------------ REQUIRED fields ------------------
   
-    // REQUIRED - id, images, legalities, name, number and supertype
-    expect(body.id, "id does not match sourceData.id").to.equal(sourceData.id);
-    expect(body.imageLow, "imageLow does not match images.small").to.equal(sourceData.images.small);
-    expect(body.imageHigh, "imageHigh does not match images.large").to.equal(sourceData.images.large);
+  test("id should match", function () {
+    expect(body.id).to.equal(sourceData.id);
+  });
   
-    // legalities - compare keys
+  test("images should match", function () {
+    expect(body.imageLow).to.equal(sourceData.images.small);
+    expect(body.imageHigh).to.equal(sourceData.images.large);
+  });
+  
+  test("legalities keys and values should match case-insensitively", function () {
     const apiKeys = Object.keys(body.legalities).sort();
     const sourceKeys = Object.keys(sourceData.legalities).sort();
-    expect(
-      apiKeys,
-      `Legalities keys mismatch. Got [${apiKeys.join(", ")}], expected [${sourceKeys.join(", ")}]`
-    ).to.have.all.members(sourceKeys);
+    expect(apiKeys).to.have.all.members(sourceKeys);
   
-    // legalities - compare values, case insensitive
     for (const key of apiKeys) {
       const apiValue = body.legalities[key]?.toLowerCase();
       const sourceValue = sourceData.legalities[key]?.toLowerCase();
-      expect(
-        apiValue,
-        `Legalities value mismatch for key '${key}': got '${apiValue}', expected '${sourceValue}'`
-      ).to.equal(sourceValue);
+      expect(apiValue).to.equal(sourceValue);
     }
-  
-    expect(body.name, "name does not match sourceData.name").to.equal(sourceData.name);
-    expect(body.number, "number does not match sourceData.number").to.equal(sourceData.number);
-    expect(body.supertype, "supertype does not match sourceData.supertype").to.equal(sourceData.supertype);
-  
-    // OPTIONAL - most cards will have a lot of these
-    if (sourceData.subtypes)
-      expect(
-        body.subtypes,
-        `Subtypes mismatch: got [${body.subtypes}], expected [${sourceData.subtypes}]`
-      ).to.have.all.members(sourceData.subtypes);
-  
-    if (sourceData.hp)
-      expect(body.hp, `HP mismatch: got '${body.hp}', expected '${sourceData.hp}'`).to.equal(sourceData.hp);
-  
-    if (sourceData.types)
-      expect(
-        body.types,
-        `Types mismatch: got [${body.types}], expected [${sourceData.types}]`
-      ).to.have.all.members(sourceData.types);
-  
-    if (sourceData.evolvesTo)
-      expect(
-        body.evolvesTo,
-        `evolvesTo mismatch: got [${body.evolvesTo}], expected [${sourceData.evolvesTo}]`
-      ).to.have.all.members(sourceData.evolvesTo);
-  
-    // evolvesFrom in source dataset is currently a string
-    if (sourceData.evolvesFrom)
-      expect(
-        body.evolvesFrom,
-        `evolvesFrom mismatch: got [${body.evolvesFrom}], expected [${sourceData.evolvesFrom}]`
-      ).to.have.all.members([sourceData.evolvesFrom]);
-  
-    if (sourceData.attacks) { 
-      const responseAttacks = convertAttacksToSourceFormat(body.attacks); 
-      expect(
-        sortByName(responseAttacks), 
-        "Attacks mismatch between API and source data"
-      ).to.deep.equal(sortByName(sourceData.attacks)); 
-    }
-
-    if (sourceData.weaknesses)
-      expect(
-        body.weaknesses,
-        `Weaknesses mismatch: got [${body.weaknesses}], expected [${sourceData.weaknesses}]`
-      ).to.deep.equal(sourceData.weaknesses); // potentially need to sort by type for some multi-resistance cards
-    
-    if (sourceData.retreatCost)
-      expect(
-        body.retreatCost,
-        `retreatCost mismatch: got [${body.retreatCost}], expected [${sourceData.retreatCost}]`
-      ).to.have.all.members(sourceData.retreatCost);
-  
-    if (sourceData.convertedRetreatCost)
-      expect(
-        body.convertedRetreatCost,
-        `convertedRetreatCost mismatch: got '${body.convertedRetreatCost}', expected '${sourceData.convertedRetreatCost}'`
-      ).to.equal(sourceData.convertedRetreatCost);
-  
-    if (sourceData.artist)
-      expect(body.artistName, `artistName mismatch: got '${body.artistName}', expected '${sourceData.artist}'`).to.equal(sourceData.artist);
-  
-    if (sourceData.rarity)
-      expect(body.rarityName, `rarityName mismatch: got '${body.rarityName}', expected '${sourceData.rarity}'`).to.equal(sourceData.rarity);
-  
-    if (sourceData.flavorText)
-      expect(body.flavorText, "flavorText does not match").to.equal(sourceData.flavorText);
-  
-    if (sourceData.nationalPokedexNumbers)
-      expect(
-        body.pokedexNumbers,
-        `pokedexNumbers mismatch: got [${body.pokedexNumbers}], expected [${sourceData.nationalPokedexNumbers}]`
-      ).to.have.all.members(sourceData.nationalPokedexNumbers);
-  
-    if (sourceData.regulationMark)
-      expect(
-        body.regulationMark,
-        `regulationMark mismatch: got '${body.regulationMark}', expected '${sourceData.regulationMark}'`
-      ).to.equal(sourceData.regulationMark);
-  
-    if (sourceData.abilities) {
-      expect(
-        sortByName(body.abilities), 
-        "Abilities mismatch between API and source data"
-      ).to.deep.equal(sortByName(sourceData.abilities)); 
-    }
-    
-    if (sourceData.rules)
-      expect(
-        body.rules,
-        `rules mismatch: got [${body.rules}], expected [${sourceData.rules}]`
-      ).to.have.all.members(sourceData.rules);
-  
-    if (sourceData.resistances)
-      expect(
-        body.resistances,
-        `Resistances mismatch: got [${body.resistances}], expected [${sourceData.resistances}]`
-      ).to.deep.equal(sourceData.resistances); // potentially need to sort by type for some multi-resistance cards
-    
-    if (sourceData.level)
-      expect(
-        body.level,
-        `level mismatch: got '${body.level}', expected '${sourceData.level}'`
-      ).to.equal(sourceData.level);
-  
-    if (sourceData.ancientTrait) {
-      expect(
-        body.ancientTrait.name,
-        `ancientTrait.name mismatch: got '${body.ancientTrait.name}', expected '${sourceData.ancientTrait.name}'`
-      ).to.equal(sourceData.ancientTrait.name);
-      
-      expect(
-        body.ancientTrait.text,
-        `ancientTrait.text mismatch: got '${body.ancientTrait.text}', expected '${sourceData.ancientTrait.text}'`
-      ).to.equal(sourceData.ancientTrait.text);
-    }
-  
   });
+  
+  test("name, number, supertype should match", function () {
+    expect(body.name).to.equal(sourceData.name);
+    expect(body.number).to.equal(sourceData.number);
+    expect(body.supertype).to.equal(sourceData.supertype);
+  });
+  
+  // ------------------ OPTIONAL fields ------------------
+  
+  if (sourceData.subtypes) {
+    test("subtypes should match", function () {
+      expect(body.subtypes).to.have.all.members(sourceData.subtypes);
+    });
+  }
+  
+  if (sourceData.hp) {
+    test("hp should match", function () {
+      expect(body.hp).to.equal(sourceData.hp);
+    });
+  }
+  
+  if (sourceData.types) {
+    test("types should match", function () {
+      expect(body.types).to.have.all.members(sourceData.types);
+    });
+  }
+  
+  if (sourceData.evolvesTo) {
+    test("evolvesTo should match", function () {
+      expect(body.evolvesTo).to.have.all.members(sourceData.evolvesTo);
+    });
+  }
+  
+  if (sourceData.evolvesFrom) {
+    test("evolvesFrom should match", function () {
+      expect(body.evolvesFrom).to.have.all.members([sourceData.evolvesFrom]);
+    });
+  }
+  
+  if (sourceData.attacks) {
+    test("attacks should match", function () {
+      const normalizeAttack = attack => ({
+        name: attack.name,
+        cost: (attack.cost || []).slice().sort(),
+        convertedEnergyCost: attack.convertedEnergyCost ?? attack.convertedCost ?? 0,
+        damage: attack.damage || "",
+        text: attack.text || ""
+      });
+  
+      const responseAttacks = sortByName((body.attacks || []).map(normalizeAttack));
+      const sourceAttacks = sortByName((sourceData.attacks || []).map(normalizeAttack));
+  
+      expect(responseAttacks.length).to.equal(sourceAttacks.length);
+  
+      for (let i = 0; i < sourceAttacks.length; i++) {
+        const apiAttack = responseAttacks[i];
+        const srcAttack = sourceAttacks[i];
+        expect(apiAttack.name).to.equal(srcAttack.name);
+        expect(apiAttack.cost).to.deep.equal(srcAttack.cost);
+        expect(apiAttack.convertedEnergyCost).to.equal(srcAttack.convertedEnergyCost);
+        expect(apiAttack.damage).to.equal(srcAttack.damage);
+        expect(apiAttack.text).to.equal(srcAttack.text);
+      }
+    });
+  }
+  
+  
+  if (sourceData.weaknesses) {
+    test("weaknesses should match", function () {
+      expect(body.weaknesses).to.deep.equal(sourceData.weaknesses);
+    });
+  }
+  
+  if (sourceData.retreatCost) {
+    test("retreatCost should match", function () {
+      expect(body.retreatCost).to.have.all.members(sourceData.retreatCost);
+    });
+  }
+  
+  if (sourceData.convertedRetreatCost) {
+    test("convertedRetreatCost should match", function () {
+      expect(body.convertedRetreatCost).to.equal(sourceData.convertedRetreatCost);
+    });
+  }
+  
+  if (sourceData.artist) {
+    test("artist should match", function () {
+      expect(body.artistName).to.equal(sourceData.artist);
+    });
+  }
+  
+  if (sourceData.rarity) {
+    test("rarity should match", function () {
+      expect(body.rarityName).to.equal(sourceData.rarity);
+    });
+  }
+  
+  if (sourceData.flavorText) {
+    test("flavorText should match", function () {
+      expect(body.flavorText).to.equal(sourceData.flavorText);
+    });
+  }
+  
+  if (sourceData.nationalPokedexNumbers) {
+    test("pokedexNumbers should match", function () {
+      expect(body.pokedexNumbers).to.have.all.members(sourceData.nationalPokedexNumbers);
+    });
+  }
+  
+  if (sourceData.regulationMark) {
+    test("regulationMark should match", function () {
+      expect(body.regulationMark).to.equal(sourceData.regulationMark);
+    });
+  }
+  
+  if (sourceData.abilities) {
+    test("abilities should match", function () {
+      expect(sortByName(body.abilities)).to.deep.equal(sortByName(sourceData.abilities));
+    });
+  }
+  
+  if (sourceData.rules) {
+    test("rules should match", function () {
+      expect(body.rules).to.have.all.members(sourceData.rules);
+    });
+  }
+  
+  if (sourceData.resistances) {
+    test("resistances should match", function () {
+      expect(body.resistances).to.deep.equal(sourceData.resistances);
+    });
+  }
+  
+  if (sourceData.level) {
+    test("level should match", function () {
+      expect(body.level).to.equal(sourceData.level);
+    });
+  }
+  
+  if (sourceData.ancientTrait) {
+    test("ancientTrait should match", function () {
+      expect(body.ancientTrait.name).to.equal(sourceData.ancientTrait.name);
+      expect(body.ancientTrait.text).to.equal(sourceData.ancientTrait.text);
+    });
+  }
   
 }
 
