@@ -3,6 +3,7 @@ package dev.lukeholland.tcg.decklists.api.pokemon.dto;
 import dev.lukeholland.tcg.decklists.api.pokemon.entities.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -31,6 +32,7 @@ public class CardResponse {
     private Set<AttackDTO> attacks;
     private Set<String> rules;
     private Set<Integer> pokedexNumbers;
+    private Map<String, String> legalities;
 
     // Constructor that converts from entity
     public CardResponse(Card card) {
@@ -79,6 +81,11 @@ public class CardResponse {
         this.pokedexNumbers = card.getPokedexNumbers().stream()
                 .map(Pokedex::getNumber)
                 .collect(Collectors.toSet());
+        this.legalities = card.getLegalities().stream()
+                .collect(Collectors.toMap(
+                        legality -> legality.getFormat().getName(),
+                        legality -> legality.getStatus().name()
+                ));
     }
 
     // Getters and Setters
@@ -272,6 +279,14 @@ public class CardResponse {
 
     public void setPokedexNumbers(Set<Integer> pokedexNumbers) {
         this.pokedexNumbers = pokedexNumbers;
+    }
+
+    public Map<String, String> getLegalities() {
+        return legalities;
+    }
+
+    public void setLegalities(Map<String, String> legalities) {
+        this.legalities = legalities;
     }
 
     // Nested DTOs for complex objects

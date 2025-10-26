@@ -11,7 +11,7 @@ get {
 }
 
 params:path {
-  id: swsh8-2
+  id: swsh8-1
 }
 
 tests {
@@ -30,7 +30,15 @@ tests {
     expect(body.id).to.equal(sourceData.id);
     expect(body.imageLow).to.equal(sourceData.images.small);
     expect(body.imageHigh).to.equal(sourceData.images.large);
-    // TODO add legalities
+    // legalities - compare keys
+    const apiKeys = Object.keys(body.legalities).sort();
+    expect(apiKeys).to.have.all.members(Object.keys(sourceData.legalities).sort());
+    // legalities - compare values, case insensitive
+    for (const key of apiKeys) {
+      const apiValue = body.legalities[key]?.toLowerCase();
+      const sourceValue = sourceData.legalities[key]?.toLowerCase();
+      expect(apiValue).to.equal(sourceValue);
+    }
     expect(body.name).to.equal(sourceData.name);
     expect(body.number).to.equal(sourceData.number);
     expect(body.supertype).to.equal(sourceData.supertype);
