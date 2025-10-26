@@ -6,7 +6,7 @@ CREATE TABLE pokemon_format
 );
 
 -- Legality linking table
-CREATE TYPE legality_status AS ENUM ('legal', 'illegal', 'banned', 'unlimited');
+CREATE TYPE legality_status AS ENUM ('legal', 'banned');
 
 CREATE TABLE pokemon_card_legality
 (

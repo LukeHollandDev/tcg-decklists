@@ -10,8 +10,7 @@ CREATE TABLE pokemon_attack
     text            TEXT
 );
 
--- Attack ↔ Type cost
--- Note: Uses surrogate key to allow duplicate (attack_id, type_id) pairs (e.g., 2x Colorless)
+-- Attack ↔ Type cost allows duplicates by having its own ID key
 CREATE TABLE pokemon_attack_cost
 (
     id        SERIAL PRIMARY KEY,

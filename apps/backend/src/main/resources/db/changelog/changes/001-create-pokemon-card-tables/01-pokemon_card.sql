@@ -28,7 +28,7 @@ CREATE TABLE pokemon_ancient_trait
     text TEXT NOT NULL
 );
 
--- Main Pokemon card table
+-- Main Pokémon card table
 CREATE TABLE pokemon_card
 (
     id                     TEXT PRIMARY KEY,

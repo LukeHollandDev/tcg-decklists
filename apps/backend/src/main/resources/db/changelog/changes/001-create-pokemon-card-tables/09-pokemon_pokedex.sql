@@ -3,7 +3,6 @@ CREATE TABLE pokemon_pokedex
 (
     id     SERIAL PRIMARY KEY,
     number INT NOT NULL
-    -- Additional fields can be added later
 );
 
 -- Linking table: card ↔ pokedex

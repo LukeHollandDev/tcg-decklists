@@ -1,11 +1,11 @@
--- Pokemon names
+-- Pokémon names
 CREATE TABLE pokemon_name
 (
     id   SERIAL PRIMARY KEY,
     name TEXT NOT NULL
 );
 
--- Evolutions (merged from evolves_from / evolves_to)
+-- Evolution table using a direction to determine from and to
 CREATE TYPE evolution_direction AS ENUM ('from', 'to');
 
 CREATE TABLE pokemon_card_evolution
