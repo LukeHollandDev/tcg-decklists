@@ -30,18 +30,17 @@ public class CardResponse {
     private String level;
     private Set<String> subtypes;
     private Set<String> types;
-    private AncientTraitDTO ancientTrait;
-    private Set<AbilityDTO> abilities;
-    private Set<AttackDTO> attacks;
+    private AncientTrait ancientTrait;
+    private Set<Ability> abilities;
+    private Set<Attack> attacks;
     private Set<String> rules;
     private Set<Integer> pokedexNumbers;
     private Map<String, String> legalities;
     private List<String> evolvesFrom;
     private List<String> evolvesTo;
-    private Set<ResistanceDTO> resistances;
-    private Set<WeaknessDTO> weaknesses;
+    private Set<Resistance> resistances;
+    private Set<Weakness> weaknesses;
 
-    // Constructor that converts from entity
     public CardResponse(Card card) {
         this.id = card.getId();
         this.name = card.getName();
@@ -49,7 +48,6 @@ public class CardResponse {
         this.hp = card.getHp();
         this.hpNumeric = card.getHpNumeric();
         this.convertedRetreatCost = card.getConvertedRetreatCost();
-        // Expand retreat cost quantities: if Colorless has quantity 3, output ["Colorless", "Colorless", "Colorless"]
         this.retreatCost = card.getRetreatCosts().stream()
                 .flatMap(rc -> {
                     String typeName = rc.getType().getName();
@@ -75,12 +73,12 @@ public class CardResponse {
                 .map(Type::getName)
                 .collect(Collectors.toSet());
         this.ancientTrait = card.getAncientTrait() != null ?
-                new AncientTraitDTO(card.getAncientTrait()) : null;
+                new AncientTrait(card.getAncientTrait()) : null;
         this.abilities = card.getAbilities().stream()
-                .map(AbilityDTO::new)
+                .map(Ability::new)
                 .collect(Collectors.toSet());
         this.attacks = card.getAttacks().stream()
-                .map(AttackDTO::new)
+                .map(Attack::new)
                 .collect(Collectors.toSet());
         this.rules = card.getRules().stream()
                 .map(Rule::getText)
@@ -102,14 +100,13 @@ public class CardResponse {
                 .map(evo -> evo.getName().getName())
                 .collect(Collectors.toList());
         this.resistances = card.getResistances().stream()
-                .map(cr -> new ResistanceDTO(cr.getResistance()))
+                .map(cr -> new Resistance(cr.getResistance()))
                 .collect(Collectors.toSet());
         this.weaknesses = card.getWeaknesses().stream()
-                .map(cw -> new WeaknessDTO(cw.getWeakness()))
+                .map(cw -> new Weakness(cw.getWeakness()))
                 .collect(Collectors.toSet());
     }
 
-    // Getters and Setters
     public String getId() {
         return id;
     }
@@ -262,27 +259,27 @@ public class CardResponse {
         this.types = types;
     }
 
-    public AncientTraitDTO getAncientTrait() {
+    public AncientTrait getAncientTrait() {
         return ancientTrait;
     }
 
-    public void setAncientTrait(AncientTraitDTO ancientTrait) {
+    public void setAncientTrait(AncientTrait ancientTrait) {
         this.ancientTrait = ancientTrait;
     }
 
-    public Set<AbilityDTO> getAbilities() {
+    public Set<Ability> getAbilities() {
         return abilities;
     }
 
-    public void setAbilities(Set<AbilityDTO> abilities) {
+    public void setAbilities(Set<Ability> abilities) {
         this.abilities = abilities;
     }
 
-    public Set<AttackDTO> getAttacks() {
+    public Set<Attack> getAttacks() {
         return attacks;
     }
 
-    public void setAttacks(Set<AttackDTO> attacks) {
+    public void setAttacks(Set<Attack> attacks) {
         this.attacks = attacks;
     }
 
@@ -326,223 +323,19 @@ public class CardResponse {
         this.evolvesTo = evolvesTo;
     }
 
-    public Set<ResistanceDTO> getResistances() {
+    public Set<Resistance> getResistances() {
         return resistances;
     }
 
-    public void setResistances(Set<ResistanceDTO> resistances) {
+    public void setResistances(Set<Resistance> resistances) {
         this.resistances = resistances;
     }
 
-    public Set<WeaknessDTO> getWeaknesses() {
+    public Set<Weakness> getWeaknesses() {
         return weaknesses;
     }
 
-    public void setWeaknesses(Set<WeaknessDTO> weaknesses) {
+    public void setWeaknesses(Set<Weakness> weaknesses) {
         this.weaknesses = weaknesses;
-    }
-
-    // Nested DTOs for complex objects
-    @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    public static class AncientTraitDTO {
-        private String name;
-        private String text;
-
-        public AncientTraitDTO(AncientTrait trait) {
-            this.name = trait.getName();
-            this.text = trait.getText();
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public String getText() {
-            return text;
-        }
-
-        public void setText(String text) {
-            this.text = text;
-        }
-    }
-
-    @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    public static class AbilityDTO {
-        private String name;
-        private String text;
-        private String type;
-
-        public AbilityDTO(Ability ability) {
-            this.name = ability.getName();
-            this.text = ability.getText();
-            this.type = ability.getType();
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public String getText() {
-            return text;
-        }
-
-        public void setText(String text) {
-            this.text = text;
-        }
-
-        public String getType() {
-            return type;
-        }
-
-        public void setType(String type) {
-            this.type = type;
-        }
-    }
-
-    @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    public static class AttackDTO {
-        private String name;
-        private Integer convertedCost;
-        private String damage;
-        private Integer damageNumeric;
-        private String damageModifier;
-        private String text;
-        private List<String> cost;
-
-        public AttackDTO(Attack attack) {
-            this.name = attack.getName();
-            this.convertedCost = attack.getConvertedCost();
-            this.damage = attack.getDamage();
-            this.damageNumeric = attack.getDamageNumeric();
-            this.damageModifier = attack.getDamageModifier();
-            this.text = attack.getText();
-            // Expand quantities: if Grass has quantity 3, output ["Grass", "Grass", "Grass"]
-            this.cost = attack.getCosts().stream()
-                    .flatMap(c -> {
-                        String typeName = c.getType().getName();
-                        Integer quantity = c.getQuantity();
-                        return java.util.stream.Stream.generate(() -> typeName)
-                                .limit(quantity);
-                    })
-                    .collect(Collectors.toList());
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public Integer getConvertedCost() {
-            return convertedCost;
-        }
-
-        public void setConvertedCost(Integer convertedCost) {
-            this.convertedCost = convertedCost;
-        }
-
-        public String getDamage() {
-            return damage;
-        }
-
-        public void setDamage(String damage) {
-            this.damage = damage;
-        }
-
-        public Integer getDamageNumeric() {
-            return damageNumeric;
-        }
-
-        public void setDamageNumeric(Integer damageNumeric) {
-            this.damageNumeric = damageNumeric;
-        }
-
-        public String getDamageModifier() {
-            return damageModifier;
-        }
-
-        public void setDamageModifier(String damageModifier) {
-            this.damageModifier = damageModifier;
-        }
-
-        public String getText() {
-            return text;
-        }
-
-        public void setText(String text) {
-            this.text = text;
-        }
-
-        public List<String> getCost() {
-            return cost;
-        }
-
-        public void setCost(List<String> cost) {
-            this.cost = cost;
-        }
-    }
-
-    @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    public static class ResistanceDTO {
-        private String type;
-        private String value;
-
-        public ResistanceDTO(Resistance resistance) {
-            this.type = resistance.getType() != null ? resistance.getType().getName() : null;
-            this.value = resistance.getValue();
-        }
-
-        public String getType() {
-            return type;
-        }
-
-        public void setType(String type) {
-            this.type = type;
-        }
-
-        public String getValue() {
-            return value;
-        }
-
-        public void setValue(String value) {
-            this.value = value;
-        }
-    }
-
-    @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    public static class WeaknessDTO {
-        private String type;
-        private String value;
-
-        public WeaknessDTO(Weakness weakness) {
-            this.type = weakness.getType() != null ? weakness.getType().getName() : null;
-            this.value = weakness.getValue();
-        }
-
-        public String getType() {
-            return type;
-        }
-
-        public void setType(String type) {
-            this.type = type;
-        }
-
-        public String getValue() {
-            return value;
-        }
-
-        public void setValue(String value) {
-            this.value = value;
-        }
     }
 }
