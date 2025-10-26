@@ -1,6 +1,7 @@
 package dev.lukeholland.tcg.decklists.api.entities.pokemon;
 
 import jakarta.persistence.*;
+
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -19,18 +20,31 @@ public class PokemonCardResistance {
     @JoinColumn(name = "resistance_id")
     private PokemonResistance resistance;
 
-    public PokemonCardResistance() {}
+    public PokemonCardResistance() {
+    }
 
-    public PokemonCard getCard() { return card; }
-    public void setCard(PokemonCard card) { this.card = card; }
-    public PokemonResistance getResistance() { return resistance; }
-    public void setResistance(PokemonResistance resistance) { this.resistance = resistance; }
+    public PokemonCard getCard() {
+        return card;
+    }
+
+    public void setCard(PokemonCard card) {
+        this.card = card;
+    }
+
+    public PokemonResistance getResistance() {
+        return resistance;
+    }
+
+    public void setResistance(PokemonResistance resistance) {
+        this.resistance = resistance;
+    }
 
     public static class PokemonCardResistanceId implements Serializable {
         private String card;
         private Integer resistance;
 
-        public PokemonCardResistanceId() {}
+        public PokemonCardResistanceId() {
+        }
 
         @Override
         public boolean equals(Object o) {

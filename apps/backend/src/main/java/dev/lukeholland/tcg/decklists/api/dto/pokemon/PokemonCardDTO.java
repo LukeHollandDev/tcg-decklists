@@ -31,78 +31,6 @@ public class PokemonCardDTO {
     private Set<String> rules;
     private Set<Integer> pokedexNumbers;
 
-    // Nested DTOs for complex objects
-    public static class AncientTraitDTO {
-        private String name;
-        private String text;
-
-        public AncientTraitDTO(PokemonAncientTrait trait) {
-            this.name = trait.getName();
-            this.text = trait.getText();
-        }
-
-        public String getName() { return name; }
-        public void setName(String name) { this.name = name; }
-        public String getText() { return text; }
-        public void setText(String text) { this.text = text; }
-    }
-
-    public static class AbilityDTO {
-        private String name;
-        private String text;
-        private String type;
-
-        public AbilityDTO(PokemonAbility ability) {
-            this.name = ability.getName();
-            this.text = ability.getText();
-            this.type = ability.getType();
-        }
-
-        public String getName() { return name; }
-        public void setName(String name) { this.name = name; }
-        public String getText() { return text; }
-        public void setText(String text) { this.text = text; }
-        public String getType() { return type; }
-        public void setType(String type) { this.type = type; }
-    }
-
-    public static class AttackDTO {
-        private String name;
-        private Integer convertedCost;
-        private String damage;
-        private Integer damageNumeric;
-        private String damageModifier;
-        private String text;
-        private List<String> cost;
-
-        public AttackDTO(PokemonAttack attack) {
-            this.name = attack.getName();
-            this.convertedCost = attack.getConvertedCost();
-            this.damage = attack.getDamage();
-            this.damageNumeric = attack.getDamageNumeric();
-            this.damageModifier = attack.getDamageModifier();
-            this.text = attack.getText();
-            this.cost = attack.getCosts().stream()
-                    .map(c -> c.getType().getName())
-                    .collect(Collectors.toList());
-        }
-
-        public String getName() { return name; }
-        public void setName(String name) { this.name = name; }
-        public Integer getConvertedCost() { return convertedCost; }
-        public void setConvertedCost(Integer convertedCost) { this.convertedCost = convertedCost; }
-        public String getDamage() { return damage; }
-        public void setDamage(String damage) { this.damage = damage; }
-        public Integer getDamageNumeric() { return damageNumeric; }
-        public void setDamageNumeric(Integer damageNumeric) { this.damageNumeric = damageNumeric; }
-        public String getDamageModifier() { return damageModifier; }
-        public void setDamageModifier(String damageModifier) { this.damageModifier = damageModifier; }
-        public String getText() { return text; }
-        public void setText(String text) { this.text = text; }
-        public List<String> getCost() { return cost; }
-        public void setCost(List<String> cost) { this.cost = cost; }
-    }
-
     // Constructor that converts from entity
     public PokemonCardDTO(PokemonCard card) {
         this.id = card.getId();
@@ -144,50 +72,328 @@ public class PokemonCardDTO {
     }
 
     // Getters and Setters
-    public String getId() { return id; }
-    public void setId(String id) { this.id = id; }
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-    public String getSupertype() { return supertype; }
-    public void setSupertype(String supertype) { this.supertype = supertype; }
-    public String getHp() { return hp; }
-    public void setHp(String hp) { this.hp = hp; }
-    public Integer getHpNumeric() { return hpNumeric; }
-    public void setHpNumeric(Integer hpNumeric) { this.hpNumeric = hpNumeric; }
-    public Integer getConvertedRetreatCost() { return convertedRetreatCost; }
-    public void setConvertedRetreatCost(Integer convertedRetreatCost) { this.convertedRetreatCost = convertedRetreatCost; }
-    public String getNumber() { return number; }
-    public void setNumber(String number) { this.number = number; }
-    public String getSetId() { return setId; }
-    public void setSetId(String setId) { this.setId = setId; }
-    public String getSetName() { return setName; }
-    public void setSetName(String setName) { this.setName = setName; }
-    public String getArtistName() { return artistName; }
-    public void setArtistName(String artistName) { this.artistName = artistName; }
-    public String getRarityName() { return rarityName; }
-    public void setRarityName(String rarityName) { this.rarityName = rarityName; }
-    public String getFlavorText() { return flavorText; }
-    public void setFlavorText(String flavorText) { this.flavorText = flavorText; }
-    public String getImageLow() { return imageLow; }
-    public void setImageLow(String imageLow) { this.imageLow = imageLow; }
-    public String getImageHigh() { return imageHigh; }
-    public void setImageHigh(String imageHigh) { this.imageHigh = imageHigh; }
-    public String getRegulationMark() { return regulationMark; }
-    public void setRegulationMark(String regulationMark) { this.regulationMark = regulationMark; }
-    public String getLevel() { return level; }
-    public void setLevel(String level) { this.level = level; }
-    public Set<String> getSubtypes() { return subtypes; }
-    public void setSubtypes(Set<String> subtypes) { this.subtypes = subtypes; }
-    public Set<String> getTypes() { return types; }
-    public void setTypes(Set<String> types) { this.types = types; }
-    public AncientTraitDTO getAncientTrait() { return ancientTrait; }
-    public void setAncientTrait(AncientTraitDTO ancientTrait) { this.ancientTrait = ancientTrait; }
-    public Set<AbilityDTO> getAbilities() { return abilities; }
-    public void setAbilities(Set<AbilityDTO> abilities) { this.abilities = abilities; }
-    public Set<AttackDTO> getAttacks() { return attacks; }
-    public void setAttacks(Set<AttackDTO> attacks) { this.attacks = attacks; }
-    public Set<String> getRules() { return rules; }
-    public void setRules(Set<String> rules) { this.rules = rules; }
-    public Set<Integer> getPokedexNumbers() { return pokedexNumbers; }
-    public void setPokedexNumbers(Set<Integer> pokedexNumbers) { this.pokedexNumbers = pokedexNumbers; }
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getSupertype() {
+        return supertype;
+    }
+
+    public void setSupertype(String supertype) {
+        this.supertype = supertype;
+    }
+
+    public String getHp() {
+        return hp;
+    }
+
+    public void setHp(String hp) {
+        this.hp = hp;
+    }
+
+    public Integer getHpNumeric() {
+        return hpNumeric;
+    }
+
+    public void setHpNumeric(Integer hpNumeric) {
+        this.hpNumeric = hpNumeric;
+    }
+
+    public Integer getConvertedRetreatCost() {
+        return convertedRetreatCost;
+    }
+
+    public void setConvertedRetreatCost(Integer convertedRetreatCost) {
+        this.convertedRetreatCost = convertedRetreatCost;
+    }
+
+    public String getNumber() {
+        return number;
+    }
+
+    public void setNumber(String number) {
+        this.number = number;
+    }
+
+    public String getSetId() {
+        return setId;
+    }
+
+    public void setSetId(String setId) {
+        this.setId = setId;
+    }
+
+    public String getSetName() {
+        return setName;
+    }
+
+    public void setSetName(String setName) {
+        this.setName = setName;
+    }
+
+    public String getArtistName() {
+        return artistName;
+    }
+
+    public void setArtistName(String artistName) {
+        this.artistName = artistName;
+    }
+
+    public String getRarityName() {
+        return rarityName;
+    }
+
+    public void setRarityName(String rarityName) {
+        this.rarityName = rarityName;
+    }
+
+    public String getFlavorText() {
+        return flavorText;
+    }
+
+    public void setFlavorText(String flavorText) {
+        this.flavorText = flavorText;
+    }
+
+    public String getImageLow() {
+        return imageLow;
+    }
+
+    public void setImageLow(String imageLow) {
+        this.imageLow = imageLow;
+    }
+
+    public String getImageHigh() {
+        return imageHigh;
+    }
+
+    public void setImageHigh(String imageHigh) {
+        this.imageHigh = imageHigh;
+    }
+
+    public String getRegulationMark() {
+        return regulationMark;
+    }
+
+    public void setRegulationMark(String regulationMark) {
+        this.regulationMark = regulationMark;
+    }
+
+    public String getLevel() {
+        return level;
+    }
+
+    public void setLevel(String level) {
+        this.level = level;
+    }
+
+    public Set<String> getSubtypes() {
+        return subtypes;
+    }
+
+    public void setSubtypes(Set<String> subtypes) {
+        this.subtypes = subtypes;
+    }
+
+    public Set<String> getTypes() {
+        return types;
+    }
+
+    public void setTypes(Set<String> types) {
+        this.types = types;
+    }
+
+    public AncientTraitDTO getAncientTrait() {
+        return ancientTrait;
+    }
+
+    public void setAncientTrait(AncientTraitDTO ancientTrait) {
+        this.ancientTrait = ancientTrait;
+    }
+
+    public Set<AbilityDTO> getAbilities() {
+        return abilities;
+    }
+
+    public void setAbilities(Set<AbilityDTO> abilities) {
+        this.abilities = abilities;
+    }
+
+    public Set<AttackDTO> getAttacks() {
+        return attacks;
+    }
+
+    public void setAttacks(Set<AttackDTO> attacks) {
+        this.attacks = attacks;
+    }
+
+    public Set<String> getRules() {
+        return rules;
+    }
+
+    public void setRules(Set<String> rules) {
+        this.rules = rules;
+    }
+
+    public Set<Integer> getPokedexNumbers() {
+        return pokedexNumbers;
+    }
+
+    public void setPokedexNumbers(Set<Integer> pokedexNumbers) {
+        this.pokedexNumbers = pokedexNumbers;
+    }
+
+    // Nested DTOs for complex objects
+    public static class AncientTraitDTO {
+        private String name;
+        private String text;
+
+        public AncientTraitDTO(PokemonAncientTrait trait) {
+            this.name = trait.getName();
+            this.text = trait.getText();
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public String getText() {
+            return text;
+        }
+
+        public void setText(String text) {
+            this.text = text;
+        }
+    }
+
+    public static class AbilityDTO {
+        private String name;
+        private String text;
+        private String type;
+
+        public AbilityDTO(PokemonAbility ability) {
+            this.name = ability.getName();
+            this.text = ability.getText();
+            this.type = ability.getType();
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public String getText() {
+            return text;
+        }
+
+        public void setText(String text) {
+            this.text = text;
+        }
+
+        public String getType() {
+            return type;
+        }
+
+        public void setType(String type) {
+            this.type = type;
+        }
+    }
+
+    public static class AttackDTO {
+        private String name;
+        private Integer convertedCost;
+        private String damage;
+        private Integer damageNumeric;
+        private String damageModifier;
+        private String text;
+        private List<String> cost;
+
+        public AttackDTO(PokemonAttack attack) {
+            this.name = attack.getName();
+            this.convertedCost = attack.getConvertedCost();
+            this.damage = attack.getDamage();
+            this.damageNumeric = attack.getDamageNumeric();
+            this.damageModifier = attack.getDamageModifier();
+            this.text = attack.getText();
+            this.cost = attack.getCosts().stream()
+                    .map(c -> c.getType().getName())
+                    .collect(Collectors.toList());
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public Integer getConvertedCost() {
+            return convertedCost;
+        }
+
+        public void setConvertedCost(Integer convertedCost) {
+            this.convertedCost = convertedCost;
+        }
+
+        public String getDamage() {
+            return damage;
+        }
+
+        public void setDamage(String damage) {
+            this.damage = damage;
+        }
+
+        public Integer getDamageNumeric() {
+            return damageNumeric;
+        }
+
+        public void setDamageNumeric(Integer damageNumeric) {
+            this.damageNumeric = damageNumeric;
+        }
+
+        public String getDamageModifier() {
+            return damageModifier;
+        }
+
+        public void setDamageModifier(String damageModifier) {
+            this.damageModifier = damageModifier;
+        }
+
+        public String getText() {
+            return text;
+        }
+
+        public void setText(String text) {
+            this.text = text;
+        }
+
+        public List<String> getCost() {
+            return cost;
+        }
+
+        public void setCost(List<String> cost) {
+            this.cost = cost;
+        }
+    }
 }

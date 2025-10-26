@@ -1,6 +1,7 @@
 package dev.lukeholland.tcg.decklists.api.entities.pokemon;
 
 import jakarta.persistence.*;
+
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -19,18 +20,31 @@ public class PokemonCardWeakness {
     @JoinColumn(name = "weakness_id")
     private PokemonWeakness weakness;
 
-    public PokemonCardWeakness() {}
+    public PokemonCardWeakness() {
+    }
 
-    public PokemonCard getCard() { return card; }
-    public void setCard(PokemonCard card) { this.card = card; }
-    public PokemonWeakness getWeakness() { return weakness; }
-    public void setWeakness(PokemonWeakness weakness) { this.weakness = weakness; }
+    public PokemonCard getCard() {
+        return card;
+    }
+
+    public void setCard(PokemonCard card) {
+        this.card = card;
+    }
+
+    public PokemonWeakness getWeakness() {
+        return weakness;
+    }
+
+    public void setWeakness(PokemonWeakness weakness) {
+        this.weakness = weakness;
+    }
 
     public static class PokemonCardWeaknessId implements Serializable {
         private String card;
         private Integer weakness;
 
-        public PokemonCardWeaknessId() {}
+        public PokemonCardWeaknessId() {
+        }
 
         @Override
         public boolean equals(Object o) {

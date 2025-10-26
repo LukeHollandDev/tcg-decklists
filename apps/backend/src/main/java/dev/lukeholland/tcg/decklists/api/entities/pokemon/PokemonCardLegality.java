@@ -1,6 +1,7 @@
 package dev.lukeholland.tcg.decklists.api.entities.pokemon;
 
 import jakarta.persistence.*;
+
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -23,20 +24,39 @@ public class PokemonCardLegality {
     @Column(nullable = false)
     private LegalityStatus status;
 
-    public PokemonCardLegality() {}
+    public PokemonCardLegality() {
+    }
 
-    public PokemonCard getCard() { return card; }
-    public void setCard(PokemonCard card) { this.card = card; }
-    public PokemonFormat getFormat() { return format; }
-    public void setFormat(PokemonFormat format) { this.format = format; }
-    public LegalityStatus getStatus() { return status; }
-    public void setStatus(LegalityStatus status) { this.status = status; }
+    public PokemonCard getCard() {
+        return card;
+    }
+
+    public void setCard(PokemonCard card) {
+        this.card = card;
+    }
+
+    public PokemonFormat getFormat() {
+        return format;
+    }
+
+    public void setFormat(PokemonFormat format) {
+        this.format = format;
+    }
+
+    public LegalityStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(LegalityStatus status) {
+        this.status = status;
+    }
 
     public static class PokemonCardLegalityId implements Serializable {
         private String card;
         private Integer format;
 
-        public PokemonCardLegalityId() {}
+        public PokemonCardLegalityId() {
+        }
 
         @Override
         public boolean equals(Object o) {

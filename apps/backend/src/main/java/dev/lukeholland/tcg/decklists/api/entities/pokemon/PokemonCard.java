@@ -1,6 +1,7 @@
 package dev.lukeholland.tcg.decklists.api.entities.pokemon;
 
 import jakarta.persistence.*;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -125,7 +126,8 @@ public class PokemonCard {
     private Set<PokemonCardWeakness> weaknesses = new HashSet<>();
 
     // Constructors
-    public PokemonCard() {}
+    public PokemonCard() {
+    }
 
     // Getters and Setters
     public String getId() {

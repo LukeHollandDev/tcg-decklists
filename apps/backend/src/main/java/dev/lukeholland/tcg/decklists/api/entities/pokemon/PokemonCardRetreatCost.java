@@ -1,6 +1,7 @@
 package dev.lukeholland.tcg.decklists.api.entities.pokemon;
 
 import jakarta.persistence.*;
+
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -19,18 +20,31 @@ public class PokemonCardRetreatCost {
     @JoinColumn(name = "type_id")
     private PokemonType type;
 
-    public PokemonCardRetreatCost() {}
+    public PokemonCardRetreatCost() {
+    }
 
-    public PokemonCard getCard() { return card; }
-    public void setCard(PokemonCard card) { this.card = card; }
-    public PokemonType getType() { return type; }
-    public void setType(PokemonType type) { this.type = type; }
+    public PokemonCard getCard() {
+        return card;
+    }
+
+    public void setCard(PokemonCard card) {
+        this.card = card;
+    }
+
+    public PokemonType getType() {
+        return type;
+    }
+
+    public void setType(PokemonType type) {
+        this.type = type;
+    }
 
     public static class PokemonCardRetreatCostId implements Serializable {
         private String card;
         private Integer type;
 
-        public PokemonCardRetreatCostId() {}
+        public PokemonCardRetreatCostId() {
+        }
 
         @Override
         public boolean equals(Object o) {

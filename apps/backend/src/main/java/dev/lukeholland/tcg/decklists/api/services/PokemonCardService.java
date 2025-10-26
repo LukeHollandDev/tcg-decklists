@@ -18,7 +18,8 @@ public class PokemonCardService {
     }
 
     /**
-     * Find a Pokemon card by its ID
+     * Find a Pokémon card by its ID
+     *
      * @param id the card ID
      * @return Optional containing the card if found, empty otherwise
      */
@@ -28,6 +29,7 @@ public class PokemonCardService {
 
     /**
      * Check if a card exists by ID
+     *
      * @param id the card ID
      * @return true if the card exists, false otherwise
      */

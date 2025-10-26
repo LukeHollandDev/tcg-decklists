@@ -16,12 +16,30 @@ public class PokemonWeakness {
     @Column(nullable = false)
     private String value;
 
-    public PokemonWeakness() {}
+    public PokemonWeakness() {
+    }
 
-    public Integer getId() { return id; }
-    public void setId(Integer id) { this.id = id; }
-    public PokemonType getType() { return type; }
-    public void setType(PokemonType type) { this.type = type; }
-    public String getValue() { return value; }
-    public void setValue(String value) { this.value = value; }
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public PokemonType getType() {
+        return type;
+    }
+
+    public void setType(PokemonType type) {
+        this.type = type;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
+    }
 }

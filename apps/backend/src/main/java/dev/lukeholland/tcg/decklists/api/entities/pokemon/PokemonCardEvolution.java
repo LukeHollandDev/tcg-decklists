@@ -1,6 +1,7 @@
 package dev.lukeholland.tcg.decklists.api.entities.pokemon;
 
 import jakarta.persistence.*;
+
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -24,21 +25,40 @@ public class PokemonCardEvolution {
     @Column(nullable = false)
     private EvolutionDirection direction;
 
-    public PokemonCardEvolution() {}
+    public PokemonCardEvolution() {
+    }
 
-    public PokemonCard getCard() { return card; }
-    public void setCard(PokemonCard card) { this.card = card; }
-    public PokemonName getName() { return name; }
-    public void setName(PokemonName name) { this.name = name; }
-    public EvolutionDirection getDirection() { return direction; }
-    public void setDirection(EvolutionDirection direction) { this.direction = direction; }
+    public PokemonCard getCard() {
+        return card;
+    }
+
+    public void setCard(PokemonCard card) {
+        this.card = card;
+    }
+
+    public PokemonName getName() {
+        return name;
+    }
+
+    public void setName(PokemonName name) {
+        this.name = name;
+    }
+
+    public EvolutionDirection getDirection() {
+        return direction;
+    }
+
+    public void setDirection(EvolutionDirection direction) {
+        this.direction = direction;
+    }
 
     public static class PokemonCardEvolutionId implements Serializable {
         private String card;
         private Integer name;
         private EvolutionDirection direction;
 
-        public PokemonCardEvolutionId() {}
+        public PokemonCardEvolutionId() {
+        }
 
         @Override
         public boolean equals(Object o) {
