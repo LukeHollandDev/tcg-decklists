@@ -5,15 +5,61 @@ meta {
 }
 
 get {
-  url: {{BASE_URL}}/card/pokemon?id=swsh8-4
+  url: {{BASE_URL}}/card/pokemon/:id
   body: none
   auth: inherit
 }
 
-params:query {
-  id: swsh8-4
+params:path {
+  id: swsh8-1
+}
+
+tests {
+  // Following methods come from the folder TEST tab:
+  // - loadPokemonSourceData
+  // - convertAttacksToSourceFormat
+  // - sortByName
+  
+  const idFromReq = req.getUrl().split('/').at(-1);
+  const sourceData = loadPokemonSourceData()[idFromReq]
+  
+  test("Data Matches Source", function () {
+    const body = res.getBody()
+  
+    // REQUIRED - id, images, legalities, name, number and supertype
+    expect(body.id).to.equal(sourceData.id);
+    expect(body.imageLow).to.equal(sourceData.images.small);
+    expect(body.imageHigh).to.equal(sourceData.images.large);
+    // TODO add legalities
+    expect(body.name).to.equal(sourceData.name);
+    // TODO add number, this can be inferred by ID but might as well add it
+    expect(body.supertype).to.equal(sourceData.supertype);
+  
+    // OPTIONAL - most cards will have a lot of these
+    expect(body.subtypes).to.have.all.members(sourceData.subtypes);
+    expect(body.hp).to.equal(sourceData.hp);
+    expect(body.types).to.have.all.members(sourceData.types);
+    // TODO add evolvesTo and evolvesFrom
+    const responseAttacks = convertAttacksToSourceFormat(body.attacks);
+    expect(sortByName(responseAttacks)).to.deep.equal(sortByName(sourceData.attacks));
+    // TODO add weaknesses
+    // TODO add retreatCost
+    expect(body.convertedRetreatCost).to.equal(sourceData.convertedRetreatCost);
+    expect(body.artistName).to.equal(sourceData.artist);
+    expect(body.rarityName).to.equal(sourceData.rarity);
+    expect(body.flavorText).to.equal(sourceData.flavorText);
+    expect(body.pokedexNumbers).to.have.all.members(sourceData.nationalPokedexNumbers);
+    expect(body.regulationMark).to.equal(sourceData.regulationMark);
+    // TODO add abilities
+    // TODO add rules
+    // TODO add resistance
+    // TODO add level
+    // TODO add ancientTrait
+  });
+  
 }
 
 settings {
   encodeUrl: true
+  timeout: 0
 }
