@@ -37,6 +37,7 @@ public class CardResponse {
     private List<String> evolvesFrom;
     private List<String> evolvesTo;
     private Set<ResistanceDTO> resistances;
+    private Set<WeaknessDTO> weaknesses;
 
     // Constructor that converts from entity
     public CardResponse(Card card) {
@@ -100,6 +101,9 @@ public class CardResponse {
                 .collect(Collectors.toList());
         this.resistances = card.getResistances().stream()
                 .map(cr -> new ResistanceDTO(cr.getResistance()))
+                .collect(Collectors.toSet());
+        this.weaknesses = card.getWeaknesses().stream()
+                .map(cw -> new WeaknessDTO(cw.getWeakness()))
                 .collect(Collectors.toSet());
     }
 
@@ -328,6 +332,14 @@ public class CardResponse {
         this.resistances = resistances;
     }
 
+    public Set<WeaknessDTO> getWeaknesses() {
+        return weaknesses;
+    }
+
+    public void setWeaknesses(Set<WeaknessDTO> weaknesses) {
+        this.weaknesses = weaknesses;
+    }
+
     // Nested DTOs for complex objects
     public static class AncientTraitDTO {
         private String name;
@@ -482,6 +494,32 @@ public class CardResponse {
         public ResistanceDTO(Resistance resistance) {
             this.type = resistance.getType() != null ? resistance.getType().getName() : null;
             this.value = resistance.getValue();
+        }
+
+        public String getType() {
+            return type;
+        }
+
+        public void setType(String type) {
+            this.type = type;
+        }
+
+        public String getValue() {
+            return value;
+        }
+
+        public void setValue(String value) {
+            this.value = value;
+        }
+    }
+
+    public static class WeaknessDTO {
+        private String type;
+        private String value;
+
+        public WeaknessDTO(Weakness weakness) {
+            this.type = weakness.getType() != null ? weakness.getType().getName() : null;
+            this.value = weakness.getValue();
         }
 
         public String getType() {

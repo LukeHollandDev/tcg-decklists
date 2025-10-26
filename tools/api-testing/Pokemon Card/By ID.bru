@@ -11,7 +11,7 @@ get {
 }
 
 params:path {
-  id: cel25c-76_A
+  id: bw1-6
 }
 
 tests {
@@ -89,8 +89,12 @@ tests {
         "Attacks mismatch between API and source data"
       ).to.deep.equal(sortByName(sourceData.attacks)); 
     }
-  
-    // TODO add weaknesses
+
+    if (sourceData.weaknesses)
+      expect(
+        body.weaknesses,
+        `Weaknesses mismatch: got [${body.weaknesses}], expected [${sourceData.weaknesses}]`
+      ).to.deep.equal(sourceData.weaknesses); // potentially need to sort by type for some multi-resistance cards
     
     if (sourceData.retreatCost)
       expect(
@@ -125,7 +129,12 @@ tests {
         `regulationMark mismatch: got '${body.regulationMark}', expected '${sourceData.regulationMark}'`
       ).to.equal(sourceData.regulationMark);
   
-    // TODO add abilities
+    if (sourceData.abilities) {
+      expect(
+        sortByName(body.abilities), 
+        "Abilities mismatch between API and source data"
+      ).to.deep.equal(sortByName(sourceData.abilities)); 
+    }
     
     if (sourceData.rules)
       expect(
@@ -136,7 +145,7 @@ tests {
     if (sourceData.resistances)
       expect(
         body.resistances,
-        `resistances mismatch: got [${body.resistances}], expected [${sourceData.resistances}]`
+        `Resistances mismatch: got [${body.resistances}], expected [${sourceData.resistances}]`
       ).to.deep.equal(sourceData.resistances); // potentially need to sort by type for some multi-resistance cards
     
     if (sourceData.level)
