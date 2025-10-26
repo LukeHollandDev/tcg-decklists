@@ -8,7 +8,7 @@ from psycopg2 import sql
 from psycopg2.extras import execute_batch
 
 # Configuration
-DATA_DIR = "data/pokemon"
+DATA_DIR = "pokemon"
 
 # Database configuration from environment
 DB_CONFIG = {
@@ -528,7 +528,7 @@ def main():
         cursor = conn.cursor()
 
         # Process cards in batches with progress reporting
-        batch_size = 100
+        batch_size = 500
         total = len(cards)
 
         for i, card in enumerate(cards, 1):

@@ -3,9 +3,9 @@ set -euo pipefail
 
 # --- CONFIGURATION ---
 DATA_DIR="data"
-SCRIPTS_DIR="$DATA_DIR/scripts"
-METADATA_FILE="$DATA_DIR/metadata.json"
-SCHEMA_DIR="$DATA_DIR/schema"
+SCRIPTS_DIR="scripts"
+METADATA_FILE="metadata.json"
+SCHEMA_DIR="schema"
 mkdir -p "$SCHEMA_DIR"
 
 # --- PRECHECKS ---
@@ -19,8 +19,8 @@ if ! command -v curl &>/dev/null; then
   exit 1
 fi
 
-if ! command -v python3 &>/dev/null; then
-  echo "Error: python3 is required but not installed." >&2
+if ! command -v python &>/dev/null; then
+  echo "Error: python is required but not installed." >&2
   exit 1
 fi
 
@@ -44,9 +44,9 @@ update_metadata() {
 }
 
 # --- PYTHON ENV SETUP ---
-REQUIREMENTS_FILE="$DATA_DIR/requirements.txt"
+REQUIREMENTS_FILE="requirements.txt"
 venv_dir=$(mktemp -d)
-python3 -m venv "$venv_dir"
+python -m venv "$venv_dir"
 source "$venv_dir/bin/activate"
 pip install --upgrade pip >/dev/null 2>&1
 pip install -r "$REQUIREMENTS_FILE" >/dev/null 2>&1
@@ -83,7 +83,7 @@ for item in "${items[@]}"; do
 
   echo "Updating $name to $latest_sha"
 
-  data_path="$DATA_DIR/$name"
+  data_path="$name"
 
   # Remove old data directory if exists
   if [[ -d "$data_path" ]]; then
@@ -142,24 +142,6 @@ for item in "${items[@]}"; do
 
 done
 
-deactivate
 rm -rf "$venv_dir"
-
-# --- COMMIT AND PUSH CHANGES IF ANY ---
-# if git diff --quiet "$DATA_DIR" "$METADATA_FILE"; then
-#   echo "No updates to commit."
-# else
-#   echo "Committing and pushing changes..."
-#   git add "$DATA_DIR" "$METADATA_FILE" "$SCHEMA_FILE"
-#   git commit -m "[AUTO] data update: $(date -u +"%Y-%m-%dT%H:%M:%SZ")"
-#   git push
-#   updates_made=true
-# fi
-
-# if [[ "$updates_made" == true ]]; then
-#   echo "All updates processed successfully."
-# else
-#   echo "No updates were required."
-# fi
 
 exit 0

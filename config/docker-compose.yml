@@ -1,4 +1,4 @@
-name: tcg-decklists-new
+name: tcg-decklists
 
 services:
   database:
@@ -16,7 +16,7 @@ services:
   #   depends_on:
   #     - database
   #   build:
-  #     context: ./backend
+  #     context: ../apps/backend
   #     dockerfile: Dockerfile
   #   # TODO add other parameters
 
@@ -24,7 +24,7 @@ services:
   #   depends_on:
   #     - backend
   #   build:
-  #     context: ./frontend
+  #     context: ../apps/frontend
   #     dockerfile: Dockerfile
   #   # TODO add other parameters
 
