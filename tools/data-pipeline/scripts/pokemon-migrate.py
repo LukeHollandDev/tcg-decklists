@@ -202,13 +202,16 @@ def get_or_create_attack_id(cursor, name: str, converted_cost: int, damage: Opti
     # For each candidate, check if the cost types match exactly
     for (candidate_id,) in candidates:
         cursor.execute(
-            """SELECT t.name FROM pokemon_attack_cost ac
+            """SELECT t.name, ac.quantity FROM pokemon_attack_cost ac
                JOIN pokemon_type t ON ac.type_id = t.id
                WHERE ac.attack_id = %s
                ORDER BY t.name""",
             (candidate_id,)
         )
-        existing_costs = [row[0] for row in cursor.fetchall()]
+        # Expand quantities back into a list for comparison
+        existing_costs = []
+        for type_name, quantity in cursor.fetchall():
+            existing_costs.extend([type_name] * quantity)
 
         # Compare sorted cost lists (order-independent but count-aware)
         if sorted(existing_costs) == sorted(cost_types):
@@ -393,11 +396,15 @@ def upsert_card(cursor, card: Dict[str, Any]) -> None:
 
     # Insert retreat costs
     if 'retreatCost' in card and card['retreatCost']:
-        for energy_type in card['retreatCost']:
+        # Count occurrences of each type
+        from collections import Counter
+        type_counts = Counter(card['retreatCost'])
+
+        for energy_type, quantity in type_counts.items():
             type_id = get_or_create_id(cursor, 'pokemon_type', 'name', energy_type)
             cursor.execute(
-                "INSERT INTO pokemon_card_retreat_cost (card_id, type_id) VALUES (%s, %s)",
-                (card_id, type_id)
+                "INSERT INTO pokemon_card_retreat_cost (card_id, type_id, quantity) VALUES (%s, %s, %s)",
+                (card_id, type_id, quantity)
             )
 
     # Insert abilities
@@ -444,11 +451,15 @@ def upsert_card(cursor, card: Dict[str, Any]) -> None:
 
                 # Only insert costs if none exist yet
                 if existing_costs == 0:
-                    for cost_type in attack['cost']:
+                    # Count occurrences of each type
+                    from collections import Counter
+                    type_counts = Counter(attack['cost'])
+
+                    for cost_type, quantity in type_counts.items():
                         type_id = get_or_create_id(cursor, 'pokemon_type', 'name', cost_type)
                         cursor.execute(
-                            "INSERT INTO pokemon_attack_cost (attack_id, type_id) VALUES (%s, %s)",
-                            (attack_id, type_id)
+                            "INSERT INTO pokemon_attack_cost (attack_id, type_id, quantity) VALUES (%s, %s, %s)",
+                            (attack_id, type_id, quantity)
                         )
 
     # Insert weaknesses

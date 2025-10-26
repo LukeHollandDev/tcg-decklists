@@ -13,6 +13,7 @@ public class CardResponse {
     private String hp;
     private Integer hpNumeric;
     private Integer convertedRetreatCost;
+    private List<String> retreatCost;
     private String number;
     private String setId;
     private String setName;
@@ -39,6 +40,15 @@ public class CardResponse {
         this.hp = card.getHp();
         this.hpNumeric = card.getHpNumeric();
         this.convertedRetreatCost = card.getConvertedRetreatCost();
+        // Expand retreat cost quantities: if Colorless has quantity 3, output ["Colorless", "Colorless", "Colorless"]
+        this.retreatCost = card.getRetreatCosts().stream()
+                .flatMap(rc -> {
+                    String typeName = rc.getType().getName();
+                    Integer quantity = rc.getQuantity();
+                    return java.util.stream.Stream.generate(() -> typeName)
+                            .limit(quantity);
+                })
+                .collect(Collectors.toList());
         this.number = card.getNumber();
         this.setId = card.getSetId();
         this.setName = card.getPokemonSet() != null ? card.getPokemonSet().getName() : null;
@@ -118,6 +128,14 @@ public class CardResponse {
 
     public void setConvertedRetreatCost(Integer convertedRetreatCost) {
         this.convertedRetreatCost = convertedRetreatCost;
+    }
+
+    public List<String> getRetreatCost() {
+        return retreatCost;
+    }
+
+    public void setRetreatCost(List<String> retreatCost) {
+        this.retreatCost = retreatCost;
     }
 
     public String getNumber() {
@@ -335,8 +353,14 @@ public class CardResponse {
             this.damageNumeric = attack.getDamageNumeric();
             this.damageModifier = attack.getDamageModifier();
             this.text = attack.getText();
+            // Expand quantities: if Grass has quantity 3, output ["Grass", "Grass", "Grass"]
             this.cost = attack.getCosts().stream()
-                    .map(c -> c.getType().getName())
+                    .flatMap(c -> {
+                        String typeName = c.getType().getName();
+                        Integer quantity = c.getQuantity();
+                        return java.util.stream.Stream.generate(() -> typeName)
+                                .limit(quantity);
+                    })
                     .collect(Collectors.toList());
         }
 

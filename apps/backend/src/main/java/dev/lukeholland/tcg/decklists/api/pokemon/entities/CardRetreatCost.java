@@ -20,6 +20,9 @@ public class CardRetreatCost {
     @JoinColumn(name = "type_id")
     private Type type;
 
+    @Column(nullable = false)
+    private Integer quantity = 1;
+
     public CardRetreatCost() {
     }
 
@@ -37,6 +40,14 @@ public class CardRetreatCost {
 
     public void setType(Type type) {
         this.type = type;
+    }
+
+    public Integer getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(Integer quantity) {
+        this.quantity = quantity;
     }
 
     public static class PokemonCardRetreatCostId implements Serializable {

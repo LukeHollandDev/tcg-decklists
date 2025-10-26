@@ -2,31 +2,28 @@ package dev.lukeholland.tcg.decklists.api.pokemon.entities;
 
 import jakarta.persistence.*;
 
+import java.io.Serializable;
+import java.util.Objects;
+
 @Entity
 @Table(name = "pokemon_attack_cost")
+@IdClass(AttackCost.PokemonAttackCostId.class)
 public class AttackCost {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "attack_id")
     private Attack attack;
 
+    @Id
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "type_id")
     private Type type;
 
+    @Column(nullable = false)
+    private Integer quantity = 1;
+
     public AttackCost() {
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
     }
 
     public Attack getAttack() {
@@ -43,5 +40,34 @@ public class AttackCost {
 
     public void setType(Type type) {
         this.type = type;
+    }
+
+    public Integer getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(Integer quantity) {
+        this.quantity = quantity;
+    }
+
+    public static class PokemonAttackCostId implements Serializable {
+        private Integer attack;
+        private Integer type;
+
+        public PokemonAttackCostId() {
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            PokemonAttackCostId that = (PokemonAttackCostId) o;
+            return Objects.equals(attack, that.attack) && Objects.equals(type, that.type);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(attack, type);
+        }
     }
 }

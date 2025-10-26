@@ -10,12 +10,13 @@ CREATE TABLE pokemon_attack
     text            TEXT
 );
 
--- Attack ↔ Type cost allows duplicates by having its own ID key
+-- Attack ↔ Type cost - stores quantity for each type per attack
 CREATE TABLE pokemon_attack_cost
 (
-    id        SERIAL PRIMARY KEY,
-    attack_id INT REFERENCES pokemon_attack (id) ON DELETE CASCADE,
-    type_id   INT REFERENCES pokemon_type (id) ON DELETE CASCADE
+    attack_id INT NOT NULL REFERENCES pokemon_attack (id) ON DELETE CASCADE,
+    type_id   INT NOT NULL REFERENCES pokemon_type (id) ON DELETE CASCADE,
+    quantity  INT NOT NULL DEFAULT 1,
+    PRIMARY KEY (attack_id, type_id)
 );
 
 -- Card ↔ Attack
