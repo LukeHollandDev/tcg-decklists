@@ -162,7 +162,7 @@ The `validate-all-cards.js` script allows you to validate all cards (or a subset
 node validate-all-cards.js
 
 # Validate with options
-node validate-all-cards.js --limit=100 --verbose
+node validate-all-cards.js --limit=100
 
 # Validate a specific card
 node validate-all-cards.js --card-id=base1-1
@@ -178,7 +178,6 @@ node validate-all-cards.js --concurrency=20
 
 - `--base-url=URL` - Base API URL (default: `http://localhost:8080/api`)
 - `--limit=N` - Only validate first N cards (useful for quick testing)
-- `--verbose` - Show details for passing tests (default: only show failures)
 - `--card-id=ID` - Validate only a specific card ID
 - `--concurrency=N` - Number of concurrent requests (default: 10)
 - `--help` - Show help message

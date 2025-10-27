@@ -15,12 +15,10 @@
  * Options:
  *   --base-url=URL    Base API URL (default: http://localhost:8080/api)
  *   --limit=N         Only validate first N cards
- *   --verbose         Show details for passing tests too
  *   --card-id=ID      Validate only a specific card ID
  *   --concurrency=N   Number of concurrent requests (default: 10)
  */
 
-const path = require('path');
 const { loadPokemonSourceDataAsArray } = require('./lib/load-data');
 const { validateCard } = require('./lib/validators');
 
@@ -29,7 +27,6 @@ const args = process.argv.slice(2);
 const config = {
     baseUrl: 'http://localhost:8080/api',
     limit: null,
-    verbose: false,
     cardId: null,
     concurrency: 10
 };
@@ -39,8 +36,6 @@ for (const arg of args) {
         config.baseUrl = arg.split('=')[1];
     } else if (arg.startsWith('--limit=')) {
         config.limit = parseInt(arg.split('=')[1], 10);
-    } else if (arg === '--verbose') {
-        config.verbose = true;
     } else if (arg.startsWith('--card-id=')) {
         config.cardId = arg.split('=')[1];
     } else if (arg.startsWith('--concurrency=')) {
@@ -55,7 +50,6 @@ Usage:
 Options:
   --base-url=URL      Base API URL (default: http://localhost:8080/api)
   --limit=N           Only validate first N cards
-  --verbose           Show details for passing tests too
   --card-id=ID        Validate only a specific card ID
   --concurrency=N     Number of concurrent requests (default: 10)
   --help              Show this help message
@@ -71,7 +65,7 @@ Options:
  * @returns {Promise<Object>} Validation result
  */
 async function validateCardFromApi(cardId, sourceData) {
-    const url = `${config.baseUrl}/card/pokemon/${cardId}`;
+    const url = `${config.baseUrl}/card/pokemon/${encodeURIComponent(cardId)}`;
 
     try {
         const response = await fetch(url);
@@ -138,6 +132,21 @@ async function runValidation() {
         batches.push(cardsToValidate.slice(i, i + config.concurrency));
     }
 
+    /**
+     * Updates progress indicator on the same line
+     */
+    function updateProgress(processed, total, passed, failed) {
+        const percent = ((processed / total) * 100).toFixed(1);
+        const barLength = 30;
+        const filledLength = Math.floor((processed / total) * barLength);
+        const bar = '█'.repeat(filledLength) + '░'.repeat(barLength - filledLength);
+
+        process.stdout.write(
+            `\r[${bar}] ${processed}/${total} (${percent}%) | ` +
+            `✓ ${passed} | ✗ ${failed}`
+        );
+    }
+
     let processed = 0;
     for (const batch of batches) {
         const batchResults = await Promise.all(
@@ -149,38 +158,31 @@ async function runValidation() {
 
             if (result.success) {
                 results.passed++;
-                if (config.verbose) {
-                    console.log(`✓ ${result.cardId} - PASSED`);
-                }
             } else {
                 results.failed++;
                 results.failures.push(result);
-                console.log(`✗ ${result.cardId} - FAILED`);
-                for (const error of result.errors) {
-                    console.log(`  - ${error}`);
-                }
             }
 
-            // Progress indicator (every 100 cards)
-            if (!config.verbose && processed % 100 === 0) {
-                const percent = ((processed / results.total) * 100).toFixed(1);
-                console.log(`Progress: ${processed}/${results.total} (${percent}%)`);
-            }
+            // Update progress indicator
+            updateProgress(processed, results.total, results.passed, results.failed);
         }
     }
 
+    // Move to next line after progress bar completes
+    console.log();
+
     // Summary
-    console.log('\n' + '='.repeat(60));
-    console.log('VALIDATION SUMMARY');
-    console.log('='.repeat(60));
     console.log(`Total cards validated: ${results.total}`);
     console.log(`Passed: ${results.passed} (${((results.passed / results.total) * 100).toFixed(2)}%)`);
     console.log(`Failed: ${results.failed} (${((results.failed / results.total) * 100).toFixed(2)}%)`);
 
     if (results.failed > 0) {
-        console.log('\nFailed cards:');
+        console.log('Failed Cards:');
         for (const failure of results.failures) {
-            console.log(`  - ${failure.cardId}`);
+            console.log(`\n✗ ${failure.cardId}`);
+            for (const error of failure.errors) {
+                console.log(`  - ${error}`);
+            }
         }
         process.exit(1);
     } else {
