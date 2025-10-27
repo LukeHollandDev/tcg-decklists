@@ -229,8 +229,10 @@ When adding support for new card fields or validation logic:
 **`lib/utils.js`:**
 
 - `sortByName(arr)` - Sorts array by name property
+- `sortByType(arr)` - Sorts array by type property (for weaknesses/resistances)
 - `normalizeAttack(attack)` - Normalizes attack object for comparison
-- `deepEqual(a, b)` - Deep equality check via JSON serialization
+- `normalizeForComparison(value)` - Recursively normalizes values by sorting object keys
+- `deepEqual(a, b)` - Deep equality check that ignores object key order
 - `arraysHaveSameMembers(arr1, arr2)` - Order-independent array comparison
 
 ## Notes
@@ -238,4 +240,8 @@ When adding support for new card fields or validation logic:
 - Tests use Bruno's built-in Chai assertions (`expect`)
 - The collection allows filesystem access to read source data files
 - All validation logic is centralized in the `lib/` directory for consistency
-- Tests normalize data structures (e.g., sorting arrays) to avoid false failures due to ordering differences
+- Tests normalize data structures to avoid false failures due to ordering differences:
+  - Object keys are sorted recursively before comparison
+  - Arrays of objects (weaknesses, resistances) are sorted by type
+  - Arrays of primitives are sorted before comparison
+  - Attack costs and other order-independent arrays use member comparison

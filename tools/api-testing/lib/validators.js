@@ -5,7 +5,7 @@
  * They return arrays of error messages (empty array = validation passed).
  */
 
-const { sortByName, normalizeAttack, deepEqual, arraysHaveSameMembers } = require('./utils');
+const { sortByName, sortByType, normalizeAttack, deepEqual, arraysHaveSameMembers } = require('./utils');
 
 /**
  * Validates required fields for a Pokemon card
@@ -125,14 +125,22 @@ function validateOptionalFields(apiCard, sourceCard) {
         }
     }
 
-    // Weaknesses
-    if (sourceCard.weaknesses && !deepEqual(apiCard.weaknesses, sourceCard.weaknesses)) {
-        errors.push(`Weaknesses mismatch`);
+    // Weaknesses (sort by type to handle different ordering)
+    if (sourceCard.weaknesses) {
+        const sortedApiWeaknesses = sortByType(apiCard.weaknesses || []);
+        const sortedSourceWeaknesses = sortByType(sourceCard.weaknesses);
+        if (!deepEqual(sortedApiWeaknesses, sortedSourceWeaknesses)) {
+            errors.push(`Weaknesses mismatch`);
+        }
     }
 
-    // Resistances
-    if (sourceCard.resistances && !deepEqual(apiCard.resistances, sourceCard.resistances)) {
-        errors.push(`Resistances mismatch`);
+    // Resistances (sort by type to handle different ordering)
+    if (sourceCard.resistances) {
+        const sortedApiResistances = sortByType(apiCard.resistances || []);
+        const sortedSourceResistances = sortByType(sourceCard.resistances);
+        if (!deepEqual(sortedApiResistances, sortedSourceResistances)) {
+            errors.push(`Resistances mismatch`);
+        }
     }
 
     // Retreat Cost
@@ -312,13 +320,17 @@ function getValidationTests(apiCard, sourceCard, expect) {
 
     if (sourceCard.weaknesses) {
         addTest('optional', 'weaknesses should match', () => {
-            expect(apiCard.weaknesses).to.deep.equal(sourceCard.weaknesses);
+            const sortedApiWeaknesses = sortByType(apiCard.weaknesses || []);
+            const sortedSourceWeaknesses = sortByType(sourceCard.weaknesses);
+            expect(sortedApiWeaknesses).to.deep.equal(sortedSourceWeaknesses);
         });
     }
 
     if (sourceCard.resistances) {
         addTest('optional', 'resistances should match', () => {
-            expect(apiCard.resistances).to.deep.equal(sourceCard.resistances);
+            const sortedApiResistances = sortByType(apiCard.resistances || []);
+            const sortedSourceResistances = sortByType(sourceCard.resistances);
+            expect(sortedApiResistances).to.deep.equal(sortedSourceResistances);
         });
     }
 

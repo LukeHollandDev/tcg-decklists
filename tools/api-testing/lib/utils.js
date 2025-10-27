@@ -12,6 +12,20 @@ function sortByName(arr) {
 }
 
 /**
+ * Sorts an array of objects by their type property
+ * Used for weaknesses and resistances which can be in different orders
+ * @param {Array} arr - Array of objects with type property
+ * @returns {Array} Sorted array
+ */
+function sortByType(arr) {
+    if (!arr || !Array.isArray(arr)) return arr;
+    return arr.slice().sort((a, b) => {
+        if (!a.type || !b.type) return 0;
+        return a.type.localeCompare(b.type);
+    });
+}
+
+/**
  * Normalizes an attack object for comparison
  * @param {Object} attack - Attack object from source or API
  * @returns {Object} Normalized attack
@@ -27,13 +41,39 @@ function normalizeAttack(attack) {
 }
 
 /**
- * Deep equality comparison using JSON serialization
+ * Normalizes a value by recursively sorting object keys
+ * This ensures consistent comparison regardless of key order
+ * @param {*} value - Value to normalize
+ * @returns {*} Normalized value
+ */
+function normalizeForComparison(value) {
+    if (value === null || value === undefined) {
+        return value;
+    }
+
+    if (Array.isArray(value)) {
+        return value.map(normalizeForComparison);
+    }
+
+    if (typeof value === 'object') {
+        const sortedObj = {};
+        Object.keys(value).sort().forEach(key => {
+            sortedObj[key] = normalizeForComparison(value[key]);
+        });
+        return sortedObj;
+    }
+
+    return value;
+}
+
+/**
+ * Deep equality comparison that ignores object key order
  * @param {*} a - First value
  * @param {*} b - Second value
  * @returns {boolean} True if equal
  */
 function deepEqual(a, b) {
-    return JSON.stringify(a) === JSON.stringify(b);
+    return JSON.stringify(normalizeForComparison(a)) === JSON.stringify(normalizeForComparison(b));
 }
 
 /**
@@ -51,7 +91,9 @@ function arraysHaveSameMembers(arr1, arr2) {
 
 module.exports = {
     sortByName,
+    sortByType,
     normalizeAttack,
+    normalizeForComparison,
     deepEqual,
     arraysHaveSameMembers
 };
