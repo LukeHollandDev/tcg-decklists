@@ -6,36 +6,3 @@ meta {
 auth {
   mode: inherit
 }
-
-tests {
-  function loadPokemonSourceData() {
-    const fs = require('fs');
-    const path = require('path');
-  
-    const cwd = bru.cwd();
-    const dataDir = path.join(cwd, '../data-pipeline/pokemon');
-  
-    const pokemonJSONFiles = fs.readdirSync(dataDir);
-  
-    const allPokemon = pokemonJSONFiles
-      .filter(file => file.endsWith('.json'))
-      .flatMap(file => {
-        const filePath = path.join(dataDir, file);
-        const content = fs.readFileSync(filePath, 'utf-8');
-        try {
-          const json = JSON.parse(content);
-          if (Array.isArray(json)) return json;
-          return [];
-        } catch (e) {
-          console.error(`Failed to parse ${file}:`, e);
-          return [];
-        }
-      }).reduce((map, pokemon) => {
-        map[pokemon.id] = pokemon;
-        return map;
-      }, {});
-    
-    return allPokemon;
-  }
-  
-}
