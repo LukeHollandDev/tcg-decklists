@@ -80,7 +80,17 @@ public class Service {
                 request.getFormats(),
                 request.getFormatsMatchAll(),
                 request.getFormatsBanned(),
-                request.getFormatsBannedMatchAll()
+                request.getFormatsBannedMatchAll(),
+                request.getHasRuleBox(),
+                request.getHasWeakness(),
+                request.getHasResistance(),
+                request.getWeaknessType(),
+                request.getWeaknessTypeMatchAll(),
+                request.getResistanceType(),
+                request.getResistanceTypeMatchAll(),
+                request.getEvolvesFrom(),
+                request.getEvolvesTo(),
+                request.getRuleText()
         );
 
         // Build Sort object from request

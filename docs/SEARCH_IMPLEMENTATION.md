@@ -21,8 +21,12 @@ decisions, usage, and how to extend it.
 
 The search functionality enables comprehensive filtering of Pokemon cards with:
 
-- **Text search** across card names (case-insensitive, partial matching)
-- **Multiple filter types** (supertype, types, subtypes, set, rarity, HP range)
+- **Text search** across card names, attack text, ability text, and rule text (case-insensitive, accent-insensitive,
+  partial matching)
+- **Multiple filter types** (supertype, types, subtypes, set, rarity, HP range, attacks, abilities, weaknesses,
+  resistances, evolutions)
+- **Boolean filters** (hasAbility, hasRuleBox, hasWeakness, hasResistance)
+- **AND/OR logic support** for multi-value filters (types, subtypes, attack costs, weaknesses, resistances, formats)
 - **Pagination** (configurable page size, max 100 per page)
 - **Sorting** (by any field, ascending or descending)
 - **Filter discovery** (features endpoint returns available filter values)
@@ -609,10 +613,12 @@ All Phase 2 filters support the same accent-insensitive searching as Phase 1!
 #### Phase 2 Enhancements (Latest Update)
 
 **Text Search Capabilities:**
+
 - Search within attack descriptions to find cards by what they do (e.g., "draw cards", "damage counters")
 - Search within ability descriptions to find specific mechanics (e.g., "once during your turn")
 
 **Format Ban Analysis:**
+
 - Find cards banned in specific formats
 - Compare format legality (e.g., legal in Expanded but banned in Standard)
 - Support for both OR logic (banned in ANY format) and AND logic (banned in ALL formats)
@@ -620,6 +626,7 @@ All Phase 2 filters support the same accent-insensitive searching as Phase 1!
 #### Example Use Cases for Phase 2 Enhancements
 
 **Content-Based Search:**
+
 ```http
 # Find cards with card draw mechanics
 GET /api/pokemon/search?attackText=draw
@@ -632,6 +639,7 @@ GET /api/pokemon/search?abilityText=once%20during%20your%20turn
 ```
 
 **Ban List Analysis:**
+
 ```http
 # All cards banned in Standard
 GET /api/pokemon/search?formatsBanned=Standard
@@ -644,6 +652,7 @@ GET /api/pokemon/search?formatsBanned=Standard&formatsBanned=Expanded&formatsBan
 ```
 
 **Deck Building Scenarios:**
+
 ```http
 # Fire-type cards with "draw" effects, legal in Standard
 GET /api/pokemon/search?types=Fire&attackText=draw&formats=Standard
@@ -655,27 +664,93 @@ GET /api/pokemon/search?hpMin=200&abilityText=damage
 GET /api/pokemon/search?retreatCostMax=1&abilityText=search
 ```
 
+### Phase 3: Advanced Filters (IMPLEMENTED)
+
+Phase 3 has been fully implemented with the following filters:
+
+- **Boolean Filters** ✅
+    - `hasRuleBox` - Filter cards with/without rule boxes
+    - `hasWeakness` - Filter cards with/without weaknesses
+    - `hasResistance` - Filter cards with/without resistances
+
+- **Weakness/Resistance Type Filters** ✅
+    - `weaknessType` + `weaknessTypeMatchAll` - Weakness types with AND/OR logic
+    - `resistanceType` + `resistanceTypeMatchAll` - Resistance types with AND/OR logic
+
+- **Evolution Filters** ✅
+    - `evolvesFrom` - Evolution source (partial match, accent-insensitive)
+    - `evolvesTo` - Evolution target (partial match, accent-insensitive)
+
+- **Rule Text Search** ✅
+    - `ruleText` - Rule text/description search (partial match, accent-insensitive)
+
+All Phase 3 filters follow the same accent-insensitive and composable patterns as Phase 1 and Phase 2!
+
+#### Example Use Cases for Phase 3 Filters
+
+**Boolean Filters:**
+
+```http
+# Find all cards with rule boxes (GX, V, VMAX, ex, etc.)
+GET /api/pokemon/search?hasRuleBox=true
+
+# Find cards without weaknesses
+GET /api/pokemon/search?hasWeakness=false
+
+# Find cards with resistances
+GET /api/pokemon/search?hasResistance=true
+```
+
+**Weakness/Resistance Analysis:**
+
+```http
+# Find cards weak to Fire OR Water
+GET /api/pokemon/search?weaknessType=Fire&weaknessType=Water
+
+# Find Grass-type cards weak to Fire
+GET /api/pokemon/search?types=Grass&weaknessType=Fire
+
+# Find cards resistant to Psychic
+GET /api/pokemon/search?resistanceType=Psychic
+
+# Find cards with weaknesses but no resistances
+GET /api/pokemon/search?hasWeakness=true&hasResistance=false
+```
+
+**Evolution Chain Exploration:**
+
+```http
+# Find all cards that evolve from Pikachu
+GET /api/pokemon/search?evolvesFrom=Pikachu
+
+# Find all cards that evolve to Charizard
+GET /api/pokemon/search?evolvesTo=Charizard
+
+# Find evolution cards with rule boxes that evolve from Eevee
+GET /api/pokemon/search?evolvesFrom=Eevee&hasRuleBox=true
+```
+
+**Rule Text Search:**
+
+```http
+# Find all GX cards by searching rule text
+GET /api/pokemon/search?ruleText=GX
+
+# Find VMAX cards
+GET /api/pokemon/search?ruleText=VMAX
+
+# Combined: Fire-type Stage 2 cards weak to Water with abilities
+GET /api/pokemon/search?types=Fire&subtypes=Stage%202&weaknessType=Water&hasAbility=true
+```
+
 ## Future Enhancements
 
-### Phase 3: Advanced Features
-
-- **Boolean Filters**
-    - `hasRuleBox` - Cards with rule boxes
-    - `hasWeakness` - Cards with weaknesses
-    - `hasResistance` - Cards with resistances
+### Phase 4: Full-Text Search (PLANNED)
 
 - **Full-Text Search**
     - PostgreSQL `tsvector` for text search across multiple fields
-    - Search attack text, ability text, trainer text simultaneously
+    - Search attack text, ability text, trainer text, rule text simultaneously
     - Relevance ranking
-
-- **Weakness/Resistance Filters**
-    - `weaknessType` - Weakness type
-    - `resistanceType` - Resistance type
-
-- **Evolution Filters**
-    - `evolvesFrom` - Evolution source
-    - `evolvesTo` - Evolution target
 
 ### Potential Optimizations
 

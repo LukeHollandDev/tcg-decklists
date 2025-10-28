@@ -162,6 +162,68 @@ public class CardSearchRequest {
      */
     private Boolean formatsBannedMatchAll;
 
+    // ===== Phase 3 Filters =====
+
+    /**
+     * Filter to only cards with rule boxes (true) or without rule boxes (false).
+     * If null, no filtering by rule box presence.
+     */
+    private Boolean hasRuleBox;
+
+    /**
+     * Filter to only cards with weaknesses (true) or without weaknesses (false).
+     * If null, no filtering by weakness presence.
+     */
+    private Boolean hasWeakness;
+
+    /**
+     * Filter to only cards with resistances (true) or without resistances (false).
+     * If null, no filtering by resistance presence.
+     */
+    private Boolean hasResistance;
+
+    /**
+     * Filter by one or more weakness types (Fire, Water, Psychic, etc.)
+     * By default uses OR logic (ANY match). Set weaknessTypeMatchAll=true for AND logic.
+     */
+    private List<String> weaknessType;
+
+    /**
+     * If true, cards must have ALL specified weakness types (AND logic).
+     * If false/null, cards must have ANY specified weakness type (OR logic) - default behavior.
+     */
+    private Boolean weaknessTypeMatchAll;
+
+    /**
+     * Filter by one or more resistance types (Fire, Water, Psychic, etc.)
+     * By default uses OR logic (ANY match). Set resistanceTypeMatchAll=true for AND logic.
+     */
+    private List<String> resistanceType;
+
+    /**
+     * If true, cards must have ALL specified resistance types (AND logic).
+     * If false/null, cards must have ANY specified resistance type (OR logic) - default behavior.
+     */
+    private Boolean resistanceTypeMatchAll;
+
+    /**
+     * Filter by evolution source name (what this card evolves from).
+     * Partial match, case-insensitive, accent-insensitive.
+     */
+    private String evolvesFrom;
+
+    /**
+     * Filter by evolution target name (what this card evolves to).
+     * Partial match, case-insensitive, accent-insensitive.
+     */
+    private String evolvesTo;
+
+    /**
+     * Filter by rule text/description (partial match).
+     * Case-insensitive, accent-insensitive.
+     */
+    private String ruleText;
+
     // ===== Pagination & Sorting =====
 
     /**
@@ -451,6 +513,86 @@ public class CardSearchRequest {
         this.formatsBannedMatchAll = formatsBannedMatchAll;
     }
 
+    public Boolean getHasRuleBox() {
+        return hasRuleBox;
+    }
+
+    public void setHasRuleBox(Boolean hasRuleBox) {
+        this.hasRuleBox = hasRuleBox;
+    }
+
+    public Boolean getHasWeakness() {
+        return hasWeakness;
+    }
+
+    public void setHasWeakness(Boolean hasWeakness) {
+        this.hasWeakness = hasWeakness;
+    }
+
+    public Boolean getHasResistance() {
+        return hasResistance;
+    }
+
+    public void setHasResistance(Boolean hasResistance) {
+        this.hasResistance = hasResistance;
+    }
+
+    public List<String> getWeaknessType() {
+        return weaknessType;
+    }
+
+    public void setWeaknessType(List<String> weaknessType) {
+        this.weaknessType = weaknessType;
+    }
+
+    public Boolean getWeaknessTypeMatchAll() {
+        return weaknessTypeMatchAll;
+    }
+
+    public void setWeaknessTypeMatchAll(Boolean weaknessTypeMatchAll) {
+        this.weaknessTypeMatchAll = weaknessTypeMatchAll;
+    }
+
+    public List<String> getResistanceType() {
+        return resistanceType;
+    }
+
+    public void setResistanceType(List<String> resistanceType) {
+        this.resistanceType = resistanceType;
+    }
+
+    public Boolean getResistanceTypeMatchAll() {
+        return resistanceTypeMatchAll;
+    }
+
+    public void setResistanceTypeMatchAll(Boolean resistanceTypeMatchAll) {
+        this.resistanceTypeMatchAll = resistanceTypeMatchAll;
+    }
+
+    public String getEvolvesFrom() {
+        return evolvesFrom;
+    }
+
+    public void setEvolvesFrom(String evolvesFrom) {
+        this.evolvesFrom = evolvesFrom;
+    }
+
+    public String getEvolvesTo() {
+        return evolvesTo;
+    }
+
+    public void setEvolvesTo(String evolvesTo) {
+        this.evolvesTo = evolvesTo;
+    }
+
+    public String getRuleText() {
+        return ruleText;
+    }
+
+    public void setRuleText(String ruleText) {
+        this.ruleText = ruleText;
+    }
+
     /**
      * Check if any filters are applied
      *
@@ -478,6 +620,14 @@ public class CardSearchRequest {
                 || retreatCostMin != null
                 || retreatCostMax != null
                 || (formats != null && !formats.isEmpty())
-                || (formatsBanned != null && !formatsBanned.isEmpty());
+                || (formatsBanned != null && !formatsBanned.isEmpty())
+                || hasRuleBox != null
+                || hasWeakness != null
+                || hasResistance != null
+                || (weaknessType != null && !weaknessType.isEmpty())
+                || (resistanceType != null && !resistanceType.isEmpty())
+                || evolvesFrom != null
+                || evolvesTo != null
+                || ruleText != null;
     }
 }

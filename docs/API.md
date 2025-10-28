@@ -100,14 +100,14 @@ GET /api/pokemon/search?name=alakazam&hpMin=80&types=psychic
 
 **Query Parameters (Phase 2 - Attack Filters):**
 
-| Parameter            | Type     | Description                                        | Example                              |
-|----------------------|----------|----------------------------------------------------|--------------------------------------|
-| `attackName`         | String   | Attack name (partial match, accent-insensitive)    | `attackName=Thunderbolt`             |
-| `attackText`         | String   | Attack text/description search (partial match)     | `attackText=draw`                    |
-| `attackDamageMin`    | Integer  | Minimum attack damage (inclusive)                  | `attackDamageMin=100`                |
-| `attackDamageMax`    | Integer  | Maximum attack damage (inclusive)                  | `attackDamageMax=200`                |
-| `attackCost`         | String[] | Attack cost types - ANY match                      | `attackCost=Fire&attackCost=Colorle` |
-| `attackCostMatchAll` | Boolean  | If true, match ALL cost types (AND logic)          | `attackCostMatchAll=true`            |
+| Parameter            | Type     | Description                                     | Example                              |
+|----------------------|----------|-------------------------------------------------|--------------------------------------|
+| `attackName`         | String   | Attack name (partial match, accent-insensitive) | `attackName=Thunderbolt`             |
+| `attackText`         | String   | Attack text/description search (partial match)  | `attackText=draw`                    |
+| `attackDamageMin`    | Integer  | Minimum attack damage (inclusive)               | `attackDamageMin=100`                |
+| `attackDamageMax`    | Integer  | Maximum attack damage (inclusive)               | `attackDamageMax=200`                |
+| `attackCost`         | String[] | Attack cost types - ANY match                   | `attackCost=Fire&attackCost=Colorle` |
+| `attackCostMatchAll` | Boolean  | If true, match ALL cost types (AND logic)       | `attackCostMatchAll=true`            |
 
 **Query Parameters (Phase 2 - Ability Filters):**
 
@@ -119,16 +119,41 @@ GET /api/pokemon/search?name=alakazam&hpMin=80&types=psychic
 
 **Query Parameters (Phase 2 - Detail Filters):**
 
-| Parameter                | Type     | Description                                     | Example                             |
-|--------------------------|----------|-------------------------------------------------|-------------------------------------|
-| `artist`                 | String   | Artist name (exact match, accent-insensitive)   | `artist=Ken Sugimori`               |
-| `regulationMark`         | String   | Regulation mark (A, B, C, D, E, F, G, H)        | `regulationMark=E`                  |
-| `retreatCostMin`         | Integer  | Minimum retreat cost (inclusive)                | `retreatCostMin=1`                  |
-| `retreatCostMax`         | Integer  | Maximum retreat cost (inclusive)                | `retreatCostMax=3`                  |
-| `formats`                | String[] | Format legality - ANY match                     | `formats=Standard&formats=Expanded` |
-| `formatsMatchAll`        | Boolean  | If true, legal in ALL formats (AND logic)       | `formatsMatchAll=true`              |
-| `formatsBanned`          | String[] | Formats where cards are BANNED - ANY match      | `formatsBanned=Standard`            |
-| `formatsBannedMatchAll`  | Boolean  | If true, banned in ALL formats (AND logic)      | `formatsBannedMatchAll=true`        |
+| Parameter               | Type     | Description                                   | Example                             |
+|-------------------------|----------|-----------------------------------------------|-------------------------------------|
+| `artist`                | String   | Artist name (exact match, accent-insensitive) | `artist=Ken Sugimori`               |
+| `regulationMark`        | String   | Regulation mark (A, B, C, D, E, F, G, H)      | `regulationMark=E`                  |
+| `retreatCostMin`        | Integer  | Minimum retreat cost (inclusive)              | `retreatCostMin=1`                  |
+| `retreatCostMax`        | Integer  | Maximum retreat cost (inclusive)              | `retreatCostMax=3`                  |
+| `formats`               | String[] | Format legality - ANY match                   | `formats=Standard&formats=Expanded` |
+| `formatsMatchAll`       | Boolean  | If true, legal in ALL formats (AND logic)     | `formatsMatchAll=true`              |
+| `formatsBanned`         | String[] | Formats where cards are BANNED - ANY match    | `formatsBanned=Standard`            |
+| `formatsBannedMatchAll` | Boolean  | If true, banned in ALL formats (AND logic)    | `formatsBannedMatchAll=true`        |
+
+**Query Parameters (Phase 3 - Boolean Filters):**
+
+| Parameter       | Type    | Description                                | Example              |
+|-----------------|---------|--------------------------------------------|----------------------|
+| `hasRuleBox`    | Boolean | Filter by rule box presence (true/false)   | `hasRuleBox=true`    |
+| `hasWeakness`   | Boolean | Filter by weakness presence (true/false)   | `hasWeakness=true`   |
+| `hasResistance` | Boolean | Filter by resistance presence (true/false) | `hasResistance=true` |
+
+**Query Parameters (Phase 3 - Weakness/Resistance Filters):**
+
+| Parameter                | Type     | Description                                      | Example                                    |
+|--------------------------|----------|--------------------------------------------------|--------------------------------------------|
+| `weaknessType`           | String[] | Weakness types (Fire, Water, etc.) - ANY match   | `weaknessType=Fire&weaknessType=Water`     |
+| `weaknessTypeMatchAll`   | Boolean  | If true, match ALL weakness types (AND logic)    | `weaknessTypeMatchAll=true`                |
+| `resistanceType`         | String[] | Resistance types (Fire, Water, etc.) - ANY match | `resistanceType=Fire&resistanceType=Water` |
+| `resistanceTypeMatchAll` | Boolean  | If true, match ALL resistance types (AND logic)  | `resistanceTypeMatchAll=true`              |
+
+**Query Parameters (Phase 3 - Evolution & Rule Filters):**
+
+| Parameter     | Type   | Description                                          | Example               |
+|---------------|--------|------------------------------------------------------|-----------------------|
+| `evolvesFrom` | String | Evolution source (partial match, accent-insensitive) | `evolvesFrom=Pikachu` |
+| `evolvesTo`   | String | Evolution target (partial match, accent-insensitive) | `evolvesTo=Raichu`    |
+| `ruleText`    | String | Rule text/description search (partial match)         | `ruleText=GX`         |
 
 **Pagination & Sorting:**
 
@@ -223,6 +248,50 @@ GET /api/pokemon/search?formats=Expanded&formatsBanned=Standard
 GET /api/pokemon/search?formatsBanned=Standard&formatsBanned=Expanded&formatsBannedMatchAll=true
 ```
 
+**Example Requests (Phase 3 - Boolean & Evolution Filters):**
+
+```http
+# Cards with rule boxes (like GX, V, VMAX, ex cards)
+GET /api/pokemon/search?hasRuleBox=true
+
+# Cards without weaknesses
+GET /api/pokemon/search?hasWeakness=false
+
+# Cards with resistances
+GET /api/pokemon/search?hasResistance=true
+
+# Cards that evolve from Pikachu
+GET /api/pokemon/search?evolvesFrom=Pikachu
+
+# Cards that evolve to Charizard
+GET /api/pokemon/search?evolvesTo=Charizard
+
+# Cards with "GX" in rule text
+GET /api/pokemon/search?ruleText=GX
+```
+
+**Example Requests (Phase 3 - Weakness/Resistance Type Filters):**
+
+```http
+# Cards weak to Fire OR Water
+GET /api/pokemon/search?weaknessType=Fire&weaknessType=Water
+
+# Cards weak to BOTH Fire AND Water (rare, but possible)
+GET /api/pokemon/search?weaknessType=Fire&weaknessType=Water&weaknessTypeMatchAll=true
+
+# Cards resistant to Psychic
+GET /api/pokemon/search?resistanceType=Psychic
+
+# Cards resistant to BOTH Fire AND Water
+GET /api/pokemon/search?resistanceType=Fire&resistanceType=Water&resistanceTypeMatchAll=true
+
+# Grass-type cards weak to Fire
+GET /api/pokemon/search?types=Grass&weaknessType=Fire
+
+# Cards with weaknesses but no resistances
+GET /api/pokemon/search?hasWeakness=true&hasResistance=false
+```
+
 **Complex Examples (Multiple Filters Combined):**
 
 ```http
@@ -237,6 +306,12 @@ GET /api/pokemon/search?hpMin=200&abilityText=damage&formats=Standard
 
 # Cards legal in Expanded but banned in Standard (format comparison)
 GET /api/pokemon/search?formats=Expanded&formatsBanned=Standard&pageSize=50
+
+# Evolution cards with rule boxes that evolve from Eevee
+GET /api/pokemon/search?evolvesFrom=Eevee&hasRuleBox=true
+
+# Fire-type Stage 2 cards weak to Water, with abilities
+GET /api/pokemon/search?types=Fire&subtypes=Stage%202&weaknessType=Water&hasAbility=true&sortBy=hpNumeric&sortOrder=desc
 ```
 
 **Response:**

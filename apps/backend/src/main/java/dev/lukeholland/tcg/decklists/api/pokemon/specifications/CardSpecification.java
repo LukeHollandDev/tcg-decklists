@@ -559,6 +559,329 @@ public class CardSpecification {
     }
 
     /**
+     * Filter by presence of rule boxes.
+     *
+     * @param hasRuleBox If true, only return cards with rule boxes. If false, only return cards without rule boxes. If null, no filtering.
+     * @return Specification that matches cards based on rule box presence
+     */
+    public static Specification<Card> hasRuleBox(Boolean hasRuleBox) {
+        return (root, query, criteriaBuilder) -> {
+            if (hasRuleBox == null) {
+                return criteriaBuilder.conjunction();
+            }
+
+            // Join to rules collection (many-to-many)
+            Join<Card, Rule> rulesJoin = root.join("rules", JoinType.LEFT);
+
+            if (hasRuleBox) {
+                // Cards WITH rule boxes: join must find at least one rule
+                return criteriaBuilder.isNotNull(rulesJoin.get("id"));
+            } else {
+                // Cards WITHOUT rule boxes: join must find no rules
+                return criteriaBuilder.isNull(rulesJoin.get("id"));
+            }
+        };
+    }
+
+    /**
+     * Filter by presence of weaknesses.
+     *
+     * @param hasWeakness If true, only return cards with weaknesses. If false, only return cards without weaknesses. If null, no filtering.
+     * @return Specification that matches cards based on weakness presence
+     */
+    public static Specification<Card> hasWeakness(Boolean hasWeakness) {
+        return (root, query, criteriaBuilder) -> {
+            if (hasWeakness == null) {
+                return criteriaBuilder.conjunction();
+            }
+
+            // Join to weaknesses collection (one-to-many)
+            Join<Card, CardWeakness> weaknessesJoin = root.join("weaknesses", JoinType.LEFT);
+
+            if (hasWeakness) {
+                // Cards WITH weaknesses: join must find at least one weakness
+                return criteriaBuilder.isNotNull(weaknessesJoin.get("id"));
+            } else {
+                // Cards WITHOUT weaknesses: join must find no weaknesses
+                return criteriaBuilder.isNull(weaknessesJoin.get("id"));
+            }
+        };
+    }
+
+    /**
+     * Filter by presence of resistances.
+     *
+     * @param hasResistance If true, only return cards with resistances. If false, only return cards without resistances. If null, no filtering.
+     * @return Specification that matches cards based on resistance presence
+     */
+    public static Specification<Card> hasResistance(Boolean hasResistance) {
+        return (root, query, criteriaBuilder) -> {
+            if (hasResistance == null) {
+                return criteriaBuilder.conjunction();
+            }
+
+            // Join to resistances collection (one-to-many)
+            Join<Card, CardResistance> resistancesJoin = root.join("resistances", JoinType.LEFT);
+
+            if (hasResistance) {
+                // Cards WITH resistances: join must find at least one resistance
+                return criteriaBuilder.isNotNull(resistancesJoin.get("id"));
+            } else {
+                // Cards WITHOUT resistances: join must find no resistances
+                return criteriaBuilder.isNull(resistancesJoin.get("id"));
+            }
+        };
+    }
+
+    /**
+     * Filter by one or more weakness types (Fire, Water, etc.).
+     * Supports both OR logic (ANY match) and AND logic (ALL match).
+     * Uses accent-insensitive matching.
+     *
+     * @param typeNames List of weakness type names to match
+     * @param matchAll  If true, cards must have weaknesses of ALL specified types (AND logic). If false/null, ANY type (OR logic).
+     * @return Specification that matches cards with the specified weakness types
+     */
+    public static Specification<Card> hasWeaknessTypes(List<String> typeNames, Boolean matchAll) {
+        return (root, query, criteriaBuilder) -> {
+            if (typeNames == null || typeNames.isEmpty()) {
+                return criteriaBuilder.conjunction();
+            }
+
+            // Normalize search terms
+            List<String> normalizedTypes = typeNames.stream()
+                    .filter(t -> t != null && !t.trim().isEmpty())
+                    .map(t -> StringNormalizer.normalize(t.trim()))
+                    .toList();
+
+            if (normalizedTypes.isEmpty()) {
+                return criteriaBuilder.conjunction();
+            }
+
+            // OR logic (ANY match) - default behavior
+            if (matchAll == null || !matchAll) {
+                // Join: Card -> CardWeakness -> Weakness -> Type
+                Join<Card, CardWeakness> weaknessJoin = root.join("weaknesses", JoinType.INNER);
+                Join<CardWeakness, Weakness> weaknessValueJoin = weaknessJoin.join("weakness", JoinType.INNER);
+                Join<Weakness, Type> typeJoin = weaknessValueJoin.join("type", JoinType.INNER);
+
+                // Add DISTINCT to avoid duplicate cards
+                if (query != null) {
+                    query.distinct(true);
+                }
+
+                // Match any of the normalized types
+                Expression<String> normalizedField = normalizeField(typeJoin.get("name"), criteriaBuilder);
+                return normalizedField.in(normalizedTypes);
+            }
+
+            // AND logic (ALL match) - card must have weaknesses of ALL specified types
+            jakarta.persistence.criteria.Predicate[] typePredicates = new jakarta.persistence.criteria.Predicate[normalizedTypes.size()];
+
+            for (int i = 0; i < normalizedTypes.size(); i++) {
+                String normalizedType = normalizedTypes.get(i);
+
+                // Create a subquery that checks if this card has a weakness of this specific type
+                jakarta.persistence.criteria.Subquery<Long> subquery = query.subquery(Long.class);
+                jakarta.persistence.criteria.Root<Card> subRoot = subquery.from(Card.class);
+                Join<Card, CardWeakness> subWeaknessJoin = subRoot.join("weaknesses", JoinType.INNER);
+                Join<CardWeakness, Weakness> subWeaknessValueJoin = subWeaknessJoin.join("weakness", JoinType.INNER);
+                Join<Weakness, Type> subTypeJoin = subWeaknessValueJoin.join("type", JoinType.INNER);
+
+                Expression<String> subNormalizedField = normalizeField(subTypeJoin.get("name"), criteriaBuilder);
+
+                subquery.select(criteriaBuilder.count(subWeaknessJoin.get("id")))
+                        .where(
+                                criteriaBuilder.equal(subRoot.get("id"), root.get("id")),
+                                criteriaBuilder.equal(subNormalizedField, normalizedType)
+                        );
+
+                // This card must have at least one weakness of this type
+                typePredicates[i] = criteriaBuilder.greaterThan(subquery, 0L);
+            }
+
+            // All type predicates must be true (AND them together)
+            return criteriaBuilder.and(typePredicates);
+        };
+    }
+
+    /**
+     * Filter by one or more resistance types (Fire, Water, etc.).
+     * Supports both OR logic (ANY match) and AND logic (ALL match).
+     * Uses accent-insensitive matching.
+     *
+     * @param typeNames List of resistance type names to match
+     * @param matchAll  If true, cards must have resistances of ALL specified types (AND logic). If false/null, ANY type (OR logic).
+     * @return Specification that matches cards with the specified resistance types
+     */
+    public static Specification<Card> hasResistanceTypes(List<String> typeNames, Boolean matchAll) {
+        return (root, query, criteriaBuilder) -> {
+            if (typeNames == null || typeNames.isEmpty()) {
+                return criteriaBuilder.conjunction();
+            }
+
+            // Normalize search terms
+            List<String> normalizedTypes = typeNames.stream()
+                    .filter(t -> t != null && !t.trim().isEmpty())
+                    .map(t -> StringNormalizer.normalize(t.trim()))
+                    .toList();
+
+            if (normalizedTypes.isEmpty()) {
+                return criteriaBuilder.conjunction();
+            }
+
+            // OR logic (ANY match) - default behavior
+            if (matchAll == null || !matchAll) {
+                // Join: Card -> CardResistance -> Resistance -> Type
+                Join<Card, CardResistance> resistanceJoin = root.join("resistances", JoinType.INNER);
+                Join<CardResistance, Resistance> resistanceValueJoin = resistanceJoin.join("resistance", JoinType.INNER);
+                Join<Resistance, Type> typeJoin = resistanceValueJoin.join("type", JoinType.INNER);
+
+                // Add DISTINCT to avoid duplicate cards
+                if (query != null) {
+                    query.distinct(true);
+                }
+
+                // Match any of the normalized types
+                Expression<String> normalizedField = normalizeField(typeJoin.get("name"), criteriaBuilder);
+                return normalizedField.in(normalizedTypes);
+            }
+
+            // AND logic (ALL match) - card must have resistances of ALL specified types
+            jakarta.persistence.criteria.Predicate[] typePredicates = new jakarta.persistence.criteria.Predicate[normalizedTypes.size()];
+
+            for (int i = 0; i < normalizedTypes.size(); i++) {
+                String normalizedType = normalizedTypes.get(i);
+
+                // Create a subquery that checks if this card has a resistance of this specific type
+                jakarta.persistence.criteria.Subquery<Long> subquery = query.subquery(Long.class);
+                jakarta.persistence.criteria.Root<Card> subRoot = subquery.from(Card.class);
+                Join<Card, CardResistance> subResistanceJoin = subRoot.join("resistances", JoinType.INNER);
+                Join<CardResistance, Resistance> subResistanceValueJoin = subResistanceJoin.join("resistance", JoinType.INNER);
+                Join<Resistance, Type> subTypeJoin = subResistanceValueJoin.join("type", JoinType.INNER);
+
+                Expression<String> subNormalizedField = normalizeField(subTypeJoin.get("name"), criteriaBuilder);
+
+                subquery.select(criteriaBuilder.count(subResistanceJoin.get("id")))
+                        .where(
+                                criteriaBuilder.equal(subRoot.get("id"), root.get("id")),
+                                criteriaBuilder.equal(subNormalizedField, normalizedType)
+                        );
+
+                // This card must have at least one resistance of this type
+                typePredicates[i] = criteriaBuilder.greaterThan(subquery, 0L);
+            }
+
+            // All type predicates must be true (AND them together)
+            return criteriaBuilder.and(typePredicates);
+        };
+    }
+
+    /**
+     * Filter by evolution source (what this card evolves from).
+     * Uses case-insensitive, accent-insensitive partial matching.
+     *
+     * @param name The name of the Pokemon this card evolves from
+     * @return Specification that matches cards that evolve from the specified Pokemon
+     */
+    public static Specification<Card> evolvesFrom(String name) {
+        return (root, query, criteriaBuilder) -> {
+            if (StringNormalizer.isNullOrEmpty(name)) {
+                return criteriaBuilder.conjunction();
+            }
+
+            // Join: Card -> CardEvolution -> Name
+            Join<Card, CardEvolution> evolutionJoin = root.join("evolutions", JoinType.INNER);
+            Join<CardEvolution, Name> nameJoin = evolutionJoin.join("name", JoinType.INNER);
+
+            // Add DISTINCT to avoid duplicate cards
+            if (query != null) {
+                query.distinct(true);
+            }
+
+            // Filter by direction = FROM and match the name
+            String normalizedSearch = StringNormalizer.normalize(name.trim());
+            Expression<String> normalizedField = normalizeField(nameJoin.get("name"), criteriaBuilder);
+
+            // Use criteriaBuilder.literal() for enum comparison (same pattern as hasFormats)
+            return criteriaBuilder.and(
+                    criteriaBuilder.equal(
+                            evolutionJoin.get("direction"),
+                            criteriaBuilder.literal(dev.lukeholland.tcg.decklists.api.pokemon.enums.EvolutionDirection.from)
+                    ),
+                    criteriaBuilder.like(normalizedField, "%" + normalizedSearch + "%")
+            );
+        };
+    }
+
+    /**
+     * Filter by evolution target (what this card evolves to).
+     * Uses case-insensitive, accent-insensitive partial matching.
+     *
+     * @param name The name of the Pokemon this card evolves to
+     * @return Specification that matches cards that evolve to the specified Pokemon
+     */
+    public static Specification<Card> evolvesTo(String name) {
+        return (root, query, criteriaBuilder) -> {
+            if (StringNormalizer.isNullOrEmpty(name)) {
+                return criteriaBuilder.conjunction();
+            }
+
+            // Join: Card -> CardEvolution -> Name
+            Join<Card, CardEvolution> evolutionJoin = root.join("evolutions", JoinType.INNER);
+            Join<CardEvolution, Name> nameJoin = evolutionJoin.join("name", JoinType.INNER);
+
+            // Add DISTINCT to avoid duplicate cards
+            if (query != null) {
+                query.distinct(true);
+            }
+
+            // Filter by direction = TO and match the name
+            String normalizedSearch = StringNormalizer.normalize(name.trim());
+            Expression<String> normalizedField = normalizeField(nameJoin.get("name"), criteriaBuilder);
+
+            // Use criteriaBuilder.literal() for enum comparison (same pattern as hasFormats)
+            return criteriaBuilder.and(
+                    criteriaBuilder.equal(
+                            evolutionJoin.get("direction"),
+                            criteriaBuilder.literal(dev.lukeholland.tcg.decklists.api.pokemon.enums.EvolutionDirection.to)
+                    ),
+                    criteriaBuilder.like(normalizedField, "%" + normalizedSearch + "%")
+            );
+        };
+    }
+
+    /**
+     * Filter by rule text/description (case-insensitive, accent-insensitive partial match).
+     *
+     * @param ruleText The rule text to search for
+     * @return Specification that matches cards with rules containing the search term
+     */
+    public static Specification<Card> hasRuleText(String ruleText) {
+        return (root, query, criteriaBuilder) -> {
+            if (StringNormalizer.isNullOrEmpty(ruleText)) {
+                return criteriaBuilder.conjunction();
+            }
+
+            // Join to rules collection (many-to-many)
+            Join<Card, Rule> rulesJoin = root.join("rules", JoinType.INNER);
+
+            // Add DISTINCT to avoid duplicate cards
+            if (query != null) {
+                query.distinct(true);
+            }
+
+            // Normalize search term
+            String normalizedSearch = StringNormalizer.normalize(ruleText.trim());
+
+            // Normalize database field and compare
+            Expression<String> normalizedField = normalizeField(rulesJoin.get("text"), criteriaBuilder);
+
+            return criteriaBuilder.like(normalizedField, "%" + normalizedSearch + "%");
+        };
+    }
+
+    /**
      * Filter by artist name (case-insensitive, accent-insensitive exact match).
      *
      * @param artistName The artist name to match
@@ -812,6 +1135,16 @@ public class CardSpecification {
      * @param formatsMatchAll         If true, cards must be legal in ALL formats (AND logic); if false/null, ANY format (OR logic)
      * @param formatsBanned           List of formats where cards are banned
      * @param formatsBannedMatchAll   If true, cards must be banned in ALL formats (AND logic); if false/null, ANY format (OR logic)
+     * @param hasRuleBox              If true, only cards with rule boxes; if false, only cards without rule boxes; if null, no filtering
+     * @param hasWeakness             If true, only cards with weaknesses; if false, only cards without weaknesses; if null, no filtering
+     * @param hasResistance           If true, only cards with resistances; if false, only cards without resistances; if null, no filtering
+     * @param weaknessType            List of weakness types to match
+     * @param weaknessTypeMatchAll    If true, match ALL weakness types (AND logic); if false/null, match ANY weakness type (OR logic)
+     * @param resistanceType          List of resistance types to match
+     * @param resistanceTypeMatchAll  If true, match ALL resistance types (AND logic); if false/null, match ANY resistance type (OR logic)
+     * @param evolvesFrom             Evolution source name (what this card evolves from)
+     * @param evolvesTo               Evolution target name (what this card evolves to)
+     * @param ruleText                Rule text/description search
      * @return Combined Specification with all applicable filters
      */
     public static Specification<Card> buildSpecification(
@@ -841,7 +1174,17 @@ public class CardSpecification {
             List<String> formats,
             Boolean formatsMatchAll,
             List<String> formatsBanned,
-            Boolean formatsBannedMatchAll
+            Boolean formatsBannedMatchAll,
+            Boolean hasRuleBox,
+            Boolean hasWeakness,
+            Boolean hasResistance,
+            List<String> weaknessType,
+            Boolean weaknessTypeMatchAll,
+            List<String> resistanceType,
+            Boolean resistanceTypeMatchAll,
+            String evolvesFrom,
+            String evolvesTo,
+            String ruleText
     ) {
         // Build list of all specifications and combine them with allOf()
         return Specification.allOf(
@@ -863,7 +1206,15 @@ public class CardSpecification {
                 hasRegulationMark(regulationMark),
                 retreatCostBetween(retreatCostMin, retreatCostMax),
                 hasFormats(formats, formatsMatchAll),
-                hasFormatsBanned(formatsBanned, formatsBannedMatchAll)
+                hasFormatsBanned(formatsBanned, formatsBannedMatchAll),
+                hasRuleBox(hasRuleBox),
+                hasWeakness(hasWeakness),
+                hasResistance(hasResistance),
+                hasWeaknessTypes(weaknessType, weaknessTypeMatchAll),
+                hasResistanceTypes(resistanceType, resistanceTypeMatchAll),
+                evolvesFrom(evolvesFrom),
+                evolvesTo(evolvesTo),
+                hasRuleText(ruleText)
         );
     }
 }
