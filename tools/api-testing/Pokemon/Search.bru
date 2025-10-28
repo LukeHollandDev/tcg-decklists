@@ -5,14 +5,14 @@ meta {
 }
 
 get {
-  url: {{BASE_URL}}/pokemon/search?types=fire,water&typesMatchAll=true
+  url: {{BASE_URL}}/pokemon/search?typesMatchAll=true
   body: none
   auth: inherit
 }
 
 params:query {
-  types: fire,water
   typesMatchAll: true
+  ~types: fire,water
   ~name: poke ball
   ~supertype: pokemon
   ~subtypes: V

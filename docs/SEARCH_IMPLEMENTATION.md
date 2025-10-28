@@ -580,24 +580,30 @@ Returns: First 20 cards (default pagination), sorted by name.
 
 ---
 
-## Future Enhancements
+## Completed Phases
 
-### Phase 2: Extended Filters
+### Phase 2: Extended Filters (IMPLEMENTED)
+
+Phase 2 has been fully implemented with the following filters:
 
 - **Attack Filters**
-    - `attackName` - Attack name search
-    - `attackDamageMin` / `attackDamageMax` - Damage range
-    - `attackCost` - Energy cost requirements
+    - `attackName` - Attack name search (accent-insensitive partial match)
+    - `attackDamageMin` / `attackDamageMax` - Attack damage range filtering
+    - `attackCost` + `attackCostMatchAll` - Attack cost types with AND/OR logic
 
 - **Ability Filters**
-    - `hasAbility` - Boolean, cards with abilities
-    - `abilityName` - Ability name search
+    - `hasAbility` - Boolean filter for ability presence/absence
+    - `abilityName` - Ability name search (accent-insensitive partial match)
 
-- **Additional Filters**
-    - `artist` - Artist name
-    - `regulationMark` - Regulation mark
+- **Additional Detail Filters**
+    - `artist` - Artist name (exact match, accent-insensitive)
+    - `regulationMark` - Regulation mark filtering (A, B, C, D, E, F, G, H)
     - `retreatCostMin` / `retreatCostMax` - Retreat cost range
-    - `format` - Format legality (Standard, Expanded, Unlimited)
+    - `formats` + `formatsMatchAll` - Format legality with AND/OR logic
+
+All Phase 2 filters support the same accent-insensitive searching as Phase 1!
+
+## Future Enhancements
 
 ### Phase 3: Advanced Features
 

@@ -51,7 +51,7 @@ public class Controller {
      * Search for Pokemon cards with filters, pagination, and sorting
      * GET /api/pokemon/search
      * <p>
-     * Query parameters:
+     * Query parameters (Phase 1):
      * - name: Card name search (partial match)
      * - supertype: Card supertype (Pokemon, Trainer, Energy)
      * - types: Pokemon types (can specify multiple, e.g., types=Fire&types=Water)
@@ -62,14 +62,39 @@ public class Controller {
      * - rarity: Rarity name
      * - hpMin: Minimum HP value
      * - hpMax: Maximum HP value
+     * <p>
+     * Query parameters (Phase 2 - Attack Filters):
+     * - attackName: Attack name search (partial match)
+     * - attackDamageMin: Minimum attack damage value
+     * - attackDamageMax: Maximum attack damage value
+     * - attackCost: Attack cost types (can specify multiple, e.g., attackCost=Fire&attackCost=Colorless)
+     * - attackCostMatchAll: If true, attacks must have ALL specified cost types (AND logic). Default: false (OR logic)
+     * <p>
+     * Query parameters (Phase 2 - Ability Filters):
+     * - hasAbility: Filter by ability presence (true=cards with abilities, false=cards without abilities)
+     * - abilityName: Ability name search (partial match)
+     * <p>
+     * Query parameters (Phase 2 - Detail Filters):
+     * - artist: Artist name (exact match)
+     * - regulationMark: Regulation mark (A, B, C, D, E, F, G, H)
+     * - retreatCostMin: Minimum retreat cost value
+     * - retreatCostMax: Maximum retreat cost value
+     * - formats: Format legality (can specify multiple, e.g., formats=Standard&formats=Expanded)
+     * - formatsMatchAll: If true, cards must be legal in ALL specified formats (AND logic). Default: false (OR logic)
+     * <p>
+     * Pagination & Sorting:
      * - page: Page number (0-indexed, default: 0)
      * - pageSize: Results per page (default: 20, max: 100)
      * - sortBy: Field to sort by (default: "name")
      * - sortOrder: Sort order "asc" or "desc" (default: "asc")
      * <p>
      * Examples:
-     * - Fire OR Water: /search?types=Fire&types=Water
-     * - Fire AND Grass: /search?types=Fire&types=Grass&typesMatchAll=true
+     * - Fire OR Water types: /search?types=Fire&types=Water
+     * - Fire AND Grass types: /search?types=Fire&types=Grass&typesMatchAll=true
+     * - Attacks with Fire OR Colorless cost: /search?attackCost=Fire&attackCost=Colorless
+     * - Legal in Standard AND Expanded: /search?formats=Standard&formats=Expanded&formatsMatchAll=true
+     * - Cards by specific artist: /search?artist=Ken Sugimori
+     * - High damage attacks: /search?attackDamageMin=100
      *
      * @param request Search request parameters
      * @return 200 OK with paginated search results

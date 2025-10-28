@@ -83,24 +83,59 @@ HEAD /api/pokemon/{id}
 GET /api/pokemon/search?name=alakazam&hpMin=80&types=psychic
 ```
 
-**Query Parameters:**
+**Query Parameters (Phase 1 - Core Filters):**
 
-| Parameter   | Type     | Description                                    | Example                  |
-|-------------|----------|------------------------------------------------|--------------------------|
-| `name`      | String   | Card name (partial match, case-insensitive)    | `name=Pikachu`           |
-| `supertype` | String   | Card supertype (Pokémon, Trainer, Energy)      | `supertype=Pokemon`      |
-| `types`     | String[] | Pokémon types (Fire, Water, etc.) - ANY match  | `types=Fire&types=Water` |
-| `subtypes`  | String[] | Card subtypes (ex, V, Basic, etc.) - ANY match | `subtypes=ex&subtypes=V` |
-| `setId`     | String   | Set identifier                                 | `setId=base1`            |
-| `rarity`    | String   | Rarity name                                    | `rarity=Rare`            |
-| `hpMin`     | Integer  | Minimum HP (inclusive)                         | `hpMin=80`               |
-| `hpMax`     | Integer  | Maximum HP (inclusive)                         | `hpMax=120`              |
-| `page`      | Integer  | Page number (0-indexed, default: 0)            | `page=2`                 |
-| `pageSize`  | Integer  | Results per page (default: 20, max: 100)       | `pageSize=50`            |
-| `sortBy`    | String   | Sort field (default: "name")                   | `sortBy=hpNumeric`       |
-| `sortOrder` | String   | Sort order: "asc" or "desc" (default: "asc")   | `sortOrder=desc`         |
+| Parameter          | Type     | Description                                    | Example                  |
+|--------------------|----------|------------------------------------------------|--------------------------|
+| `name`             | String   | Card name (partial match, accent-insensitive)  | `name=Pikachu`           |
+| `supertype`        | String   | Card supertype (Pokémon, Trainer, Energy)      | `supertype=Pokemon`      |
+| `types`            | String[] | Pokémon types (Fire, Water, etc.) - ANY match  | `types=Fire&types=Water` |
+| `typesMatchAll`    | Boolean  | If true, match ALL types (AND logic)           | `typesMatchAll=true`     |
+| `subtypes`         | String[] | Card subtypes (ex, V, Basic, etc.) - ANY match | `subtypes=ex&subtypes=V` |
+| `subtypesMatchAll` | Boolean  | If true, match ALL subtypes (AND logic)        | `subtypesMatchAll=true`  |
+| `setId`            | String   | Set identifier                                 | `setId=base1`            |
+| `rarity`           | String   | Rarity name                                    | `rarity=Rare`            |
+| `hpMin`            | Integer  | Minimum HP (inclusive)                         | `hpMin=80`               |
+| `hpMax`            | Integer  | Maximum HP (inclusive)                         | `hpMax=120`              |
 
-**Example Requests:**
+**Query Parameters (Phase 2 - Attack Filters):**
+
+| Parameter            | Type     | Description                                     | Example                              |
+|----------------------|----------|-------------------------------------------------|--------------------------------------|
+| `attackName`         | String   | Attack name (partial match, accent-insensitive) | `attackName=Thunderbolt`             |
+| `attackDamageMin`    | Integer  | Minimum attack damage (inclusive)               | `attackDamageMin=100`                |
+| `attackDamageMax`    | Integer  | Maximum attack damage (inclusive)               | `attackDamageMax=200`                |
+| `attackCost`         | String[] | Attack cost types - ANY match                   | `attackCost=Fire&attackCost=Colorle` |
+| `attackCostMatchAll` | Boolean  | If true, match ALL cost types (AND logic)       | `attackCostMatchAll=true`            |
+
+**Query Parameters (Phase 2 - Ability Filters):**
+
+| Parameter     | Type    | Description                                      | Example                  |
+|---------------|---------|--------------------------------------------------|--------------------------|
+| `hasAbility`  | Boolean | Filter by ability presence (true/false)          | `hasAbility=true`        |
+| `abilityName` | String  | Ability name (partial match, accent-insensitive) | `abilityName=Intimidate` |
+
+**Query Parameters (Phase 2 - Detail Filters):**
+
+| Parameter         | Type     | Description                                   | Example                             |
+|-------------------|----------|-----------------------------------------------|-------------------------------------|
+| `artist`          | String   | Artist name (exact match, accent-insensitive) | `artist=Ken Sugimori`               |
+| `regulationMark`  | String   | Regulation mark (A, B, C, D, E, F, G, H)      | `regulationMark=E`                  |
+| `retreatCostMin`  | Integer  | Minimum retreat cost (inclusive)              | `retreatCostMin=1`                  |
+| `retreatCostMax`  | Integer  | Maximum retreat cost (inclusive)              | `retreatCostMax=3`                  |
+| `formats`         | String[] | Format legality - ANY match                   | `formats=Standard&formats=Expanded` |
+| `formatsMatchAll` | Boolean  | If true, legal in ALL formats (AND logic)     | `formatsMatchAll=true`              |
+
+**Pagination & Sorting:**
+
+| Parameter   | Type    | Description                                  | Example            |
+|-------------|---------|----------------------------------------------|--------------------|
+| `page`      | Integer | Page number (0-indexed, default: 0)          | `page=2`           |
+| `pageSize`  | Integer | Results per page (default: 20, max: 100)     | `pageSize=50`      |
+| `sortBy`    | String  | Sort field (default: "name")                 | `sortBy=hpNumeric` |
+| `sortOrder` | String  | Sort order: "asc" or "desc" (default: "asc") | `sortOrder=desc`   |
+
+**Example Requests (Phase 1):**
 
 ```http
 # Simple name search
@@ -115,8 +150,59 @@ GET /api/pokemon/search?subtypes=ex&setId=base1&sortBy=hpNumeric&sortOrder=desc
 # Multiple types (Fire OR Water)
 GET /api/pokemon/search?types=Fire&types=Water
 
+# Cards with BOTH Fire AND Grass types
+GET /api/pokemon/search?types=Fire&types=Grass&typesMatchAll=true
+
 # All cards (paginated)
 GET /api/pokemon/search?page=0&pageSize=20
+```
+
+**Example Requests (Phase 2 - Attack Filters):**
+
+```http
+# Cards with "Thunderbolt" attack
+GET /api/pokemon/search?attackName=Thunderbolt
+
+# High-damage attacks (100+ damage)
+GET /api/pokemon/search?attackDamageMin=100
+
+# Attacks requiring Fire OR Colorless energy
+GET /api/pokemon/search?attackCost=Fire&attackCost=Colorless
+
+# Attacks requiring BOTH Fire AND Grass energy
+GET /api/pokemon/search?attackCost=Fire&attackCost=Grass&attackCostMatchAll=true
+```
+
+**Example Requests (Phase 2 - Ability & Detail Filters):**
+
+```http
+# Only cards with abilities
+GET /api/pokemon/search?hasAbility=true
+
+# Cards with "Intimidate" ability
+GET /api/pokemon/search?abilityName=Intimidate
+
+# Cards by Ken Sugimori
+GET /api/pokemon/search?artist=Ken Sugimori
+
+# Cards with regulation mark E
+GET /api/pokemon/search?regulationMark=E
+
+# Low retreat cost cards (0-1 energy)
+GET /api/pokemon/search?retreatCostMax=1
+
+# Legal in Standard OR Expanded
+GET /api/pokemon/search?formats=Standard&formats=Expanded
+
+# Legal in BOTH Standard AND Expanded
+GET /api/pokemon/search?formats=Standard&formats=Expanded&formatsMatchAll=true
+```
+
+**Complex Example (Multiple Filters Combined):**
+
+```http
+# Fire-type ex cards with high HP, an ability, legal in Standard format
+GET /api/pokemon/search?types=Fire&subtypes=ex&hpMin=200&hasAbility=true&formats=Standard&sortBy=hpNumeric&sortOrder=desc
 ```
 
 **Response:**
@@ -379,55 +465,58 @@ GET /api/pokemon/templates
 
 ### Pokemon Card Filters
 
-##### Core Filters
+##### Core Filters (Phase 1 - IMPLEMENTED)
 
-- `name` - Card name (partial match, case-insensitive)
+- `name` - Card name (partial match, accent-insensitive)
 - `supertype` - Card supertype (Pokémon, Trainer, Energy)
-- `types` - Pokémon types (Fire, Water, etc.) - multiple values with OR logic
-- `subtypes` - Card subtypes (ex, V, Basic, Stage 1, etc.) - multiple values with OR logic
+- `types` + `typesMatchAll` - Pokémon types with AND/OR logic
+- `subtypes` + `subtypesMatchAll` - Card subtypes with AND/OR logic
 - `setId` - Set identifier (e.g., "base1", "swsh8")
-- `rarity` - Rarity name (Common, Rare, etc.)
-- `hpMin` - Minimum HP value (inclusive)
-- `hpMax` - Maximum HP value (inclusive)
+- `rarity` - Rarity name
+- `hpMin` / `hpMax` - HP range filtering
 
-##### Pagination & Sorting
+##### Pagination & Sorting (IMPLEMENTED)
 
 - `page` - Page number (0-indexed, default: 0)
 - `pageSize` - Results per page (default: 20, max: 100)
 - `sortBy` - Sort field (name, hpNumeric, number, etc.)
 - `sortOrder` - Sort order ("asc" or "desc", default: "asc")
 
-##### Attack & Ability Filters—PLANNED
+##### Attack & Ability Filters (Phase 2 - IMPLEMENTED)
 
-- `attackName` - Attack name (partial match)
-- `attackDamageMin` - Minimum attack damage
-- `attackDamageMax` - Maximum attack damage
-- `hasAbility` - Boolean, cards with abilities
-- `abilityName` - Ability name (partial match)
+- `attackName` - Attack name (partial match, accent-insensitive)
+- `attackDamageMin` / `attackDamageMax` - Attack damage range
+- `attackCost` + `attackCostMatchAll` - Attack cost types with AND/OR logic
+- `hasAbility` - Boolean filter for ability presence
+- `abilityName` - Ability name (partial match, accent-insensitive)
 
-##### Additional Detail Filters—PLANNED
+##### Additional Detail Filters (Phase 2 - IMPLEMENTED)
 
-- `artist` - Artist name
-- `regulationMark` - Regulation mark (A, B, C, etc.)
-- `retreatCostMin` - Minimum retreat cost
-- `retreatCostMax` - Maximum retreat cost
-- `format` - Format legality (Standard, Expanded, Unlimited)
+- `artist` - Artist name (exact match, accent-insensitive)
+- `regulationMark` - Regulation mark (A, B, C, D, E, F, G, H)
+- `retreatCostMin` / `retreatCostMax` - Retreat cost range
+- `formats` + `formatsMatchAll` - Format legality with AND/OR logic
 
-##### Boolean Filters—PLANNED
+##### Boolean Filters (Phase 3 - PLANNED)
 
 - `hasRuleBox` - Boolean, cards with rule boxes
 - `hasWeakness` - Boolean, cards with weaknesses
 - `hasResistance` - Boolean, cards with resistances
 
-##### Weakness/Resistance Filters—PLANNED
+##### Weakness/Resistance Filters (Phase 3 - PLANNED)
 
 - `weaknessType` - Weakness type
 - `resistanceType` - Resistance type
 
-##### Full-Text Search—PLANNED
+##### Full-Text Search (Phase 3 - PLANNED)
 
 - Multi-field text search across name, attack text, ability text, and trainer text
 - PostgreSQL full-text search with relevance ranking
+
+##### Evolution Filters (Phase 3 - PLANNED)
+
+- `evolvesFrom` - Evolution source
+- `evolvesTo` - Evolution target
 
 ## Response Codes
 

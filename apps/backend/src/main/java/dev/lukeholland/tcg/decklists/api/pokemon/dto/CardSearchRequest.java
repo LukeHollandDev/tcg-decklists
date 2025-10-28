@@ -14,7 +14,7 @@ public class CardSearchRequest {
     // ===== Phase 1 Filters =====
 
     /**
-     * Case-insensitive name search (partial match using ILIKE)
+     * Case-insensitive name search (partial match)
      */
     private String name;
 
@@ -66,6 +66,78 @@ public class CardSearchRequest {
      * Maximum HP value (inclusive) - uses hp_numeric field
      */
     private Integer hpMax;
+
+    // ===== Phase 2 Filters =====
+
+    /**
+     * Filter by attack name (partial match)
+     */
+    private String attackName;
+
+    /**
+     * Minimum attack damage value (inclusive) - uses damage_numeric field
+     */
+    private Integer attackDamageMin;
+
+    /**
+     * Maximum attack damage value (inclusive) - uses damage_numeric field
+     */
+    private Integer attackDamageMax;
+
+    /**
+     * Filter by one or more attack cost types (Fire, Water, Colorless, etc.)
+     * By default uses OR logic (ANY match). Set attackCostMatchAll=true for AND logic.
+     */
+    private List<String> attackCost;
+
+    /**
+     * If true, attacks must require ALL specified cost types (AND logic).
+     * If false/null, attacks must require ANY specified cost type (OR logic) - default behavior.
+     */
+    private Boolean attackCostMatchAll;
+
+    /**
+     * Filter to only cards with abilities (true) or without abilities (false).
+     * If null, no filtering by ability presence.
+     */
+    private Boolean hasAbility;
+
+    /**
+     * Filter by ability name (partial match)
+     */
+    private String abilityName;
+
+    /**
+     * Filter by artist name (exact match)
+     */
+    private String artist;
+
+    /**
+     * Filter by regulation mark (A, B, C, D, E, F, G, H)
+     */
+    private String regulationMark;
+
+    /**
+     * Minimum retreat cost value (inclusive) - uses converted_retreat_cost field
+     */
+    private Integer retreatCostMin;
+
+    /**
+     * Maximum retreat cost value (inclusive) - uses converted_retreat_cost field
+     */
+    private Integer retreatCostMax;
+
+    /**
+     * Filter by one or more formats (Standard, Expanded, Unlimited)
+     * By default uses OR logic (ANY match). Set formatsMatchAll=true for AND logic.
+     */
+    private List<String> formats;
+
+    /**
+     * If true, cards must be legal in ALL specified formats (AND logic).
+     * If false/null, cards must be legal in ANY specified format (OR logic) - default behavior.
+     */
+    private Boolean formatsMatchAll;
 
     // ===== Pagination & Sorting =====
 
@@ -220,6 +292,110 @@ public class CardSearchRequest {
         this.sortOrder = sortOrder;
     }
 
+    public String getAttackName() {
+        return attackName;
+    }
+
+    public void setAttackName(String attackName) {
+        this.attackName = attackName;
+    }
+
+    public Integer getAttackDamageMin() {
+        return attackDamageMin;
+    }
+
+    public void setAttackDamageMin(Integer attackDamageMin) {
+        this.attackDamageMin = attackDamageMin;
+    }
+
+    public Integer getAttackDamageMax() {
+        return attackDamageMax;
+    }
+
+    public void setAttackDamageMax(Integer attackDamageMax) {
+        this.attackDamageMax = attackDamageMax;
+    }
+
+    public List<String> getAttackCost() {
+        return attackCost;
+    }
+
+    public void setAttackCost(List<String> attackCost) {
+        this.attackCost = attackCost;
+    }
+
+    public Boolean getAttackCostMatchAll() {
+        return attackCostMatchAll;
+    }
+
+    public void setAttackCostMatchAll(Boolean attackCostMatchAll) {
+        this.attackCostMatchAll = attackCostMatchAll;
+    }
+
+    public Boolean getHasAbility() {
+        return hasAbility;
+    }
+
+    public void setHasAbility(Boolean hasAbility) {
+        this.hasAbility = hasAbility;
+    }
+
+    public String getAbilityName() {
+        return abilityName;
+    }
+
+    public void setAbilityName(String abilityName) {
+        this.abilityName = abilityName;
+    }
+
+    public String getArtist() {
+        return artist;
+    }
+
+    public void setArtist(String artist) {
+        this.artist = artist;
+    }
+
+    public String getRegulationMark() {
+        return regulationMark;
+    }
+
+    public void setRegulationMark(String regulationMark) {
+        this.regulationMark = regulationMark;
+    }
+
+    public Integer getRetreatCostMin() {
+        return retreatCostMin;
+    }
+
+    public void setRetreatCostMin(Integer retreatCostMin) {
+        this.retreatCostMin = retreatCostMin;
+    }
+
+    public Integer getRetreatCostMax() {
+        return retreatCostMax;
+    }
+
+    public void setRetreatCostMax(Integer retreatCostMax) {
+        this.retreatCostMax = retreatCostMax;
+    }
+
+    public List<String> getFormats() {
+        return formats;
+    }
+
+    public void setFormats(List<String> formats) {
+        this.formats = formats;
+    }
+
+    public Boolean getFormatsMatchAll() {
+        return formatsMatchAll;
+    }
+
+    public void setFormatsMatchAll(Boolean formatsMatchAll) {
+        this.formatsMatchAll = formatsMatchAll;
+    }
+
     /**
      * Check if any filters are applied
      *
@@ -233,6 +409,17 @@ public class CardSearchRequest {
                 || setId != null
                 || rarity != null
                 || hpMin != null
-                || hpMax != null;
+                || hpMax != null
+                || attackName != null
+                || attackDamageMin != null
+                || attackDamageMax != null
+                || (attackCost != null && !attackCost.isEmpty())
+                || hasAbility != null
+                || abilityName != null
+                || artist != null
+                || regulationMark != null
+                || retreatCostMin != null
+                || retreatCostMax != null
+                || (formats != null && !formats.isEmpty());
     }
 }

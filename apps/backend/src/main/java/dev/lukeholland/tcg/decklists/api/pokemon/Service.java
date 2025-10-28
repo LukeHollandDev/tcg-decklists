@@ -63,7 +63,20 @@ public class Service {
                 request.getSetId(),
                 request.getRarity(),
                 request.getHpMin(),
-                request.getHpMax()
+                request.getHpMax(),
+                request.getAttackName(),
+                request.getAttackDamageMin(),
+                request.getAttackDamageMax(),
+                request.getAttackCost(),
+                request.getAttackCostMatchAll(),
+                request.getHasAbility(),
+                request.getAbilityName(),
+                request.getArtist(),
+                request.getRegulationMark(),
+                request.getRetreatCostMin(),
+                request.getRetreatCostMax(),
+                request.getFormats(),
+                request.getFormatsMatchAll()
         );
 
         // Build Sort object from request
