@@ -77,30 +77,108 @@ HEAD /api/pokemon/{id}
 - `200 OK` - Card exists
 - `404 Not Found` - Card does not exist
 
-### Planned Endpoints
-
 #### Search Cards
 
 ```http
-GET /api/pokemon/search?name=alakazam&hp=80&types=psychic
+GET /api/pokemon/search?name=alakazam&hpMin=80&types=psychic
 ```
 
-**Parameters:**
+**Query Parameters:**
 
-- Query parameters for filtering (see Filter Parameters below)
+| Parameter   | Type     | Description                                    | Example                  |
+|-------------|----------|------------------------------------------------|--------------------------|
+| `name`      | String   | Card name (partial match, case-insensitive)    | `name=Pikachu`           |
+| `supertype` | String   | Card supertype (Pokémon, Trainer, Energy)      | `supertype=Pokemon`      |
+| `types`     | String[] | Pokémon types (Fire, Water, etc.) - ANY match  | `types=Fire&types=Water` |
+| `subtypes`  | String[] | Card subtypes (ex, V, Basic, etc.) - ANY match | `subtypes=ex&subtypes=V` |
+| `setId`     | String   | Set identifier                                 | `setId=base1`            |
+| `rarity`    | String   | Rarity name                                    | `rarity=Rare`            |
+| `hpMin`     | Integer  | Minimum HP (inclusive)                         | `hpMin=80`               |
+| `hpMax`     | Integer  | Maximum HP (inclusive)                         | `hpMax=120`              |
+| `page`      | Integer  | Page number (0-indexed, default: 0)            | `page=2`                 |
+| `pageSize`  | Integer  | Results per page (default: 20, max: 100)       | `pageSize=50`            |
+| `sortBy`    | String   | Sort field (default: "name")                   | `sortBy=hpNumeric`       |
+| `sortOrder` | String   | Sort order: "asc" or "desc" (default: "asc")   | `sortOrder=desc`         |
+
+**Example Requests:**
+
+```http
+# Simple name search
+GET /api/pokemon/search?name=Charizard
+
+# Fire-type cards with HP >= 100
+GET /api/pokemon/search?types=Fire&hpMin=100
+
+# ex cards from base set, sorted by HP descending
+GET /api/pokemon/search?subtypes=ex&setId=base1&sortBy=hpNumeric&sortOrder=desc
+
+# Multiple types (Fire OR Water)
+GET /api/pokemon/search?types=Fire&types=Water
+
+# All cards (paginated)
+GET /api/pokemon/search?page=0&pageSize=20
+```
 
 **Response:**
 
 ```json
 {
   "results": [
-    ...
+    {
+      "id": "base1-4",
+      "name": "Charizard",
+      "supertype": "Pokémon",
+      "hp": "120",
+      "hpNumeric": 120,
+      "types": [
+        "Fire"
+      ],
+      "subtypes": [
+        "Stage 2"
+      ],
+      "setId": "base1",
+      "setName": "Base Set",
+      "rarityName": "Rare Holo",
+      "artistName": "Mitsuhiro Arita",
+      "attacks": [
+        ...
+      ],
+      "abilities": [
+        ...
+      ],
+      "weaknesses": [
+        ...
+      ],
+      "resistances": [
+        ...
+      ],
+      "retreatCost": [
+        "Colorless",
+        "Colorless",
+        "Colorless"
+      ],
+      "convertedRetreatCost": 3,
+      ...
+    }
   ],
-  "total": 42,
-  "page": 1,
-  "pageSize": 20
+  "totalResults": 42,
+  "totalPages": 3,
+  "currentPage": 0,
+  "pageSize": 20,
+  "hasNext": true,
+  "hasPrevious": false
 }
 ```
+
+**Response Fields:**
+
+- `results` - Array of card objects matching the search criteria
+- `totalResults` - Total number of cards across all pages
+- `totalPages` - Total number of pages available
+- `currentPage` - Current page number (0-indexed)
+- `pageSize` - Number of results per page
+- `hasNext` - Boolean indicating if there's a next page
+- `hasPrevious` - Boolean indicating if there's a previous page
 
 #### Get Available Features
 
@@ -108,38 +186,100 @@ GET /api/pokemon/search?name=alakazam&hp=80&types=psychic
 GET /api/pokemon/features
 ```
 
+Returns all available filter values to help build a dynamic search UI.
+
 **Response:**
 
 ```json
 {
   "type": "pokemon",
-  "filters": {
-    "types": [
-      "Grass",
-      "Fire",
-      "Water",
-      ...
-    ],
-    "subtypes": [
-      "Basic",
-      "Stage 1",
-      "Stage 2",
-      ...
-    ],
-    "rarities": [
-      "Common",
-      "Uncommon",
-      "Rare",
-      ...
-    ],
-    "formats": [
-      "Standard",
-      "Expanded",
-      "Unlimited"
-    ]
-  }
+  "supertypes": [
+    "Energy",
+    "Pokémon",
+    "Trainer"
+  ],
+  "types": [
+    "Colorless",
+    "Darkness",
+    "Dragon",
+    "Fairy",
+    "Fighting",
+    "Fire",
+    "Grass",
+    "Lightning",
+    "Metal",
+    "Psychic",
+    "Water"
+  ],
+  "subtypes": [
+    "ACE SPEC",
+    "Ancient",
+    "Basic",
+    "EX",
+    "ex",
+    "LEGEND",
+    "Level-Up",
+    "MEGA",
+    "Rapid Strike",
+    "Single Strike",
+    "Stage 1",
+    "Stage 2",
+    "Supporter",
+    "Item",
+    "Stadium",
+    "Tool",
+    "V",
+    "VMAX",
+    "VSTAR",
+    ...
+  ],
+  "sets": [
+    "base1",
+    "base2",
+    "base3",
+    "swsh1",
+    "swsh2",
+    ...
+  ],
+  "rarities": [
+    "Common",
+    "Uncommon",
+    "Rare",
+    "Rare Holo",
+    "Rare Ultra",
+    "Rare Rainbow",
+    ...
+  ],
+  "formats": [
+    "Expanded",
+    "Standard",
+    "Unlimited"
+  ],
+  "regulationMarks": [
+    "A",
+    "B",
+    "C",
+    "D",
+    "E",
+    "F",
+    "G",
+    "H"
+  ]
 }
 ```
+
+**Response Fields:**
+
+- `type` - Card game type (always "pokemon")
+- `supertypes` - Available supertypes for filtering
+- `types` - Available Pokémon types for filtering
+- `subtypes` - Available subtypes (stages, mechanics, trainer types)
+- `sets` - Available set identifiers
+- `rarities` - Available rarity values
+- `formats` - Available tournament formats
+- `regulationMarks` - Available regulation marks
+
+### Planned Future Endpoints
 
 ### Decklist Management
 
@@ -239,37 +379,55 @@ GET /api/pokemon/templates
 
 ### Pokemon Card Filters
 
-#### Gameplay Filters
+##### Core Filters
 
-- `supertype` - Card type (Pokémon, Trainer, Energy)
-- `subtype` - Mechanic/Stage (ex, V, GX, Basic, Stage 1, Stage 2, etc.)
-- `types` - Elemental types (Grass, Fire, Water, etc.)
+- `name` - Card name (partial match, case-insensitive)
+- `supertype` - Card supertype (Pokémon, Trainer, Energy)
+- `types` - Pokémon types (Fire, Water, etc.) - multiple values with OR logic
+- `subtypes` - Card subtypes (ex, V, Basic, Stage 1, etc.) - multiple values with OR logic
+- `setId` - Set identifier (e.g., "base1", "swsh8")
+- `rarity` - Rarity name (Common, Rare, etc.)
+- `hpMin` - Minimum HP value (inclusive)
+- `hpMax` - Maximum HP value (inclusive)
+
+##### Pagination & Sorting
+
+- `page` - Page number (0-indexed, default: 0)
+- `pageSize` - Results per page (default: 20, max: 100)
+- `sortBy` - Sort field (name, hpNumeric, number, etc.)
+- `sortOrder` - Sort order ("asc" or "desc", default: "asc")
+
+##### Attack & Ability Filters—PLANNED
+
+- `attackName` - Attack name (partial match)
+- `attackDamageMin` - Minimum attack damage
+- `attackDamageMax` - Maximum attack damage
 - `hasAbility` - Boolean, cards with abilities
+- `abilityName` - Ability name (partial match)
+
+##### Additional Detail Filters—PLANNED
+
+- `artist` - Artist name
+- `regulationMark` - Regulation mark (A, B, C, etc.)
+- `retreatCostMin` - Minimum retreat cost
+- `retreatCostMax` - Maximum retreat cost
+- `format` - Format legality (Standard, Expanded, Unlimited)
+
+##### Boolean Filters—PLANNED
+
 - `hasRuleBox` - Boolean, cards with rule boxes
 - `hasWeakness` - Boolean, cards with weaknesses
 - `hasResistance` - Boolean, cards with resistances
 
-#### Detail Filters
+##### Weakness/Resistance Filters—PLANNED
 
-- `name` - Card name (partial match)
-- `hp` - HP value (exact or range: `hp=80` or `hpMin=80&hpMax=120`)
-- `attackName` - Attack name (partial match)
-- `attackDamage` - Attack damage (exact or range)
-- `retreatCost` - Retreat cost (exact or range)
-- `weakness` - Weakness type
-- `resistance` - Resistance type
-- `rarity` - Card rarity
-- `artist` - Artist name
-- `set` - Set identifier
-- `format` - Format legality (Standard, Expanded, Unlimited)
-- `regulationMark` - Regulation mark
+- `weaknessType` - Weakness type
+- `resistanceType` - Resistance type
 
-#### Pagination
+##### Full-Text Search—PLANNED
 
-- `page` - Page number (default: 1)
-- `pageSize` - Results per page (default: 20, max: 100)
-- `sort` - Sort field (name, hp, number, etc.)
-- `order` - Sort order (asc, desc)
+- Multi-field text search across name, attack text, ability text, and trainer text
+- PostgreSQL full-text search with relevance ranking
 
 ## Response Codes
 

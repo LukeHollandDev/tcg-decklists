@@ -5,13 +5,25 @@ meta {
 }
 
 get {
-  url: {{BASE_URL}}/pokemon/search?name=charizard
+  url: {{BASE_URL}}/pokemon/search?types=fire,water&typesMatchAll=true
   body: none
   auth: inherit
 }
 
 params:query {
-  name: charizard
+  types: fire,water
+  typesMatchAll: true
+  ~name: poke ball
+  ~supertype: pokemon
+  ~subtypes: V
+  ~subtypesMatchAll: true
+  ~setId: swsh35
+  ~rarity: Rare
+  ~hpMin: 330
+  ~page: 1
+  ~pageSize: 20
+  ~sortBy: hp
+  ~sortOrder: desc
 }
 
 settings {
