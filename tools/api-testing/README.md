@@ -71,9 +71,9 @@ Contains requests for Pokemon card endpoints.
 
 ##### By ID (`By ID.bru`)
 
-- **Endpoint:** `GET /api/card/pokemon/:id`
+- **Endpoint:** `GET /api/pokemon/:id`
 - **Description:** Retrieves a single Pokémon card by its ID
-- **Current Test ID:** `bw1-6` (can be changed in path params)
+- **Current Test ID:** `svp-78` (can be changed in path params)
 - **Testing:** Uses `getValidationTests()` from `lib/validators.js` to generate individual test cases, showing each
   field validation as a separate passing/failing test in Bruno
 

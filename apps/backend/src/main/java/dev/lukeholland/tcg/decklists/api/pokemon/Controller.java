@@ -5,7 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/card/pokemon")
+@RequestMapping("/api/pokemon")
 public class Controller {
 
     private final Service service;
@@ -16,7 +16,7 @@ public class Controller {
 
     /**
      * Get a Pokémon card by its ID
-     * GET /api/card/pokemon/{id}
+     * GET /api/pokemon/{id}
      *
      * @param id the card ID
      * @return 200 OK with the card DTO if found, 404 Not Found otherwise
@@ -31,7 +31,7 @@ public class Controller {
 
     /**
      * Check if a card exists by ID
-     * HEAD /api/card/pokemon/{id}
+     * HEAD /api/pokemon/{id}
      *
      * @param id the card ID
      * @return 200 OK if exists, 404 Not Found otherwise

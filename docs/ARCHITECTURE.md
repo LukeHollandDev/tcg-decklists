@@ -27,17 +27,22 @@ apps/backend/src/main/java/dev/lukeholland/tcg/decklists/api/
 
 ### API Design Philosophy
 
-The backend API is designed with multi-TCG extensibility in mind. Endpoints use a `<type>` parameter (currently
-`pokemon`) to allow future support for other card games like Yu-Gi-Oh.
+The backend API is designed with multi-TCG extensibility in mind using feature-based routing. Each card game type (
+currently `pokemon`) has its own controller with a dedicated base path under `/api/<type>/`, allowing for clean
+organization and easy addition of new card games in the future.
+
+**Current Endpoints:**
+
+- `GET /api/pokemon/{id}` - Get specific Pokemon card by ID
+- `HEAD /api/pokemon/{id}` - Check if a Pokemon card exists
 
 **Planned Endpoints:**
 
-- `GET /api/features/<type>` - Feature flags and available filters and site website features for a card game type
-- `GET /api/search/<type>?<params>` - Search cards with filters
-- `GET /api/card/<type>/<id>` - Get specific card details
+- `GET /api/pokemon/features` - Feature flags and available filters for Pokemon cards
+- `GET /api/pokemon/search?<params>` - Search Pokemon cards with filters
+- `GET /api/pokemon/templates` - Get available PDF template options for Pokemon
 - `POST /api/decklist` - Create a new decklist
-- `GET /api/decklist/<id>` - Retrieve decklist with all card data
-- `GET /api/templates/<type>` - Get available PDF template options
+- `GET /api/decklist/{id}` - Retrieve decklist with all card data
 
 ### Important Architectural Notes
 

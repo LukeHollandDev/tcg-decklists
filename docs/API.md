@@ -8,19 +8,22 @@ The TCG Decklists API is a RESTful API built with Spring Boot. All endpoints ret
 http://localhost:8080/api
 ```
 
-## Planned Endpoints
+## API Structure
 
-### Card Search and Retrieval
+The API uses feature-based routing where each card game type (e.g., `pokemon`) has its own base path under
+`/api/{type}/`. This allows for clean organization and easy extensibility to support additional card games in the
+future.
+
+### Current Endpoints
 
 #### Get Card by ID
 
 ```http
-GET /api/card/{type}/{id}
+GET /api/pokemon/{id}
 ```
 
 **Parameters:**
 
-- `type` (path) - Card game type (e.g., `pokemon`)
 - `id` (path) - Card identifier (e.g., `base1-1`)
 
 **Response:**
@@ -59,15 +62,31 @@ GET /api/card/{type}/{id}
 }
 ```
 
-#### Search Cards
+#### Check Card Exists
 
 ```http
-GET /api/search/{type}?name=alakazam&hp=80&types=psychic
+HEAD /api/pokemon/{id}
 ```
 
 **Parameters:**
 
-- `type` (path) - Card game type (e.g., `pokemon`)
+- `id` (path) - Card identifier (e.g., `base1-1`)
+
+**Response:**
+
+- `200 OK` - Card exists
+- `404 Not Found` - Card does not exist
+
+### Planned Endpoints
+
+#### Search Cards
+
+```http
+GET /api/pokemon/search?name=alakazam&hp=80&types=psychic
+```
+
+**Parameters:**
+
 - Query parameters for filtering (see Filter Parameters below)
 
 **Response:**
@@ -86,12 +105,8 @@ GET /api/search/{type}?name=alakazam&hp=80&types=psychic
 #### Get Available Features
 
 ```http
-GET /api/features/{type}
+GET /api/pokemon/features
 ```
-
-**Parameters:**
-
-- `type` (path) - Card game type (e.g., `pokemon`)
 
 **Response:**
 
@@ -203,12 +218,8 @@ GET /api/decklist/{id}
 #### Get Available Templates
 
 ```http
-GET /api/templates/{type}
+GET /api/pokemon/templates
 ```
-
-**Parameters:**
-
-- `type` (path) - Card game type (e.g., `pokemon`)
 
 **Response:**
 

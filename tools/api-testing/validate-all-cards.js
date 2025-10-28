@@ -5,7 +5,7 @@
  *
  * This script validates all Pokemon cards by:
  * 1. Loading source data from tools/data-pipeline/pokemon/*.json
- * 2. Making API calls to GET /api/card/pokemon/:id for each card
+ * 2. Making API calls to GET /api/pokemon/:id for each card
  * 3. Comparing the API response against source data
  * 4. Reporting any failures or errors
  *
@@ -19,8 +19,8 @@
  *   --concurrency=N   Number of concurrent requests (default: 10)
  */
 
-const { loadPokemonSourceDataAsArray } = require('./lib/load-data');
-const { validateCard } = require('./lib/validators');
+const {loadPokemonSourceDataAsArray} = require('./lib/load-data');
+const {validateCard} = require('./lib/validators');
 
 // Parse command line arguments
 const args = process.argv.slice(2);
@@ -65,7 +65,7 @@ Options:
  * @returns {Promise<Object>} Validation result
  */
 async function validateCardFromApi(cardId, sourceData) {
-    const url = `${config.baseUrl}/card/pokemon/${encodeURIComponent(cardId)}`;
+    const url = `${config.baseUrl}/pokemon/${encodeURIComponent(cardId)}`;
 
     try {
         const response = await fetch(url);
