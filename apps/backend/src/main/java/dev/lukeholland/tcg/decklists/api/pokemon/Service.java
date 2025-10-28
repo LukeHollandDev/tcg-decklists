@@ -65,18 +65,22 @@ public class Service {
                 request.getHpMin(),
                 request.getHpMax(),
                 request.getAttackName(),
+                request.getAttackText(),
                 request.getAttackDamageMin(),
                 request.getAttackDamageMax(),
                 request.getAttackCost(),
                 request.getAttackCostMatchAll(),
                 request.getHasAbility(),
                 request.getAbilityName(),
+                request.getAbilityText(),
                 request.getArtist(),
                 request.getRegulationMark(),
                 request.getRetreatCostMin(),
                 request.getRetreatCostMax(),
                 request.getFormats(),
-                request.getFormatsMatchAll()
+                request.getFormatsMatchAll(),
+                request.getFormatsBanned(),
+                request.getFormatsBannedMatchAll()
         );
 
         // Build Sort object from request

@@ -586,22 +586,74 @@ Returns: First 20 cards (default pagination), sorted by name.
 
 Phase 2 has been fully implemented with the following filters:
 
-- **Attack Filters**
+- **Attack Filters** ✅
     - `attackName` - Attack name search (accent-insensitive partial match)
+    - `attackText` - Attack text/description search (accent-insensitive partial match) 🆕
     - `attackDamageMin` / `attackDamageMax` - Attack damage range filtering
     - `attackCost` + `attackCostMatchAll` - Attack cost types with AND/OR logic
 
-- **Ability Filters**
+- **Ability Filters** ✅
     - `hasAbility` - Boolean filter for ability presence/absence
     - `abilityName` - Ability name search (accent-insensitive partial match)
+    - `abilityText` - Ability text/description search (accent-insensitive partial match) 🆕
 
-- **Additional Detail Filters**
+- **Additional Detail Filters** ✅
     - `artist` - Artist name (exact match, accent-insensitive)
     - `regulationMark` - Regulation mark filtering (A, B, C, D, E, F, G, H)
     - `retreatCostMin` / `retreatCostMax` - Retreat cost range
     - `formats` + `formatsMatchAll` - Format legality with AND/OR logic
+    - `formatsBanned` + `formatsBannedMatchAll` - Format ban status with AND/OR logic 🆕
 
 All Phase 2 filters support the same accent-insensitive searching as Phase 1!
+
+#### Phase 2 Enhancements (Latest Update)
+
+**Text Search Capabilities:**
+- Search within attack descriptions to find cards by what they do (e.g., "draw cards", "damage counters")
+- Search within ability descriptions to find specific mechanics (e.g., "once during your turn")
+
+**Format Ban Analysis:**
+- Find cards banned in specific formats
+- Compare format legality (e.g., legal in Expanded but banned in Standard)
+- Support for both OR logic (banned in ANY format) and AND logic (banned in ALL formats)
+
+#### Example Use Cases for Phase 2 Enhancements
+
+**Content-Based Search:**
+```http
+# Find cards with card draw mechanics
+GET /api/pokemon/search?attackText=draw
+
+# Find cards with damage counter manipulation
+GET /api/pokemon/search?abilityText=damage%20counter
+
+# Find abilities that activate "once during your turn"
+GET /api/pokemon/search?abilityText=once%20during%20your%20turn
+```
+
+**Ban List Analysis:**
+```http
+# All cards banned in Standard
+GET /api/pokemon/search?formatsBanned=Standard
+
+# Cards legal in Expanded but banned in Standard (format-specific bans)
+GET /api/pokemon/search?formats=Expanded&formatsBanned=Standard
+
+# Cards banned in both Standard AND Expanded (most restrictive)
+GET /api/pokemon/search?formatsBanned=Standard&formatsBanned=Expanded&formatsBannedMatchAll=true
+```
+
+**Deck Building Scenarios:**
+```http
+# Fire-type cards with "draw" effects, legal in Standard
+GET /api/pokemon/search?types=Fire&attackText=draw&formats=Standard
+
+# High-HP cards (200+) with damaging abilities
+GET /api/pokemon/search?hpMin=200&abilityText=damage
+
+# Low retreat cost cards with search abilities
+GET /api/pokemon/search?retreatCostMax=1&abilityText=search
+```
 
 ## Future Enhancements
 

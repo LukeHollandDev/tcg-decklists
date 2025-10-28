@@ -100,13 +100,14 @@ GET /api/pokemon/search?name=alakazam&hpMin=80&types=psychic
 
 **Query Parameters (Phase 2 - Attack Filters):**
 
-| Parameter            | Type     | Description                                     | Example                              |
-|----------------------|----------|-------------------------------------------------|--------------------------------------|
-| `attackName`         | String   | Attack name (partial match, accent-insensitive) | `attackName=Thunderbolt`             |
-| `attackDamageMin`    | Integer  | Minimum attack damage (inclusive)               | `attackDamageMin=100`                |
-| `attackDamageMax`    | Integer  | Maximum attack damage (inclusive)               | `attackDamageMax=200`                |
-| `attackCost`         | String[] | Attack cost types - ANY match                   | `attackCost=Fire&attackCost=Colorle` |
-| `attackCostMatchAll` | Boolean  | If true, match ALL cost types (AND logic)       | `attackCostMatchAll=true`            |
+| Parameter            | Type     | Description                                        | Example                              |
+|----------------------|----------|----------------------------------------------------|--------------------------------------|
+| `attackName`         | String   | Attack name (partial match, accent-insensitive)    | `attackName=Thunderbolt`             |
+| `attackText`         | String   | Attack text/description search (partial match)     | `attackText=draw`                    |
+| `attackDamageMin`    | Integer  | Minimum attack damage (inclusive)                  | `attackDamageMin=100`                |
+| `attackDamageMax`    | Integer  | Maximum attack damage (inclusive)                  | `attackDamageMax=200`                |
+| `attackCost`         | String[] | Attack cost types - ANY match                      | `attackCost=Fire&attackCost=Colorle` |
+| `attackCostMatchAll` | Boolean  | If true, match ALL cost types (AND logic)          | `attackCostMatchAll=true`            |
 
 **Query Parameters (Phase 2 - Ability Filters):**
 
@@ -114,17 +115,20 @@ GET /api/pokemon/search?name=alakazam&hpMin=80&types=psychic
 |---------------|---------|--------------------------------------------------|--------------------------|
 | `hasAbility`  | Boolean | Filter by ability presence (true/false)          | `hasAbility=true`        |
 | `abilityName` | String  | Ability name (partial match, accent-insensitive) | `abilityName=Intimidate` |
+| `abilityText` | String  | Ability text/description search (partial match)  | `abilityText=damage`     |
 
 **Query Parameters (Phase 2 - Detail Filters):**
 
-| Parameter         | Type     | Description                                   | Example                             |
-|-------------------|----------|-----------------------------------------------|-------------------------------------|
-| `artist`          | String   | Artist name (exact match, accent-insensitive) | `artist=Ken Sugimori`               |
-| `regulationMark`  | String   | Regulation mark (A, B, C, D, E, F, G, H)      | `regulationMark=E`                  |
-| `retreatCostMin`  | Integer  | Minimum retreat cost (inclusive)              | `retreatCostMin=1`                  |
-| `retreatCostMax`  | Integer  | Maximum retreat cost (inclusive)              | `retreatCostMax=3`                  |
-| `formats`         | String[] | Format legality - ANY match                   | `formats=Standard&formats=Expanded` |
-| `formatsMatchAll` | Boolean  | If true, legal in ALL formats (AND logic)     | `formatsMatchAll=true`              |
+| Parameter                | Type     | Description                                     | Example                             |
+|--------------------------|----------|-------------------------------------------------|-------------------------------------|
+| `artist`                 | String   | Artist name (exact match, accent-insensitive)   | `artist=Ken Sugimori`               |
+| `regulationMark`         | String   | Regulation mark (A, B, C, D, E, F, G, H)        | `regulationMark=E`                  |
+| `retreatCostMin`         | Integer  | Minimum retreat cost (inclusive)                | `retreatCostMin=1`                  |
+| `retreatCostMax`         | Integer  | Maximum retreat cost (inclusive)                | `retreatCostMax=3`                  |
+| `formats`                | String[] | Format legality - ANY match                     | `formats=Standard&formats=Expanded` |
+| `formatsMatchAll`        | Boolean  | If true, legal in ALL formats (AND logic)       | `formatsMatchAll=true`              |
+| `formatsBanned`          | String[] | Formats where cards are BANNED - ANY match      | `formatsBanned=Standard`            |
+| `formatsBannedMatchAll`  | Boolean  | If true, banned in ALL formats (AND logic)      | `formatsBannedMatchAll=true`        |
 
 **Pagination & Sorting:**
 
@@ -163,6 +167,9 @@ GET /api/pokemon/search?page=0&pageSize=20
 # Cards with "Thunderbolt" attack
 GET /api/pokemon/search?attackName=Thunderbolt
 
+# Find attacks that mention "draw" (card draw effects)
+GET /api/pokemon/search?attackText=draw
+
 # High-damage attacks (100+ damage)
 GET /api/pokemon/search?attackDamageMin=100
 
@@ -171,6 +178,9 @@ GET /api/pokemon/search?attackCost=Fire&attackCost=Colorless
 
 # Attacks requiring BOTH Fire AND Grass energy
 GET /api/pokemon/search?attackCost=Fire&attackCost=Grass&attackCostMatchAll=true
+
+# Fire-type cards with "draw" in attack text
+GET /api/pokemon/search?types=Fire&attackText=draw
 ```
 
 **Example Requests (Phase 2 - Ability & Detail Filters):**
@@ -181,6 +191,12 @@ GET /api/pokemon/search?hasAbility=true
 
 # Cards with "Intimidate" ability
 GET /api/pokemon/search?abilityName=Intimidate
+
+# Find abilities that mention "damage"
+GET /api/pokemon/search?abilityText=damage
+
+# Abilities with "once during your turn" text
+GET /api/pokemon/search?abilityText=once%20during%20your%20turn
 
 # Cards by Ken Sugimori
 GET /api/pokemon/search?artist=Ken Sugimori
@@ -196,13 +212,31 @@ GET /api/pokemon/search?formats=Standard&formats=Expanded
 
 # Legal in BOTH Standard AND Expanded
 GET /api/pokemon/search?formats=Standard&formats=Expanded&formatsMatchAll=true
+
+# Cards BANNED in Standard format
+GET /api/pokemon/search?formatsBanned=Standard
+
+# Cards legal in Expanded but banned in Standard (interesting use case!)
+GET /api/pokemon/search?formats=Expanded&formatsBanned=Standard
+
+# Cards banned in BOTH Standard AND Expanded
+GET /api/pokemon/search?formatsBanned=Standard&formatsBanned=Expanded&formatsBannedMatchAll=true
 ```
 
-**Complex Example (Multiple Filters Combined):**
+**Complex Examples (Multiple Filters Combined):**
 
 ```http
 # Fire-type ex cards with high HP, an ability, legal in Standard format
 GET /api/pokemon/search?types=Fire&subtypes=ex&hpMin=200&hasAbility=true&formats=Standard&sortBy=hpNumeric&sortOrder=desc
+
+# Cards with "draw" in attack text, legal in Standard, sorted by name
+GET /api/pokemon/search?attackText=draw&formats=Standard&sortBy=name&sortOrder=asc
+
+# High-HP cards (200+) with abilities that mention "damage", not banned in Standard
+GET /api/pokemon/search?hpMin=200&abilityText=damage&formats=Standard
+
+# Cards legal in Expanded but banned in Standard (format comparison)
+GET /api/pokemon/search?formats=Expanded&formatsBanned=Standard&pageSize=50
 ```
 
 **Response:**
@@ -485,10 +519,12 @@ GET /api/pokemon/templates
 ##### Attack & Ability Filters (Phase 2 - IMPLEMENTED)
 
 - `attackName` - Attack name (partial match, accent-insensitive)
+- `attackText` - Attack text/description search (partial match, accent-insensitive)
 - `attackDamageMin` / `attackDamageMax` - Attack damage range
 - `attackCost` + `attackCostMatchAll` - Attack cost types with AND/OR logic
 - `hasAbility` - Boolean filter for ability presence
 - `abilityName` - Ability name (partial match, accent-insensitive)
+- `abilityText` - Ability text/description search (partial match, accent-insensitive)
 
 ##### Additional Detail Filters (Phase 2 - IMPLEMENTED)
 
@@ -496,6 +532,7 @@ GET /api/pokemon/templates
 - `regulationMark` - Regulation mark (A, B, C, D, E, F, G, H)
 - `retreatCostMin` / `retreatCostMax` - Retreat cost range
 - `formats` + `formatsMatchAll` - Format legality with AND/OR logic
+- `formatsBanned` + `formatsBannedMatchAll` - Format ban status with AND/OR logic
 
 ##### Boolean Filters (Phase 3 - PLANNED)
 

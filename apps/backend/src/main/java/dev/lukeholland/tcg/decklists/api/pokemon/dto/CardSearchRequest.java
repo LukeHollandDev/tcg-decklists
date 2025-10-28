@@ -75,6 +75,11 @@ public class CardSearchRequest {
     private String attackName;
 
     /**
+     * Filter by attack text/description (partial match)
+     */
+    private String attackText;
+
+    /**
      * Minimum attack damage value (inclusive) - uses damage_numeric field
      */
     private Integer attackDamageMin;
@@ -108,6 +113,11 @@ public class CardSearchRequest {
     private String abilityName;
 
     /**
+     * Filter by ability text/description (partial match)
+     */
+    private String abilityText;
+
+    /**
      * Filter by artist name (exact match)
      */
     private String artist;
@@ -138,6 +148,19 @@ public class CardSearchRequest {
      * If false/null, cards must be legal in ANY specified format (OR logic) - default behavior.
      */
     private Boolean formatsMatchAll;
+
+    /**
+     * Filter by one or more formats where cards are BANNED (Standard, Expanded, Unlimited)
+     * By default uses OR logic (ANY match). Set formatsBannedMatchAll=true for AND logic.
+     * Useful for finding cards banned in specific formats.
+     */
+    private List<String> formatsBanned;
+
+    /**
+     * If true, cards must be banned in ALL specified formats (AND logic).
+     * If false/null, cards must be banned in ANY specified format (OR logic) - default behavior.
+     */
+    private Boolean formatsBannedMatchAll;
 
     // ===== Pagination & Sorting =====
 
@@ -300,6 +323,14 @@ public class CardSearchRequest {
         this.attackName = attackName;
     }
 
+    public String getAttackText() {
+        return attackText;
+    }
+
+    public void setAttackText(String attackText) {
+        this.attackText = attackText;
+    }
+
     public Integer getAttackDamageMin() {
         return attackDamageMin;
     }
@@ -346,6 +377,14 @@ public class CardSearchRequest {
 
     public void setAbilityName(String abilityName) {
         this.abilityName = abilityName;
+    }
+
+    public String getAbilityText() {
+        return abilityText;
+    }
+
+    public void setAbilityText(String abilityText) {
+        this.abilityText = abilityText;
     }
 
     public String getArtist() {
@@ -396,6 +435,22 @@ public class CardSearchRequest {
         this.formatsMatchAll = formatsMatchAll;
     }
 
+    public List<String> getFormatsBanned() {
+        return formatsBanned;
+    }
+
+    public void setFormatsBanned(List<String> formatsBanned) {
+        this.formatsBanned = formatsBanned;
+    }
+
+    public Boolean getFormatsBannedMatchAll() {
+        return formatsBannedMatchAll;
+    }
+
+    public void setFormatsBannedMatchAll(Boolean formatsBannedMatchAll) {
+        this.formatsBannedMatchAll = formatsBannedMatchAll;
+    }
+
     /**
      * Check if any filters are applied
      *
@@ -411,15 +466,18 @@ public class CardSearchRequest {
                 || hpMin != null
                 || hpMax != null
                 || attackName != null
+                || attackText != null
                 || attackDamageMin != null
                 || attackDamageMax != null
                 || (attackCost != null && !attackCost.isEmpty())
                 || hasAbility != null
                 || abilityName != null
+                || abilityText != null
                 || artist != null
                 || regulationMark != null
                 || retreatCostMin != null
                 || retreatCostMax != null
-                || (formats != null && !formats.isEmpty());
+                || (formats != null && !formats.isEmpty())
+                || (formatsBanned != null && !formatsBanned.isEmpty());
     }
 }

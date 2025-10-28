@@ -444,6 +444,36 @@ public class CardSpecification {
     }
 
     /**
+     * Filter by attack text/description (case-insensitive, accent-insensitive partial match).
+     *
+     * @param attackText The attack text to search for
+     * @return Specification that matches cards with attacks containing the search term in their description
+     */
+    public static Specification<Card> hasAttackText(String attackText) {
+        return (root, query, criteriaBuilder) -> {
+            if (StringNormalizer.isNullOrEmpty(attackText)) {
+                return criteriaBuilder.conjunction();
+            }
+
+            // Join to attacks collection (many-to-many)
+            Join<Card, Attack> attacksJoin = root.join("attacks", JoinType.INNER);
+
+            // Add DISTINCT to avoid duplicate cards
+            if (query != null) {
+                query.distinct(true);
+            }
+
+            // Normalize search term
+            String normalizedSearch = StringNormalizer.normalize(attackText.trim());
+
+            // Normalize database field and compare
+            Expression<String> normalizedField = normalizeField(attacksJoin.get("text"), criteriaBuilder);
+
+            return criteriaBuilder.like(normalizedField, "%" + normalizedSearch + "%");
+        };
+    }
+
+    /**
      * Filter by presence of abilities.
      *
      * @param hasAbility If true, only return cards with abilities. If false, only return cards without abilities. If null, no filtering.
@@ -493,6 +523,36 @@ public class CardSpecification {
 
             // Normalize database field and compare
             Expression<String> normalizedField = normalizeField(abilitiesJoin.get("name"), criteriaBuilder);
+
+            return criteriaBuilder.like(normalizedField, "%" + normalizedSearch + "%");
+        };
+    }
+
+    /**
+     * Filter by ability text/description (case-insensitive, accent-insensitive partial match).
+     *
+     * @param abilityText The ability text to search for
+     * @return Specification that matches cards with abilities containing the search term in their description
+     */
+    public static Specification<Card> hasAbilityText(String abilityText) {
+        return (root, query, criteriaBuilder) -> {
+            if (StringNormalizer.isNullOrEmpty(abilityText)) {
+                return criteriaBuilder.conjunction();
+            }
+
+            // Join to abilities collection (many-to-many)
+            Join<Card, Ability> abilitiesJoin = root.join("abilities", JoinType.INNER);
+
+            // Add DISTINCT to avoid duplicate cards
+            if (query != null) {
+                query.distinct(true);
+            }
+
+            // Normalize search term
+            String normalizedSearch = StringNormalizer.normalize(abilityText.trim());
+
+            // Normalize database field and compare
+            Expression<String> normalizedField = normalizeField(abilitiesJoin.get("text"), criteriaBuilder);
 
             return criteriaBuilder.like(normalizedField, "%" + normalizedSearch + "%");
         };
@@ -646,6 +706,82 @@ public class CardSpecification {
     }
 
     /**
+     * Filter by one or more formats where cards are BANNED (Standard, Expanded, Unlimited).
+     * Supports both OR logic (ANY match) and AND logic (ALL match).
+     * Only matches cards that are banned in the specified format(s).
+     * Supports accent-insensitive matching.
+     *
+     * @param formatNames List of format names to match
+     * @param matchAll    If true, cards must be banned in ALL formats (AND logic). If false/null, ANY format (OR logic).
+     * @return Specification that matches cards banned in the specified formats
+     */
+    public static Specification<Card> hasFormatsBanned(List<String> formatNames, Boolean matchAll) {
+        return (root, query, criteriaBuilder) -> {
+            if (formatNames == null || formatNames.isEmpty()) {
+                return criteriaBuilder.conjunction();
+            }
+
+            // Normalize search terms
+            List<String> normalizedFormats = formatNames.stream()
+                    .map(StringNormalizer::normalize)
+                    .toList();
+
+            // OR logic (ANY match) - default behavior
+            if (matchAll == null || !matchAll) {
+                // Join to the legalities collection (many-to-many through pokemon_card_legality)
+                Join<Card, CardLegality> legalityJoin = root.join("legalities", JoinType.INNER);
+                Join<CardLegality, Format> formatJoin = legalityJoin.join("format", JoinType.INNER);
+
+                // Add DISTINCT to avoid duplicate cards
+                if (query != null) {
+                    query.distinct(true);
+                }
+
+                // Normalize database field and compare
+                Expression<String> normalizedField = normalizeField(formatJoin.get("name"), criteriaBuilder);
+
+                // Only match cards that are "banned" in the format
+                return criteriaBuilder.and(
+                        normalizedField.in(normalizedFormats),
+                        criteriaBuilder.equal(legalityJoin.get("status"), criteriaBuilder.literal(LegalityStatus.banned))
+                );
+            }
+
+            // AND logic (ALL match) - card must be banned in ALL specified formats
+            // Strategy: For each format, check if the card is banned in it, then combine with AND
+
+            // Create a predicate for each format that must be matched
+            jakarta.persistence.criteria.Predicate[] formatPredicates = new jakarta.persistence.criteria.Predicate[normalizedFormats.size()];
+
+            for (int i = 0; i < normalizedFormats.size(); i++) {
+                String normalizedFormat = normalizedFormats.get(i);
+
+                // Create a subquery that checks if this card is banned in this specific format
+                jakarta.persistence.criteria.Subquery<Long> subquery = query.subquery(Long.class);
+                jakarta.persistence.criteria.Root<Card> subRoot = subquery.from(Card.class);
+                Join<Card, CardLegality> subLegalityJoin = subRoot.join("legalities", JoinType.INNER);
+                Join<CardLegality, Format> subFormatJoin = subLegalityJoin.join("format", JoinType.INNER);
+
+                Expression<String> subNormalizedField = normalizeField(subFormatJoin.get("name"), criteriaBuilder);
+
+                // Count how many times this card is banned in this specific format
+                subquery.select(criteriaBuilder.count(subFormatJoin.get("id")))
+                        .where(
+                                criteriaBuilder.equal(subRoot.get("id"), root.get("id")),
+                                criteriaBuilder.equal(subNormalizedField, normalizedFormat),
+                                criteriaBuilder.equal(subLegalityJoin.get("status"), criteriaBuilder.literal(LegalityStatus.banned))
+                        );
+
+                // This card must be banned in this format (count > 0)
+                formatPredicates[i] = criteriaBuilder.greaterThan(subquery, 0L);
+            }
+
+            // All format predicates must be true (AND them together)
+            return criteriaBuilder.and(formatPredicates);
+        };
+    }
+
+    /**
      * Combine all specifications based on search request parameters.
      * This is a convenience method that applies all applicable filters.
      *
@@ -659,19 +795,23 @@ public class CardSpecification {
      * @param rarity             Rarity name
      * @param hpMin              Minimum HP
      * @param hpMax              Maximum HP
-     * @param attackName         Attack name search
-     * @param attackDamageMin    Minimum attack damage
-     * @param attackDamageMax    Maximum attack damage
-     * @param attackCost         List of attack cost types to match
-     * @param attackCostMatchAll If true, match ALL cost types (AND logic); if false/null, match ANY cost type (OR logic)
-     * @param hasAbility         If true, only cards with abilities; if false, only cards without abilities; if null, no filtering
-     * @param abilityName        Ability name search
-     * @param artist             Artist name
-     * @param regulationMark     Regulation mark
-     * @param retreatCostMin     Minimum retreat cost
-     * @param retreatCostMax     Maximum retreat cost
-     * @param formats            List of formats to match
-     * @param formatsMatchAll    If true, cards must be legal in ALL formats (AND logic); if false/null, ANY format (OR logic)
+     * @param attackName              Attack name search
+     * @param attackText              Attack text/description search
+     * @param attackDamageMin         Minimum attack damage
+     * @param attackDamageMax         Maximum attack damage
+     * @param attackCost              List of attack cost types to match
+     * @param attackCostMatchAll      If true, match ALL cost types (AND logic); if false/null, match ANY cost type (OR logic)
+     * @param hasAbility              If true, only cards with abilities; if false, only cards without abilities; if null, no filtering
+     * @param abilityName             Ability name search
+     * @param abilityText             Ability text/description search
+     * @param artist                  Artist name
+     * @param regulationMark          Regulation mark
+     * @param retreatCostMin          Minimum retreat cost
+     * @param retreatCostMax          Maximum retreat cost
+     * @param formats                 List of formats to match (legal status)
+     * @param formatsMatchAll         If true, cards must be legal in ALL formats (AND logic); if false/null, ANY format (OR logic)
+     * @param formatsBanned           List of formats where cards are banned
+     * @param formatsBannedMatchAll   If true, cards must be banned in ALL formats (AND logic); if false/null, ANY format (OR logic)
      * @return Combined Specification with all applicable filters
      */
     public static Specification<Card> buildSpecification(
@@ -686,18 +826,22 @@ public class CardSpecification {
             Integer hpMin,
             Integer hpMax,
             String attackName,
+            String attackText,
             Integer attackDamageMin,
             Integer attackDamageMax,
             List<String> attackCost,
             Boolean attackCostMatchAll,
             Boolean hasAbility,
             String abilityName,
+            String abilityText,
             String artist,
             String regulationMark,
             Integer retreatCostMin,
             Integer retreatCostMax,
             List<String> formats,
-            Boolean formatsMatchAll
+            Boolean formatsMatchAll,
+            List<String> formatsBanned,
+            Boolean formatsBannedMatchAll
     ) {
         // Build list of all specifications and combine them with allOf()
         return Specification.allOf(
@@ -709,14 +853,17 @@ public class CardSpecification {
                 hasRarity(rarity),
                 hpBetween(hpMin, hpMax),
                 hasAttackName(attackName),
+                hasAttackText(attackText),
                 attackDamageBetween(attackDamageMin, attackDamageMax),
                 hasAttackCost(attackCost, attackCostMatchAll),
                 hasAbility(hasAbility),
                 hasAbilityName(abilityName),
+                hasAbilityText(abilityText),
                 hasArtist(artist),
                 hasRegulationMark(regulationMark),
                 retreatCostBetween(retreatCostMin, retreatCostMax),
-                hasFormats(formats, formatsMatchAll)
+                hasFormats(formats, formatsMatchAll),
+                hasFormatsBanned(formatsBanned, formatsBannedMatchAll)
         );
     }
 }
