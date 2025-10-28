@@ -11,8 +11,8 @@ const path = require('path');
  * @returns {Object} Map of card ID to card data
  */
 function loadPokemonSourceData(basePath) {
-    // Default to the data-pipeline/pokemon directory relative to this file
-    const dataDir = basePath || path.join(__dirname, '../../data-pipeline/pokemon');
+    // Default to the data-pipeline/data/pokemon/cards directory relative to this file
+    const dataDir = basePath || path.join(__dirname, '../../data-pipeline/data/pokemon/cards');
 
     if (!fs.existsSync(dataDir)) {
         throw new Error(`Data directory not found at ${dataDir}. Please ensure card data is loaded using the data pipeline.`);

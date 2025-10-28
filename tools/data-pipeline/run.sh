@@ -1,12 +1,13 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -euo pipefail
 
 # --- CONFIGURATION ---
-DATA_DIR="data"
 SCRIPTS_DIR="scripts"
 METADATA_FILE="metadata.json"
+DATA_DIR="data"
 SCHEMA_DIR="schema"
-mkdir -p "$SCHEMA_DIR"
+
+mkdir -p "$SCHEMA_DIR" "$DATA_DIR"
 
 # --- PRECHECKS ---
 if ! command -v jq &>/dev/null; then
@@ -53,6 +54,7 @@ pip install -r "$REQUIREMENTS_FILE" >/dev/null 2>&1
 
 # --- MAIN LOOP ---
 updates_made=false
+declare -A executed_scripts  # Track which scripts have been executed
 
 items=()
 while IFS= read -r line; do
@@ -63,6 +65,8 @@ for item in "${items[@]}"; do
   name=$(jq -r '.name' <<<"$item")
   source=$(jq -r '.source' <<<"$item")
   context=$(jq -r '.context' <<<"$item")
+  output=$(jq -r '.output' <<<"$item")
+  script=$(jq -r '.script' <<<"$item")
   version=$(jq -r '.version' <<<"$item")
 
   repo_path=${source#https://github.com/}
@@ -73,7 +77,6 @@ for item in "${items[@]}"; do
   # Get latest commit info
   latest_commit_json=$(curl -s "$api_url" | jq '.[0]')
   latest_sha=$(jq -r '.sha' <<<"$latest_commit_json")
-  latest_message=$(jq -r '.commit.message' <<<"$latest_commit_json")
   latest_date=$(jq -r '.commit.author.date' <<<"$latest_commit_json")
 
   if [[ "$latest_sha" == "$version" ]]; then
@@ -83,41 +86,59 @@ for item in "${items[@]}"; do
 
   echo "Updating $name to $latest_sha"
 
-  data_path="$name"
+  # Use output directory if specified, otherwise use name
+  data_path="${output:-$name}"
 
   # Remove old data directory if exists
   if [[ -d "$data_path" ]]; then
     rm -rf "$data_path"
   fi
 
-  # Clone the specific context path
-  git clone --depth 1 "$source" "$data_path" >/dev/null 2>&1
+  # Create parent directory if needed
+  mkdir -p "$(dirname "$data_path")"
+
+  # Clone to a temporary directory
+  tmp_clone=$(mktemp -d)
+  git clone --depth 1 "$source" "$tmp_clone" >/dev/null 2>&1
 
   if [[ -n "$context" && "$context" != "." ]]; then
-    # Move context folder content to the root of data_path
-    tmp_dir=$(mktemp -d)
-    mv "$data_path/$context"/* "$tmp_dir"/
-    rm -rf "$data_path"
+    # Move only the context folder content to the target data_path
     mkdir -p "$data_path"
-    mv "$tmp_dir"/* "$data_path"/
-    rm -rf "$tmp_dir"
+    mv "$tmp_clone/$context"/* "$data_path"/
+    rm -rf "$tmp_clone"
+  else
+    # Move entire repo to data_path
+    mv "$tmp_clone" "$data_path"
   fi
 
   success=false
 
   # --- Run Python migration script in shared virtual environment ---
-  migrate_py="$SCRIPTS_DIR/${name}-migrate.py"
+  # Use script field if specified, otherwise fall back to old naming convention
+  if [[ -n "$script" ]]; then
+    migrate_py="$script"
+  else
+    migrate_py="$SCRIPTS_DIR/${name}-migrate.py"
+  fi
+
   if [[ -f "$migrate_py" ]]; then
-    echo "Running Python migrate script for $name..."
-    if python "$migrate_py"; then
-      echo "Migration succeeded."
+    # Check if this script has already been executed
+    if [[ -n "${executed_scripts[$migrate_py]-}" ]]; then
+      echo "Script $migrate_py already executed in this run, skipping."
       success=true
     else
-      echo "Migration failed."
-      success=false
+      echo "Running Python migrate script: $migrate_py"
+      if python "$migrate_py"; then
+        echo "Migration succeeded."
+        success=true
+        executed_scripts[$migrate_py]=1  # Mark as executed
+      else
+        echo "Migration failed."
+        success=false
+      fi
     fi
   else
-    echo "No Python migrate script found for $name."
+    echo "No Python migrate script found at $migrate_py"
   fi
 
   # --- Update metadata for this item ---

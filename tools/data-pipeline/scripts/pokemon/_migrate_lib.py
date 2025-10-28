@@ -8,7 +8,8 @@ from psycopg2 import sql
 from psycopg2.extras import execute_batch
 
 # Configuration
-DATA_DIR = "pokemon"
+CARDS_DIR = "data/pokemon/cards"
+SETS_FILE = "data/pokemon/sets/en.json"
 
 # Database configuration from environment
 DB_CONFIG = {
@@ -22,20 +23,20 @@ DB_CONFIG = {
 
 def consolidate_and_load_cards() -> List[Dict[str, Any]]:
     """
-    Find all JSON files in the data directory, validate them,
+    Find all JSON files in the cards directory, validate them,
     and consolidate into a single list of cards.
     """
-    if not os.path.exists(DATA_DIR):
-        print(f"Error: {DATA_DIR} directory not found.", file=sys.stderr)
-        sys.exit(1)
+    if not os.path.exists(CARDS_DIR):
+        print(f"Warning: {CARDS_DIR} directory not found. Skipping card import.", file=sys.stderr)
+        return []
 
-    json_files = glob.glob(os.path.join(DATA_DIR, "*.json"))
+    json_files = glob.glob(os.path.join(CARDS_DIR, "*.json"))
 
     if not json_files:
-        print(f"Error: No JSON files found in {DATA_DIR}", file=sys.stderr)
-        sys.exit(1)
+        print(f"Warning: No JSON files found in {CARDS_DIR}", file=sys.stderr)
+        return []
 
-    print(f"Found {len(json_files)} JSON file(s) in {DATA_DIR}")
+    print(f"Found {len(json_files)} JSON file(s) in {CARDS_DIR}")
 
     all_cards = []
 
@@ -284,6 +285,106 @@ def parse_hp(hp_str: Optional[str]) -> Optional[int]:
         return None
 
 
+def load_sets() -> List[Dict[str, Any]]:
+    """Load set data from sets/en.json file."""
+    if not os.path.exists(SETS_FILE):
+        print(f"Warning: {SETS_FILE} not found. Skipping set metadata import.", file=sys.stderr)
+        return []
+
+    try:
+        with open(SETS_FILE, 'r') as f:
+            sets = json.load(f)
+
+        if not isinstance(sets, list):
+            print(f"Error: {SETS_FILE} should contain a JSON array", file=sys.stderr)
+            return []
+
+        print(f"Loaded {len(sets)} sets from {SETS_FILE}")
+        return sets
+
+    except json.JSONDecodeError as e:
+        print(f"Error: Invalid JSON in {SETS_FILE}: {e}", file=sys.stderr)
+        return []
+    except Exception as e:
+        print(f"Error reading {SETS_FILE}: {e}", file=sys.stderr)
+        return []
+
+
+def upsert_set(cursor, set_data: Dict[str, Any]) -> None:
+    """Upsert a single set with its metadata."""
+    set_id = set_data.get('id')
+
+    if not set_id:
+        print(f"Warning: Set missing 'id' field, skipping: {set_data}", file=sys.stderr)
+        return
+
+    # Extract image URLs
+    images = set_data.get('images', {})
+    image_symbol = images.get('symbol') if images else None
+    image_logo = images.get('logo') if images else None
+
+    # Upsert set record
+    cursor.execute("""
+        INSERT INTO pokemon_set (
+            set_id, name, series, printed_total, total, ptcgo_code,
+            release_date, updated_at, image_symbol, image_logo
+        ) VALUES (
+            %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
+        )
+        ON CONFLICT (set_id) DO UPDATE SET
+            name = EXCLUDED.name,
+            series = EXCLUDED.series,
+            printed_total = EXCLUDED.printed_total,
+            total = EXCLUDED.total,
+            ptcgo_code = EXCLUDED.ptcgo_code,
+            release_date = EXCLUDED.release_date,
+            updated_at = EXCLUDED.updated_at,
+            image_symbol = EXCLUDED.image_symbol,
+            image_logo = EXCLUDED.image_logo
+    """, (
+        set_id,
+        set_data.get('name'),
+        set_data.get('series'),
+        set_data.get('printedTotal'),
+        set_data.get('total'),
+        set_data.get('ptcgoCode'),
+        set_data.get('releaseDate'),
+        set_data.get('updatedAt'),
+        image_symbol,
+        image_logo
+    ))
+
+
+def migrate_sets(cursor, conn) -> None:
+    """Migrate all set metadata."""
+    sets = load_sets()
+
+    if not sets:
+        print("No sets to migrate")
+        return
+
+    print(f"Migrating {len(sets)} sets...")
+
+    for i, set_data in enumerate(sets, 1):
+        try:
+            upsert_set(cursor, set_data)
+
+            # Commit every 50 sets
+            if i % 50 == 0:
+                conn.commit()
+                print(f"Progress: {i}/{len(sets)} sets processed")
+
+        except Exception as e:
+            print(f"Error processing set {set_data.get('id')}: {e}", file=sys.stderr)
+            conn.rollback()
+            raise
+
+    # Final commit
+    conn.commit()
+    print(f"✓ Set migration completed successfully!")
+    print(f"✓ Total sets processed: {len(sets)}")
+
+
 def upsert_card(cursor, card: Dict[str, Any]) -> None:
     """Upsert a single card and all its related data."""
     card_id = card['id']
@@ -519,12 +620,9 @@ def upsert_card(cursor, card: Dict[str, Any]) -> None:
             )
 
 
-def main():
-    """Main migration function."""
-    print("Starting Pokemon card migration...")
-
-    # Load cards
-    cards = consolidate_and_load_cards()
+def migrate_all():
+    """Main migration function that runs both sets and cards."""
+    print("Starting Pokemon data migration...")
 
     # Connect to database
     try:
@@ -538,28 +636,41 @@ def main():
     try:
         cursor = conn.cursor()
 
-        # Process cards in batches with progress reporting
-        batch_size = 500
-        total = len(cards)
+        # Step 1: Migrate sets first (cards reference sets via FK)
+        print("\n=== Step 1: Migrating Sets ===")
+        migrate_sets(cursor, conn)
 
-        for i, card in enumerate(cards, 1):
-            try:
-                upsert_card(cursor, card)
+        # Step 2: Migrate cards
+        print("\n=== Step 2: Migrating Cards ===")
+        cards = consolidate_and_load_cards()
 
-                # Commit in batches for better performance
-                if i % batch_size == 0:
-                    conn.commit()
-                    print(f"Progress: {i}/{total} cards processed ({i*100//total}%)")
+        if cards:
+            # Process cards in batches with progress reporting
+            batch_size = 500
+            total = len(cards)
 
-            except Exception as e:
-                print(f"Error processing card {card.get('id')}: {e}", file=sys.stderr)
-                conn.rollback()
-                raise
+            for i, card in enumerate(cards, 1):
+                try:
+                    upsert_card(cursor, card)
 
-        # Final commit
-        conn.commit()
-        print(f"✓ Migration completed successfully!")
-        print(f"✓ Total cards processed: {total}")
+                    # Commit in batches for better performance
+                    if i % batch_size == 0:
+                        conn.commit()
+                        print(f"Progress: {i}/{total} cards processed ({i*100//total}%)")
+
+                except Exception as e:
+                    print(f"Error processing card {card.get('id')}: {e}", file=sys.stderr)
+                    conn.rollback()
+                    raise
+
+            # Final commit
+            conn.commit()
+            print(f"✓ Card migration completed successfully!")
+            print(f"✓ Total cards processed: {total}")
+        else:
+            print("No cards to migrate")
+
+        print("\n=== Migration Complete ===")
 
     except Exception as e:
         conn.rollback()
@@ -570,5 +681,78 @@ def main():
         conn.close()
 
 
-if __name__ == '__main__':
-    main()
+def main_sets_only():
+    """Migration function for sets only."""
+    print("Starting Pokemon sets migration...")
+
+    # Connect to database
+    try:
+        conn = psycopg2.connect(**DB_CONFIG)
+        conn.set_session(autocommit=False)
+        print(f"Connected to database: {DB_CONFIG['database']}@{DB_CONFIG['host']}")
+    except Exception as e:
+        print(f"Error connecting to database: {e}", file=sys.stderr)
+        sys.exit(1)
+
+    try:
+        cursor = conn.cursor()
+        migrate_sets(cursor, conn)
+        print("\n=== Sets migration complete ===")
+    except Exception as e:
+        conn.rollback()
+        print(f"Sets migration failed: {e}", file=sys.stderr)
+        sys.exit(1)
+    finally:
+        cursor.close()
+        conn.close()
+
+
+def main_cards_only():
+    """Migration function for cards only."""
+    print("Starting Pokemon cards migration...")
+
+    # Connect to database
+    try:
+        conn = psycopg2.connect(**DB_CONFIG)
+        conn.set_session(autocommit=False)
+        print(f"Connected to database: {DB_CONFIG['database']}@{DB_CONFIG['host']}")
+    except Exception as e:
+        print(f"Error connecting to database: {e}", file=sys.stderr)
+        sys.exit(1)
+
+    try:
+        cursor = conn.cursor()
+        cards = consolidate_and_load_cards()
+
+        if cards:
+            batch_size = 500
+            total = len(cards)
+
+            for i, card in enumerate(cards, 1):
+                try:
+                    upsert_card(cursor, card)
+
+                    if i % batch_size == 0:
+                        conn.commit()
+                        print(f"Progress: {i}/{total} cards processed ({i*100//total}%)")
+
+                except Exception as e:
+                    print(f"Error processing card {card.get('id')}: {e}", file=sys.stderr)
+                    conn.rollback()
+                    raise
+
+            conn.commit()
+            print(f"✓ Card migration completed successfully!")
+            print(f"✓ Total cards processed: {total}")
+        else:
+            print("No cards to migrate")
+
+        print("\n=== Cards migration complete ===")
+
+    except Exception as e:
+        conn.rollback()
+        print(f"Cards migration failed: {e}", file=sys.stderr)
+        sys.exit(1)
+    finally:
+        cursor.close()
+        conn.close()

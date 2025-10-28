@@ -1,9 +1,17 @@
 -- Sets
 CREATE TABLE pokemon_set
 (
-    id     SERIAL PRIMARY KEY,
-    set_id TEXT NOT NULL UNIQUE,
-    name   TEXT
+    id            SERIAL PRIMARY KEY,
+    set_id        TEXT NOT NULL UNIQUE,
+    name          TEXT,
+    series        TEXT,
+    printed_total INT,
+    total         INT,
+    ptcgo_code    TEXT,
+    release_date  TEXT,
+    updated_at    TEXT,
+    image_symbol  TEXT,
+    image_logo    TEXT
 );
 
 -- Artists

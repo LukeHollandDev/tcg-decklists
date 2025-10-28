@@ -1,0 +1,76 @@
+{
+  "$schema": "http://json-schema.org/schema#",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "id": {
+        "type": "string"
+      },
+      "name": {
+        "type": "string"
+      },
+      "series": {
+        "type": "string"
+      },
+      "printedTotal": {
+        "type": "integer"
+      },
+      "total": {
+        "type": "integer"
+      },
+      "legalities": {
+        "type": "object",
+        "properties": {
+          "unlimited": {
+            "type": "string"
+          },
+          "expanded": {
+            "type": "string"
+          },
+          "standard": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "unlimited"
+        ]
+      },
+      "ptcgoCode": {
+        "type": "string"
+      },
+      "releaseDate": {
+        "type": "string"
+      },
+      "updatedAt": {
+        "type": "string"
+      },
+      "images": {
+        "type": "object",
+        "properties": {
+          "symbol": {
+            "type": "string"
+          },
+          "logo": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "logo",
+          "symbol"
+        ]
+      }
+    },
+    "required": [
+      "id",
+      "images",
+      "legalities",
+      "name",
+      "printedTotal",
+      "releaseDate",
+      "series",
+      "total",
+      "updatedAt"
+    ]
+  }
+}

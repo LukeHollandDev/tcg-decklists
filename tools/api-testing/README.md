@@ -6,7 +6,7 @@ serves card data from the source JSON files.
 ## Overview
 
 This collection uses [Bruno](https://www.usebruno.com/) to test API endpoints. The tests compare API responses against
-source data from `tools/data-pipeline/pokemon/` to ensure data integrity and correct transformation.
+source data from `tools/data-pipeline/data/pokemon/cards/` to ensure data integrity and correct transformation.
 
 ## Prerequisites
 
@@ -137,7 +137,7 @@ Test results appear in the "Tests" tab of each request:
 Tests compare API responses against source JSON files in:
 
 ```
-tools/data-pipeline/pokemon/*.json
+tools/data-pipeline/data/pokemon/cards/*.json
 ```
 
 The `loadPokemonSourceData()` function:
@@ -240,7 +240,7 @@ When adding support for new card fields or validation logic:
 - The collection allows filesystem access to read source data files
 - All validation logic is centralized in the `lib/` directory for consistency
 - Tests normalize data structures to avoid false failures due to ordering differences:
-  - Object keys are sorted recursively before comparison
-  - Arrays of objects (weaknesses, resistances) are sorted by type
-  - Arrays of primitives are sorted before comparison
-  - Attack costs and other order-independent arrays use member comparison
+    - Object keys are sorted recursively before comparison
+    - Arrays of objects (weaknesses, resistances) are sorted by type
+    - Arrays of primitives are sorted before comparison
+    - Attack costs and other order-independent arrays use member comparison
