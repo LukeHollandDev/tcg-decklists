@@ -1,0 +1,20 @@
+meta {
+  name: Search
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{BASE_URL}}/pokemon/search?name=charizard
+  body: none
+  auth: inherit
+}
+
+params:query {
+  name: charizard
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
