@@ -1141,43 +1141,43 @@ public class CardSpecification {
      * Combine all specifications based on search request parameters.
      * This is a convenience method that applies all applicable filters.
      *
-     * @param name               Card name search
-     * @param supertype          Supertype filter
-     * @param types              List of types to match
-     * @param typesMatchAll      If true, match ALL types (AND logic); if false/null, match ANY type (OR logic)
-     * @param subtypes           List of subtypes to match
-     * @param subtypesMatchAll   If true, match ALL subtypes (AND logic); if false/null, match ANY subtype (OR logic)
-     * @param setId              Set identifier
-     * @param rarity             Rarity name
-     * @param hpMin              Minimum HP
-     * @param hpMax              Maximum HP
-     * @param attackName              Attack name search
-     * @param attackText              Attack text/description search
-     * @param attackDamageMin         Minimum attack damage
-     * @param attackDamageMax         Maximum attack damage
-     * @param attackCost              List of attack cost types to match
-     * @param attackCostMatchAll      If true, match ALL cost types (AND logic); if false/null, match ANY cost type (OR logic)
-     * @param hasAbility              If true, only cards with abilities; if false, only cards without abilities; if null, no filtering
-     * @param abilityName             Ability name search
-     * @param abilityText             Ability text/description search
-     * @param artist                  Artist name
-     * @param regulationMark          Regulation mark
-     * @param retreatCostMin          Minimum retreat cost
-     * @param retreatCostMax          Maximum retreat cost
-     * @param formats                 List of formats to match (legal status)
-     * @param formatsMatchAll         If true, cards must be legal in ALL formats (AND logic); if false/null, ANY format (OR logic)
-     * @param formatsBanned           List of formats where cards are banned
-     * @param formatsBannedMatchAll   If true, cards must be banned in ALL formats (AND logic); if false/null, ANY format (OR logic)
-     * @param hasRuleBox              If true, only cards with rule boxes; if false, only cards without rule boxes; if null, no filtering
-     * @param hasWeakness             If true, only cards with weaknesses; if false, only cards without weaknesses; if null, no filtering
-     * @param hasResistance           If true, only cards with resistances; if false, only cards without resistances; if null, no filtering
-     * @param weaknessType            List of weakness types to match
-     * @param weaknessTypeMatchAll    If true, match ALL weakness types (AND logic); if false/null, match ANY weakness type (OR logic)
-     * @param resistanceType          List of resistance types to match
-     * @param resistanceTypeMatchAll  If true, match ALL resistance types (AND logic); if false/null, match ANY resistance type (OR logic)
-     * @param evolvesFrom             Evolution source name (what this card evolves from)
-     * @param evolvesTo               Evolution target name (what this card evolves to)
-     * @param ruleText                Rule text/description search
+     * @param name                   Card name search
+     * @param supertype              Supertype filter
+     * @param types                  List of types to match
+     * @param typesMatchAll          If true, match ALL types (AND logic); if false/null, match ANY type (OR logic)
+     * @param subtypes               List of subtypes to match
+     * @param subtypesMatchAll       If true, match ALL subtypes (AND logic); if false/null, match ANY subtype (OR logic)
+     * @param setId                  Set identifier
+     * @param rarity                 Rarity name
+     * @param hpMin                  Minimum HP
+     * @param hpMax                  Maximum HP
+     * @param attackName             Attack name search
+     * @param attackText             Attack text/description search
+     * @param attackDamageMin        Minimum attack damage
+     * @param attackDamageMax        Maximum attack damage
+     * @param attackCost             List of attack cost types to match
+     * @param attackCostMatchAll     If true, match ALL cost types (AND logic); if false/null, match ANY cost type (OR logic)
+     * @param hasAbility             If true, only cards with abilities; if false, only cards without abilities; if null, no filtering
+     * @param abilityName            Ability name search
+     * @param abilityText            Ability text/description search
+     * @param artist                 Artist name
+     * @param regulationMark         Regulation mark
+     * @param retreatCostMin         Minimum retreat cost
+     * @param retreatCostMax         Maximum retreat cost
+     * @param formats                List of formats to match (legal status)
+     * @param formatsMatchAll        If true, cards must be legal in ALL formats (AND logic); if false/null, ANY format (OR logic)
+     * @param formatsBanned          List of formats where cards are banned
+     * @param formatsBannedMatchAll  If true, cards must be banned in ALL formats (AND logic); if false/null, ANY format (OR logic)
+     * @param hasRuleBox             If true, only cards with rule boxes; if false, only cards without rule boxes; if null, no filtering
+     * @param hasWeakness            If true, only cards with weaknesses; if false, only cards without weaknesses; if null, no filtering
+     * @param hasResistance          If true, only cards with resistances; if false, only cards without resistances; if null, no filtering
+     * @param weaknessType           List of weakness types to match
+     * @param weaknessTypeMatchAll   If true, match ALL weakness types (AND logic); if false/null, match ANY weakness type (OR logic)
+     * @param resistanceType         List of resistance types to match
+     * @param resistanceTypeMatchAll If true, match ALL resistance types (AND logic); if false/null, match ANY resistance type (OR logic)
+     * @param evolvesFrom            Evolution source name (what this card evolves from)
+     * @param evolvesTo              Evolution target name (what this card evolves to)
+     * @param ruleText               Rule text/description search
      * @return Combined Specification with all applicable filters
      */
     public static Specification<Card> buildSpecification(

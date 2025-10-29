@@ -481,6 +481,239 @@ Returns all available filter values to help build a dynamic search UI.
 - `formats` - Available tournament formats
 - `regulationMarks` - Available regulation marks
 
+#### Autocomplete Endpoints
+
+These endpoints provide autocomplete/typeahead functionality for search-enabled dropdowns in the frontend. They use *
+*prefix-first matching** for better relevance: results starting with the query are prioritized, with substring matches
+used as fallback if needed.
+
+All autocomplete endpoints support:
+
+- **Accent-insensitive matching** (e.g., "flabebe" matches "Flabébé")
+- **Case-insensitive matching**
+- **Configurable result limits** (default: 10, max: 100)
+
+##### Autocomplete Artists
+
+```http
+GET /api/pokemon/artists?query={text}&limit={n}
+```
+
+Returns artist names matching the query for use in search dropdowns.
+
+**Query Parameters:**
+
+| Parameter | Type    | Required | Description                       | Default |
+|-----------|---------|----------|-----------------------------------|---------|
+| `query`   | String  | Yes      | Search text (minimum 1 character) | -       |
+| `limit`   | Integer | No       | Maximum results (max: 100)        | 10      |
+
+**Example Requests:**
+
+```http
+# Basic usage
+GET /api/pokemon/artists?query=ken
+
+# With custom limit
+GET /api/pokemon/artists?query=sugimori&limit=20
+```
+
+**Response:**
+
+```json
+{
+  "results": [
+    "Ken Ikuji",
+    "Ken Sugimori",
+    "Ken Sugimori/Yusuke Ohmura",
+    "Kenkichi Toyama",
+    "Kent Kanetsuna"
+  ],
+  "count": 5,
+  "query": "ken",
+  "limit": 10
+}
+```
+
+**Response Fields:**
+
+- `results` - Array of matching artist names
+- `count` - Number of results returned
+- `query` - The search query used
+- `limit` - The limit that was applied
+
+**Error Responses:**
+
+- `400 Bad Request` - Query parameter is missing or empty
+
+##### Autocomplete Attacks
+
+```http
+GET /api/pokemon/attacks?query={text}&limit={n}
+```
+
+Returns attack names matching the query for use in search dropdowns.
+
+**Query Parameters:**
+
+| Parameter | Type    | Required | Description                       | Default |
+|-----------|---------|----------|-----------------------------------|---------|
+| `query`   | String  | Yes      | Search text (minimum 1 character) | -       |
+| `limit`   | Integer | No       | Maximum results (max: 100)        | 10      |
+
+**Example Requests:**
+
+```http
+# Find fire-related attacks
+GET /api/pokemon/attacks?query=fire
+
+# Find blast attacks
+GET /api/pokemon/attacks?query=blast&limit=20
+```
+
+**Response:**
+
+```json
+{
+  "results": [
+    "Fire Arrow",
+    "Fire Blast",
+    "Fire Blaster",
+    "Fire Blow",
+    "Fire Claws",
+    "Fire Counterattack",
+    "Fire Dance",
+    "Fire Fang",
+    "Fire Fling",
+    "Fire Force"
+  ],
+  "count": 10,
+  "query": "fire",
+  "limit": 10
+}
+```
+
+##### Autocomplete Abilities
+
+```http
+GET /api/pokemon/abilities?query={text}&limit={n}
+```
+
+Returns ability names matching the query for use in search dropdowns.
+
+**Query Parameters:**
+
+| Parameter | Type    | Required | Description                       | Default |
+|-----------|---------|----------|-----------------------------------|---------|
+| `query`   | String  | Yes      | Search text (minimum 1 character) | -       |
+| `limit`   | Integer | No       | Maximum results (max: 100)        | 10      |
+
+**Example Requests:**
+
+```http
+# Find power-related abilities
+GET /api/pokemon/abilities?query=power
+
+# Find intimidate abilities
+GET /api/pokemon/abilities?query=intimidate&limit=15
+```
+
+**Response:**
+
+```json
+{
+  "results": [
+    "Power Bind",
+    "Power Cancel",
+    "Power Cheer",
+    "Power Circulation",
+    "Power Connect",
+    "Power Diffusion",
+    "Power Draw",
+    "Power Gene",
+    "Power Huddle",
+    "Power Pinchers"
+  ],
+  "count": 10,
+  "query": "power",
+  "limit": 10
+}
+```
+
+##### Autocomplete Card Names
+
+```http
+GET /api/pokemon/card-names?query={text}&limit={n}
+```
+
+Returns card names matching the query for use in search dropdowns.
+
+**Query Parameters:**
+
+| Parameter | Type    | Required | Description                       | Default |
+|-----------|---------|----------|-----------------------------------|---------|
+| `query`   | String  | Yes      | Search text (minimum 1 character) | -       |
+| `limit`   | Integer | No       | Maximum results (max: 100)        | 10      |
+
+**Example Requests:**
+
+```http
+# Find Charizard cards
+GET /api/pokemon/card-names?query=char
+
+# Find Pikachu cards
+GET /api/pokemon/card-names?query=pikachu&limit=20
+
+# Accent-insensitive search
+GET /api/pokemon/card-names?query=flabebe
+```
+
+**Response:**
+
+```json
+{
+  "results": [
+    "Charcadet",
+    "Charity",
+    "Charizard",
+    "Charizard & Braixen-GX",
+    "Charizard G",
+    "Charizard G LV.X",
+    "Charizard Spirit Link",
+    "Charizard V",
+    "Charizard VMAX",
+    "Charizard VSTAR"
+  ],
+  "count": 10,
+  "query": "char",
+  "limit": 10
+}
+```
+
+**Accent-Insensitive Example:**
+
+```http
+GET /api/pokemon/card-names?query=flabebe
+```
+
+```json
+{
+  "results": [
+    "Flabébé"
+  ],
+  "count": 1,
+  "query": "flabebe",
+  "limit": 10
+}
+```
+
+**Notes:**
+
+- All autocomplete endpoints use the same response format
+- Results are ordered with prefix matches first, then substring matches
+- Empty or missing `query` parameter returns `400 Bad Request`
+- Duplicate names are automatically deduplicated
+
 ### Planned Future Endpoints
 
 ### Decklist Management

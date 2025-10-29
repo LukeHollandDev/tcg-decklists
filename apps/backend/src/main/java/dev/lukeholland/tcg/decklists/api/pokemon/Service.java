@@ -13,7 +13,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
+import java.util.*;
 
 @org.springframework.stereotype.Service
 @Transactional(readOnly = true)
@@ -134,6 +134,124 @@ public class Service {
         return response;
     }
 
+    // ========== Autocomplete Methods ==========
+
+    /**
+     * Autocomplete artist names with prefix-first matching.
+     * Returns prefix matches first, then substring matches to fill remaining slots.
+     *
+     * @param query The search query
+     * @param limit Maximum number of results (default: 10, max: 100)
+     * @return List of matching artist names
+     */
+    public List<String> autocompleteArtists(String query, int limit) {
+        return autocomplete(
+                query,
+                limit,
+                repository::findArtistNamesByPrefix,
+                repository::findArtistNamesBySubstring
+        );
+    }
+
+    /**
+     * Autocomplete attack names with prefix-first matching.
+     * Returns prefix matches first, then substring matches to fill remaining slots.
+     *
+     * @param query The search query
+     * @param limit Maximum number of results (default: 10, max: 100)
+     * @return List of matching attack names
+     */
+    public List<String> autocompleteAttacks(String query, int limit) {
+        return autocomplete(
+                query,
+                limit,
+                repository::findAttackNamesByPrefix,
+                repository::findAttackNamesBySubstring
+        );
+    }
+
+    /**
+     * Autocomplete ability names with prefix-first matching.
+     * Returns prefix matches first, then substring matches to fill remaining slots.
+     *
+     * @param query The search query
+     * @param limit Maximum number of results (default: 10, max: 100)
+     * @return List of matching ability names
+     */
+    public List<String> autocompleteAbilities(String query, int limit) {
+        return autocomplete(
+                query,
+                limit,
+                repository::findAbilityNamesByPrefix,
+                repository::findAbilityNamesBySubstring
+        );
+    }
+
+    /**
+     * Autocomplete card names with prefix-first matching.
+     * Returns prefix matches first, then substring matches to fill remaining slots.
+     *
+     * @param query The search query
+     * @param limit Maximum number of results (default: 10, max: 100)
+     * @return List of matching card names
+     */
+    public List<String> autocompleteCardNames(String query, int limit) {
+        return autocomplete(
+                query,
+                limit,
+                repository::findCardNamesByPrefix,
+                repository::findCardNamesBySubstring
+        );
+    }
+
+    /**
+     * Generic autocomplete implementation with prefix-first matching strategy.
+     * <p>
+     * Algorithm:
+     * 1. Query for prefix matches up to the limit
+     * 2. If result count < limit, query for substring matches to fill remaining slots
+     * 3. Deduplicate using LinkedHashSet to maintain order (prefix matches first)
+     * 4. Return list limited to requested size
+     *
+     * @param query           The search query
+     * @param limit           Maximum number of results
+     * @param prefixFinder    Function to find prefix matches
+     * @param substringFinder Function to find substring matches
+     * @return List of matching names with prefix matches prioritized
+     */
+    private List<String> autocomplete(
+            String query,
+            int limit,
+            AutocompleteFinder prefixFinder,
+            AutocompleteFinder substringFinder) {
+
+        // Validate query
+        if (query == null || query.trim().isEmpty()) {
+            return List.of();
+        }
+
+        String normalizedQuery = query.trim();
+
+        // Step 1: Get prefix matches first (these are most relevant)
+        List<String> prefixMatches = prefixFinder.find(normalizedQuery, limit);
+
+        // If we have enough results from prefix matching, return early
+        if (prefixMatches.size() >= limit) {
+            return prefixMatches;
+        }
+
+        // Step 2: Get substring matches to fill remaining slots
+        int remaining = limit - prefixMatches.size();
+        List<String> substringMatches = substringFinder.find(normalizedQuery, remaining);
+
+        // Step 3: Combine results with deduplication (LinkedHashSet maintains insertion order)
+        Set<String> results = new LinkedHashSet<>(prefixMatches);
+        results.addAll(substringMatches);
+
+        // Step 4: Convert to list and ensure we don't exceed limit
+        return new ArrayList<>(results).subList(0, Math.min(results.size(), limit));
+    }
+
     /**
      * Build a Sort object from sort field and order.
      *
@@ -151,5 +269,14 @@ public class Service {
         // Map sort field names (some may need special handling)
         // For now, use the field directly - could add mapping logic here if needed
         return Sort.by(direction, field);
+    }
+
+    /**
+     * Functional interface for autocomplete finder methods.
+     * Allows method reference usage for cleaner code.
+     */
+    @FunctionalInterface
+    private interface AutocompleteFinder {
+        List<String> find(String query, int limit);
     }
 }

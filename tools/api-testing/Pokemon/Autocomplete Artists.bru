@@ -1,0 +1,21 @@
+meta {
+  name: Autocomplete Artists
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{BASE_URL}}/pokemon/artists?query=ken
+  body: none
+  auth: inherit
+}
+
+params:query {
+  query: ken
+  ~limit: 10
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -1,0 +1,21 @@
+meta {
+  name: Autocomplete Card Names
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{BASE_URL}}/pokemon/card-names?query=char
+  body: none
+  auth: inherit
+}
+
+params:query {
+  query: char
+  ~limit: 10
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

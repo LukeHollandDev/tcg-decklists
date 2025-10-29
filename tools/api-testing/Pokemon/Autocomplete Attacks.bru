@@ -1,0 +1,21 @@
+meta {
+  name: Autocomplete Attacks
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{BASE_URL}}/pokemon/attacks?query=fire
+  body: none
+  auth: inherit
+}
+
+params:query {
+  query: fire
+  ~limit: 10
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -69,4 +69,186 @@ public interface Repository extends JpaRepository<Card, String>, JpaSpecificatio
      */
     @Query("SELECT DISTINCT c.regulationMark FROM Card c WHERE c.regulationMark IS NOT NULL ORDER BY c.regulationMark")
     List<String> findDistinctRegulationMarks();
+
+    // ========== Autocomplete Methods ==========
+
+    /**
+     * Find artist names starting with the given prefix (accent-insensitive, case-insensitive).
+     *
+     * @param prefix The prefix to search for
+     * @param limit  Maximum number of results to return
+     * @return List of artist names matching the prefix
+     */
+    @Query(value = """
+            SELECT DISTINCT a.name
+            FROM Artist a
+            WHERE LOWER(TRANSLATE(a.name,
+                'áàâäãåāăąéèêëēėęíìîïīįóòôöõøōőúùûüūűųýÿŷñńňçćčßśšźżžÁÀÂÄÃÅĀĂĄÉÈÊËĒĖĘÍÌÎÏĪĮÓÒÔÖÕØŌŐÚÙÛÜŪŰŲÝŸŶÑŃŇÇĆČßŚŠŹŻŽ',
+                'aaaaaaaaaeeeeeeeiiiiiiooooooooouuuuuuuyyynnncccssszzzAAAAAAAAAEEEEEEEIIIIIIOOOOOOOOOUUUUUUUYYYNNNCCCSSSZZZ'))
+                LIKE LOWER(CONCAT(:prefix, '%'))
+            ORDER BY a.name
+            LIMIT :limit
+            """)
+    List<String> findArtistNamesByPrefix(@org.springframework.data.repository.query.Param("prefix") String prefix,
+                                         @org.springframework.data.repository.query.Param("limit") int limit);
+
+    /**
+     * Find artist names containing the given substring (accent-insensitive, case-insensitive).
+     * Excludes results that start with the substring to avoid duplicates with prefix search.
+     *
+     * @param substring The substring to search for
+     * @param limit     Maximum number of results to return
+     * @return List of artist names containing the substring
+     */
+    @Query(value = """
+            SELECT DISTINCT a.name
+            FROM Artist a
+            WHERE LOWER(TRANSLATE(a.name,
+                'áàâäãåāăąéèêëēėęíìîïīįóòôöõøōőúùûüūűųýÿŷñńňçćčßśšźżžÁÀÂÄÃÅĀĂĄÉÈÊËĒĖĘÍÌÎÏĪĮÓÒÔÖÕØŌŐÚÙÛÜŪŰŲÝŸŶÑŃŇÇĆČßŚŠŹŻŽ',
+                'aaaaaaaaaeeeeeeeiiiiiiooooooooouuuuuuuyyynnncccssszzzAAAAAAAAAEEEEEEEIIIIIIOOOOOOOOOUUUUUUUYYYNNNCCCSSSZZZ'))
+                LIKE LOWER(CONCAT('%', :substring, '%'))
+            AND LOWER(TRANSLATE(a.name,
+                'áàâäãåāăąéèêëēėęíìîïīįóòôöõøōőúùûüūűųýÿŷñńňçćčßśšźżžÁÀÂÄÃÅĀĂĄÉÈÊËĒĖĘÍÌÎÏĪĮÓÒÔÖÕØŌŐÚÙÛÜŪŰŲÝŸŶÑŃŇÇĆČßŚŠŹŻŽ',
+                'aaaaaaaaaeeeeeeeiiiiiiooooooooouuuuuuuyyynnncccssszzzAAAAAAAAAEEEEEEEIIIIIIOOOOOOOOOUUUUUUUYYYNNNCCCSSSZZZ'))
+                NOT LIKE LOWER(CONCAT(:substring, '%'))
+            ORDER BY a.name
+            LIMIT :limit
+            """)
+    List<String> findArtistNamesBySubstring(@org.springframework.data.repository.query.Param("substring") String substring,
+                                            @org.springframework.data.repository.query.Param("limit") int limit);
+
+    /**
+     * Find attack names starting with the given prefix (accent-insensitive, case-insensitive).
+     *
+     * @param prefix The prefix to search for
+     * @param limit  Maximum number of results to return
+     * @return List of distinct attack names matching the prefix
+     */
+    @Query(value = """
+            SELECT DISTINCT a.name
+            FROM Attack a
+            WHERE LOWER(TRANSLATE(a.name,
+                'áàâäãåāăąéèêëēėęíìîïīįóòôöõøōőúùûüūűųýÿŷñńňçćčßśšźżžÁÀÂÄÃÅĀĂĄÉÈÊËĒĖĘÍÌÎÏĪĮÓÒÔÖÕØŌŐÚÙÛÜŪŰŲÝŸŶÑŃŇÇĆČßŚŠŹŻŽ',
+                'aaaaaaaaaeeeeeeeiiiiiiooooooooouuuuuuuyyynnncccssszzzAAAAAAAAAEEEEEEEIIIIIIOOOOOOOOOUUUUUUUYYYNNNCCCSSSZZZ'))
+                LIKE LOWER(CONCAT(:prefix, '%'))
+            ORDER BY a.name
+            LIMIT :limit
+            """)
+    List<String> findAttackNamesByPrefix(@org.springframework.data.repository.query.Param("prefix") String prefix,
+                                         @org.springframework.data.repository.query.Param("limit") int limit);
+
+    /**
+     * Find attack names containing the given substring (accent-insensitive, case-insensitive).
+     * Excludes results that start with the substring to avoid duplicates with prefix search.
+     *
+     * @param substring The substring to search for
+     * @param limit     Maximum number of results to return
+     * @return List of distinct attack names containing the substring
+     */
+    @Query(value = """
+            SELECT DISTINCT a.name
+            FROM Attack a
+            WHERE LOWER(TRANSLATE(a.name,
+                'áàâäãåāăąéèêëēėęíìîïīįóòôöõøōőúùûüūűųýÿŷñńňçćčßśšźżžÁÀÂÄÃÅĀĂĄÉÈÊËĒĖĘÍÌÎÏĪĮÓÒÔÖÕØŌŐÚÙÛÜŪŰŲÝŸŶÑŃŇÇĆČßŚŠŹŻŽ',
+                'aaaaaaaaaeeeeeeeiiiiiiooooooooouuuuuuuyyynnncccssszzzAAAAAAAAAEEEEEEEIIIIIIOOOOOOOOOUUUUUUUYYYNNNCCCSSSZZZ'))
+                LIKE LOWER(CONCAT('%', :substring, '%'))
+            AND LOWER(TRANSLATE(a.name,
+                'áàâäãåāăąéèêëēėęíìîïīįóòôöõøōőúùûüūűųýÿŷñńňçćčßśšźżžÁÀÂÄÃÅĀĂĄÉÈÊËĒĖĘÍÌÎÏĪĮÓÒÔÖÕØŌŐÚÙÛÜŪŰŲÝŸŶÑŃŇÇĆČßŚŠŹŻŽ',
+                'aaaaaaaaaeeeeeeeiiiiiiooooooooouuuuuuuyyynnncccssszzzAAAAAAAAAEEEEEEEIIIIIIOOOOOOOOOUUUUUUUYYYNNNCCCSSSZZZ'))
+                NOT LIKE LOWER(CONCAT(:substring, '%'))
+            ORDER BY a.name
+            LIMIT :limit
+            """)
+    List<String> findAttackNamesBySubstring(@org.springframework.data.repository.query.Param("substring") String substring,
+                                            @org.springframework.data.repository.query.Param("limit") int limit);
+
+    /**
+     * Find ability names starting with the given prefix (accent-insensitive, case-insensitive).
+     *
+     * @param prefix The prefix to search for
+     * @param limit  Maximum number of results to return
+     * @return List of distinct ability names matching the prefix
+     */
+    @Query(value = """
+            SELECT DISTINCT a.name
+            FROM Ability a
+            WHERE LOWER(TRANSLATE(a.name,
+                'áàâäãåāăąéèêëēėęíìîïīįóòôöõøōőúùûüūűųýÿŷñńňçćčßśšźżžÁÀÂÄÃÅĀĂĄÉÈÊËĒĖĘÍÌÎÏĪĮÓÒÔÖÕØŌŐÚÙÛÜŪŰŲÝŸŶÑŃŇÇĆČßŚŠŹŻŽ',
+                'aaaaaaaaaeeeeeeeiiiiiiooooooooouuuuuuuyyynnncccssszzzAAAAAAAAAEEEEEEEIIIIIIOOOOOOOOOUUUUUUUYYYNNNCCCSSSZZZ'))
+                LIKE LOWER(CONCAT(:prefix, '%'))
+            ORDER BY a.name
+            LIMIT :limit
+            """)
+    List<String> findAbilityNamesByPrefix(@org.springframework.data.repository.query.Param("prefix") String prefix,
+                                          @org.springframework.data.repository.query.Param("limit") int limit);
+
+    /**
+     * Find ability names containing the given substring (accent-insensitive, case-insensitive).
+     * Excludes results that start with the substring to avoid duplicates with prefix search.
+     *
+     * @param substring The substring to search for
+     * @param limit     Maximum number of results to return
+     * @return List of distinct ability names containing the substring
+     */
+    @Query(value = """
+            SELECT DISTINCT a.name
+            FROM Ability a
+            WHERE LOWER(TRANSLATE(a.name,
+                'áàâäãåāăąéèêëēėęíìîïīįóòôöõøōőúùûüūűųýÿŷñńňçćčßśšźżžÁÀÂÄÃÅĀĂĄÉÈÊËĒĖĘÍÌÎÏĪĮÓÒÔÖÕØŌŐÚÙÛÜŪŰŲÝŸŶÑŃŇÇĆČßŚŠŹŻŽ',
+                'aaaaaaaaaeeeeeeeiiiiiiooooooooouuuuuuuyyynnncccssszzzAAAAAAAAAEEEEEEEIIIIIIOOOOOOOOOUUUUUUUYYYNNNCCCSSSZZZ'))
+                LIKE LOWER(CONCAT('%', :substring, '%'))
+            AND LOWER(TRANSLATE(a.name,
+                'áàâäãåāăąéèêëēėęíìîïīįóòôöõøōőúùûüūűųýÿŷñńňçćčßśšźżžÁÀÂÄÃÅĀĂĄÉÈÊËĒĖĘÍÌÎÏĪĮÓÒÔÖÕØŌŐÚÙÛÜŪŰŲÝŸŶÑŃŇÇĆČßŚŠŹŻŽ',
+                'aaaaaaaaaeeeeeeeiiiiiiooooooooouuuuuuuyyynnncccssszzzAAAAAAAAAEEEEEEEIIIIIIOOOOOOOOOUUUUUUUYYYNNNCCCSSSZZZ'))
+                NOT LIKE LOWER(CONCAT(:substring, '%'))
+            ORDER BY a.name
+            LIMIT :limit
+            """)
+    List<String> findAbilityNamesBySubstring(@org.springframework.data.repository.query.Param("substring") String substring,
+                                             @org.springframework.data.repository.query.Param("limit") int limit);
+
+    /**
+     * Find card names starting with the given prefix (accent-insensitive, case-insensitive).
+     *
+     * @param prefix The prefix to search for
+     * @param limit  Maximum number of results to return
+     * @return List of distinct card names matching the prefix
+     */
+    @Query(value = """
+            SELECT DISTINCT c.name
+            FROM Card c
+            WHERE LOWER(TRANSLATE(c.name,
+                'áàâäãåāăąéèêëēėęíìîïīįóòôöõøōőúùûüūűųýÿŷñńňçćčßśšźżžÁÀÂÄÃÅĀĂĄÉÈÊËĒĖĘÍÌÎÏĪĮÓÒÔÖÕØŌŐÚÙÛÜŪŰŲÝŸŶÑŃŇÇĆČßŚŠŹŻŽ',
+                'aaaaaaaaaeeeeeeeiiiiiiooooooooouuuuuuuyyynnncccssszzzAAAAAAAAAEEEEEEEIIIIIIOOOOOOOOOUUUUUUUYYYNNNCCCSSSZZZ'))
+                LIKE LOWER(CONCAT(:prefix, '%'))
+            ORDER BY c.name
+            LIMIT :limit
+            """)
+    List<String> findCardNamesByPrefix(@org.springframework.data.repository.query.Param("prefix") String prefix,
+                                       @org.springframework.data.repository.query.Param("limit") int limit);
+
+    /**
+     * Find card names containing the given substring (accent-insensitive, case-insensitive).
+     * Excludes results that start with the substring to avoid duplicates with prefix search.
+     *
+     * @param substring The substring to search for
+     * @param limit     Maximum number of results to return
+     * @return List of distinct card names containing the substring
+     */
+    @Query(value = """
+            SELECT DISTINCT c.name
+            FROM Card c
+            WHERE LOWER(TRANSLATE(c.name,
+                'áàâäãåāăąéèêëēėęíìîïīįóòôöõøōőúùûüūűųýÿŷñńňçćčßśšźżžÁÀÂÄÃÅĀĂĄÉÈÊËĒĖĘÍÌÎÏĪĮÓÒÔÖÕØŌŐÚÙÛÜŪŰŲÝŸŶÑŃŇÇĆČßŚŠŹŻŽ',
+                'aaaaaaaaaeeeeeeeiiiiiiooooooooouuuuuuuyyynnncccssszzzAAAAAAAAAEEEEEEEIIIIIIOOOOOOOOOUUUUUUUYYYNNNCCCSSSZZZ'))
+                LIKE LOWER(CONCAT('%', :substring, '%'))
+            AND LOWER(TRANSLATE(c.name,
+                'áàâäãåāăąéèêëēėęíìîïīįóòôöõøōőúùûüūűųýÿŷñńňçćčßśšźżžÁÀÂÄÃÅĀĂĄÉÈÊËĒĖĘÍÌÎÏĪĮÓÒÔÖÕØŌŐÚÙÛÜŪŰŲÝŸŶÑŃŇÇĆČßŚŠŹŻŽ',
+                'aaaaaaaaaeeeeeeeiiiiiiooooooooouuuuuuuyyynnncccssszzzAAAAAAAAAEEEEEEEIIIIIIOOOOOOOOOUUUUUUUYYYNNNCCCSSSZZZ'))
+                NOT LIKE LOWER(CONCAT(:substring, '%'))
+            ORDER BY c.name
+            LIMIT :limit
+            """)
+    List<String> findCardNamesBySubstring(@org.springframework.data.repository.query.Param("substring") String substring,
+                                          @org.springframework.data.repository.query.Param("limit") int limit);
 }

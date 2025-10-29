@@ -1,11 +1,10 @@
 package dev.lukeholland.tcg.decklists.api.pokemon;
 
-import dev.lukeholland.tcg.decklists.api.pokemon.dto.CardResponse;
-import dev.lukeholland.tcg.decklists.api.pokemon.dto.CardSearchRequest;
-import dev.lukeholland.tcg.decklists.api.pokemon.dto.CardSearchResponse;
-import dev.lukeholland.tcg.decklists.api.pokemon.dto.FilterOptionsResponse;
+import dev.lukeholland.tcg.decklists.api.pokemon.dto.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/pokemon")
@@ -124,6 +123,172 @@ public class Controller {
     @GetMapping("/features")
     public ResponseEntity<FilterOptionsResponse> getFeatures() {
         FilterOptionsResponse response = service.getFilterOptions();
+        return ResponseEntity.ok(response);
+    }
+
+    // ========== Autocomplete Endpoints ==========
+
+    /**
+     * Autocomplete artist names for search-enabled dropdowns
+     * GET /api/pokemon/artists?query={text}&limit={n}
+     * <p>
+     * Supports prefix-first matching for better relevance:
+     * - Prioritizes results starting with the query
+     * - Falls back to substring matching if needed
+     * <p>
+     * Query parameters:
+     * - query: Search text (required, min length: 1)
+     * - limit: Maximum results (optional, default: 10, max: 100)
+     * <p>
+     * Examples:
+     * - /api/pokemon/artists?query=ken
+     * - /api/pokemon/artists?query=sugimori&limit=20
+     *
+     * @param query Search query text
+     * @param limit Maximum number of results (default: 10, max: 100)
+     * @return 200 OK with autocomplete results, or 400 Bad Request if query is missing/empty
+     */
+    @GetMapping("/artists")
+    public ResponseEntity<AutocompleteResponse> autocompleteArtists(
+            @RequestParam(required = true) String query,
+            @RequestParam(required = false, defaultValue = "10") int limit) {
+
+        // Validate query
+        if (query == null || query.trim().isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        // Enforce max limit
+        int effectiveLimit = Math.min(limit, 100);
+
+        // Call service
+        List<String> results = service.autocompleteArtists(query, effectiveLimit);
+
+        // Build response
+        AutocompleteResponse response = new AutocompleteResponse(results, query, effectiveLimit);
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Autocomplete attack names for search-enabled dropdowns
+     * GET /api/pokemon/attacks?query={text}&limit={n}
+     * <p>
+     * Supports prefix-first matching for better relevance:
+     * - Prioritizes results starting with the query
+     * - Falls back to substring matching if needed
+     * <p>
+     * Query parameters:
+     * - query: Search text (required, min length: 1)
+     * - limit: Maximum results (optional, default: 10, max: 100)
+     * <p>
+     * Examples:
+     * - /api/pokemon/attacks?query=fire
+     * - /api/pokemon/attacks?query=blast&limit=20
+     *
+     * @param query Search query text
+     * @param limit Maximum number of results (default: 10, max: 100)
+     * @return 200 OK with autocomplete results, or 400 Bad Request if query is missing/empty
+     */
+    @GetMapping("/attacks")
+    public ResponseEntity<AutocompleteResponse> autocompleteAttacks(
+            @RequestParam(required = true) String query,
+            @RequestParam(required = false, defaultValue = "10") int limit) {
+
+        // Validate query
+        if (query == null || query.trim().isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        // Enforce max limit
+        int effectiveLimit = Math.min(limit, 100);
+
+        // Call service
+        List<String> results = service.autocompleteAttacks(query, effectiveLimit);
+
+        // Build response
+        AutocompleteResponse response = new AutocompleteResponse(results, query, effectiveLimit);
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Autocomplete ability names for search-enabled dropdowns
+     * GET /api/pokemon/abilities?query={text}&limit={n}
+     * <p>
+     * Supports prefix-first matching for better relevance:
+     * - Prioritizes results starting with the query
+     * - Falls back to substring matching if needed
+     * <p>
+     * Query parameters:
+     * - query: Search text (required, min length: 1)
+     * - limit: Maximum results (optional, default: 10, max: 100)
+     * <p>
+     * Examples:
+     * - /api/pokemon/abilities?query=intimidate
+     * - /api/pokemon/abilities?query=power&limit=20
+     *
+     * @param query Search query text
+     * @param limit Maximum number of results (default: 10, max: 100)
+     * @return 200 OK with autocomplete results, or 400 Bad Request if query is missing/empty
+     */
+    @GetMapping("/abilities")
+    public ResponseEntity<AutocompleteResponse> autocompleteAbilities(
+            @RequestParam(required = true) String query,
+            @RequestParam(required = false, defaultValue = "10") int limit) {
+
+        // Validate query
+        if (query == null || query.trim().isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        // Enforce max limit
+        int effectiveLimit = Math.min(limit, 100);
+
+        // Call service
+        List<String> results = service.autocompleteAbilities(query, effectiveLimit);
+
+        // Build response
+        AutocompleteResponse response = new AutocompleteResponse(results, query, effectiveLimit);
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Autocomplete card names for search-enabled dropdowns
+     * GET /api/pokemon/card-names?query={text}&limit={n}
+     * <p>
+     * Supports prefix-first matching for better relevance:
+     * - Prioritizes results starting with the query
+     * - Falls back to substring matching if needed
+     * <p>
+     * Query parameters:
+     * - query: Search text (required, min length: 1)
+     * - limit: Maximum results (optional, default: 10, max: 100)
+     * <p>
+     * Examples:
+     * - /api/pokemon/card-names?query=char
+     * - /api/pokemon/card-names?query=pikachu&limit=20
+     *
+     * @param query Search query text
+     * @param limit Maximum number of results (default: 10, max: 100)
+     * @return 200 OK with autocomplete results, or 400 Bad Request if query is missing/empty
+     */
+    @GetMapping("/card-names")
+    public ResponseEntity<AutocompleteResponse> autocompleteCardNames(
+            @RequestParam(required = true) String query,
+            @RequestParam(required = false, defaultValue = "10") int limit) {
+
+        // Validate query
+        if (query == null || query.trim().isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        // Enforce max limit
+        int effectiveLimit = Math.min(limit, 100);
+
+        // Call service
+        List<String> results = service.autocompleteCardNames(query, effectiveLimit);
+
+        // Build response
+        AutocompleteResponse response = new AutocompleteResponse(results, query, effectiveLimit);
         return ResponseEntity.ok(response);
     }
 }
