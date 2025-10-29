@@ -34,7 +34,6 @@ organization and easy addition of new card games in the future.
 **Current Endpoints:**
 
 - `GET /api/pokemon/{id}` - Get specific Pokemon card by ID
-- `HEAD /api/pokemon/{id}` - Check if a Pokemon card exists
 
 **Planned Endpoints:**
 

@@ -32,21 +32,6 @@ public class Controller {
     }
 
     /**
-     * Check if a card exists by ID
-     * HEAD /api/pokemon/{id}
-     *
-     * @param id the card ID
-     * @return 200 OK if exists, 404 Not Found otherwise
-     */
-    @RequestMapping(value = "/{id}", method = RequestMethod.HEAD)
-    public ResponseEntity<Void> checkCardExists(@PathVariable String id) {
-        if (service.existsById(id)) {
-            return ResponseEntity.ok().build();
-        }
-        return ResponseEntity.notFound().build();
-    }
-
-    /**
      * Search for Pokemon cards with filters, pagination, and sorting
      * GET /api/pokemon/search
      * <p>

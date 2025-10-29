@@ -62,21 +62,6 @@ GET /api/pokemon/{id}
 }
 ```
 
-#### Check Card Exists
-
-```http
-HEAD /api/pokemon/{id}
-```
-
-**Parameters:**
-
-- `id` (path) - Card identifier (e.g., `base1-1`)
-
-**Response:**
-
-- `200 OK` - Card exists
-- `404 Not Found` - Card does not exist
-
 #### Search Cards
 
 ```http
