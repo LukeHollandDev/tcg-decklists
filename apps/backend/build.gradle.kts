@@ -23,8 +23,15 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("org.liquibase:liquibase-core")
 	runtimeOnly("org.postgresql:postgresql")
+
+	// Test dependencies
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
+	// TestContainers for integration tests
+	testImplementation("org.testcontainers:testcontainers")
+	testImplementation("org.testcontainers:postgresql")
+	testImplementation("org.testcontainers:junit-jupiter")
 }
 
 tasks.withType<Test> {

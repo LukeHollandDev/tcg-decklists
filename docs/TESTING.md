@@ -21,10 +21,10 @@ This guide provides a comprehensive overview of the testing strategy, infrastruc
 Track the progress of implementing the comprehensive test suite:
 
 ### Phase 1: Infrastructure Setup
-- [ ] Add TestContainers dependencies to `build.gradle`
-- [ ] Create `AbstractIntegrationTest.java` (base class with TestContainers)
-- [ ] Create `TestConfig.java` (test-specific Spring configuration)
-- [ ] Create `TestDataLoader.java` (utility to load SQL fixtures)
+- [x] Add TestContainers dependencies to `build.gradle`
+- [x] Create `AbstractIntegrationTest.java` (base class with TestContainers)
+- [x] Create `TestConfig.java` (test-specific Spring configuration)
+- [x] Create `TestDataLoader.java` (utility to load SQL fixtures)
 
 ### Phase 2: Test Data Builders
 - [ ] Create `CardBuilder.java` with fluent API and common presets
