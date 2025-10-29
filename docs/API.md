@@ -100,14 +100,14 @@ GET /api/pokemon/search?name=alakazam&hpMin=80&types=psychic
 
 **Query Parameters (Phase 2 - Attack Filters):**
 
-| Parameter            | Type     | Description                                     | Example                              |
-|----------------------|----------|-------------------------------------------------|--------------------------------------|
-| `attackName`         | String   | Attack name (partial match, accent-insensitive) | `attackName=Thunderbolt`             |
-| `attackText`         | String   | Attack text/description search (partial match)  | `attackText=draw`                    |
-| `attackDamageMin`    | Integer  | Minimum attack damage (inclusive)               | `attackDamageMin=100`                |
-| `attackDamageMax`    | Integer  | Maximum attack damage (inclusive)               | `attackDamageMax=200`                |
-| `attackCost`         | String[] | Attack cost types - ANY match                   | `attackCost=Fire&attackCost=Colorle` |
-| `attackCostMatchAll` | Boolean  | If true, match ALL cost types (AND logic)       | `attackCostMatchAll=true`            |
+| Parameter            | Type     | Description                                                              | Example                                            |
+|----------------------|----------|--------------------------------------------------------------------------|----------------------------------------------------|
+| `attackName`         | String   | Attack name (partial match, accent-insensitive)                          | `attackName=Thunderbolt`                           |
+| `attackText`         | String   | Attack text/description search (partial match)                           | `attackText=draw`                                  |
+| `attackDamageMin`    | Integer  | Minimum attack damage (inclusive)                                        | `attackDamageMin=100`                              |
+| `attackDamageMax`    | Integer  | Maximum attack damage (inclusive)                                        | `attackDamageMax=200`                              |
+| `attackCost`         | String[] | Attack cost types (supports duplicates for multiset matching)            | `attackCost=Fire&attackCost=Fire&attackCost=Water` |
+| `attackCostMatchAll` | Boolean  | If true, match ALL cost types with quantities (multiset subset matching) | `attackCostMatchAll=true`                          |
 
 **Query Parameters (Phase 2 - Ability Filters):**
 
@@ -198,10 +198,17 @@ GET /api/pokemon/search?attackText=draw
 # High-damage attacks (100+ damage)
 GET /api/pokemon/search?attackDamageMin=100
 
-# Attacks requiring Fire OR Colorless energy
+# Attacks requiring Fire OR Colorless energy (OR logic)
 GET /api/pokemon/search?attackCost=Fire&attackCost=Colorless
 
-# Attacks requiring BOTH Fire AND Grass energy
+# Attacks requiring at least 2x Fire energy (multiset matching)
+GET /api/pokemon/search?attackCost=Fire&attackCost=Fire&attackCostMatchAll=true
+
+# Attacks requiring at least 2x Fire AND 1x Water (multiset subset matching)
+# This will match attacks like [Fire, Fire, Water] or [Fire, Fire, Water, Colorless]
+GET /api/pokemon/search?attackCost=Fire&attackCost=Fire&attackCost=Water&attackCostMatchAll=true
+
+# Attacks requiring Fire AND Grass energy (ignores quantity for mixed types)
 GET /api/pokemon/search?attackCost=Fire&attackCost=Grass&attackCostMatchAll=true
 
 # Fire-type cards with "draw" in attack text

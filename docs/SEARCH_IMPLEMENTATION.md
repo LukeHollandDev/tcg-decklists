@@ -590,23 +590,26 @@ Returns: First 20 cards (default pagination), sorted by name.
 
 Phase 2 has been fully implemented with the following filters:
 
-- **Attack Filters** ✅
+- **Attack Filters**
     - `attackName` - Attack name search (accent-insensitive partial match)
-    - `attackText` - Attack text/description search (accent-insensitive partial match) 🆕
+    - `attackText` - Attack text/description search (accent-insensitive partial match)
     - `attackDamageMin` / `attackDamageMax` - Attack damage range filtering
-    - `attackCost` + `attackCostMatchAll` - Attack cost types with AND/OR logic
+    - `attackCost` + `attackCostMatchAll` - Attack cost types with AND/OR logic and **multiset subset matching**
+        - Supports specifying multiple of the same type (e.g., `Fire,Fire,Water`)
+        - With `attackCostMatchAll=true`, finds cards with attacks containing AT LEAST the specified quantities
+        - Example: searching for `Fire,Fire,Water` matches attacks with `[Fire, Fire, Water]` or `[Fire, Fire, Water, Colorless]`
 
-- **Ability Filters** ✅
+- **Ability Filters**
     - `hasAbility` - Boolean filter for ability presence/absence
     - `abilityName` - Ability name search (accent-insensitive partial match)
-    - `abilityText` - Ability text/description search (accent-insensitive partial match) 🆕
+    - `abilityText` - Ability text/description search (accent-insensitive partial match)
 
-- **Additional Detail Filters** ✅
+- **Additional Detail Filters**
     - `artist` - Artist name (exact match, accent-insensitive)
     - `regulationMark` - Regulation mark filtering (A, B, C, D, E, F, G, H)
     - `retreatCostMin` / `retreatCostMax` - Retreat cost range
     - `formats` + `formatsMatchAll` - Format legality with AND/OR logic
-    - `formatsBanned` + `formatsBannedMatchAll` - Format ban status with AND/OR logic 🆕
+    - `formatsBanned` + `formatsBannedMatchAll` - Format ban status with AND/OR logic
 
 All Phase 2 filters support the same accent-insensitive searching as Phase 1!
 
@@ -622,6 +625,39 @@ All Phase 2 filters support the same accent-insensitive searching as Phase 1!
 - Find cards banned in specific formats
 - Compare format legality (e.g., legal in Expanded but banned in Standard)
 - Support for both OR logic (banned in ANY format) and AND logic (banned in ALL formats)
+
+#### Multiset Subset Matching for Attack Costs
+
+The `attackCost` filter now supports **multiset subset matching** when `attackCostMatchAll=true`. This allows you to search for attacks requiring specific quantities of energy types.
+
+**How It Works:**
+
+1. **Specify quantities by repeating types**: Pass the same type multiple times to specify quantity requirements
+2. **Subset matching**: Attacks with MORE energies than specified will still match (as long as they have at least the required quantities)
+3. **Single attack requirement**: All type/quantity requirements must be satisfied by the SAME attack
+
+**Examples:**
+
+```http
+# Find attacks requiring at least 2 Fire energy
+GET /api/pokemon/search?attackCost=Fire&attackCost=Fire&attackCostMatchAll=true
+
+# Find attacks requiring at least 2 Fire AND 1 Water
+# Matches: [Fire, Fire, Water], [Fire, Fire, Water, Colorless], [Fire, Fire, Fire, Water], etc.
+# Does NOT match: [Fire, Water] (insufficient Fire)
+GET /api/pokemon/search?attackCost=Fire&attackCost=Fire&attackCost=Water&attackCostMatchAll=true
+
+# Find attacks requiring at least 3 Colorless
+GET /api/pokemon/search?attackCost=Colorless&attackCost=Colorless&attackCost=Colorless&attackCostMatchAll=true
+```
+
+**Implementation Details:**
+
+- Uses JPA Criteria API with nested subqueries
+- Counts occurrences of each type in the search criteria (creates a multiset)
+- For each unique type, checks if there exists an attack with an `AttackCost` entry where `quantity >= required_quantity`
+- All type requirements are checked against the SAME attack (not different attacks on the same card)
+- The `AttackCost` table stores quantities in a single row per type (e.g., `Fire(quantity=2)` instead of two separate rows)
 
 #### Example Use Cases for Phase 2 Enhancements
 
@@ -668,20 +704,20 @@ GET /api/pokemon/search?retreatCostMax=1&abilityText=search
 
 Phase 3 has been fully implemented with the following filters:
 
-- **Boolean Filters** ✅
+- **Boolean Filters**
     - `hasRuleBox` - Filter cards with/without rule boxes
     - `hasWeakness` - Filter cards with/without weaknesses
     - `hasResistance` - Filter cards with/without resistances
 
-- **Weakness/Resistance Type Filters** ✅
+- **Weakness/Resistance Type Filters**
     - `weaknessType` + `weaknessTypeMatchAll` - Weakness types with AND/OR logic
     - `resistanceType` + `resistanceTypeMatchAll` - Resistance types with AND/OR logic
 
-- **Evolution Filters** ✅
+- **Evolution Filters**
     - `evolvesFrom` - Evolution source (partial match, accent-insensitive)
     - `evolvesTo` - Evolution target (partial match, accent-insensitive)
 
-- **Rule Text Search** ✅
+- **Rule Text Search**
     - `ruleText` - Rule text/description search (partial match, accent-insensitive)
 
 All Phase 3 filters follow the same accent-insensitive and composable patterns as Phase 1 and Phase 2!

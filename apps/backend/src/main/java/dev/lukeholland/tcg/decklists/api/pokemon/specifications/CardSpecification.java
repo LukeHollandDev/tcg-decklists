@@ -375,10 +375,18 @@ public class CardSpecification {
     /**
      * Filter by one or more attack cost types (Fire, Water, Colorless, etc.).
      * Supports both OR logic (ANY match) and AND logic (ALL match).
-     * Supports accent-insensitive matching.
+     * Supports accent-insensitive matching and multiset subset matching.
+     * <p>
+     * When matchAll=true, supports searching for attacks with multiple of the same type.
+     * For example, searching for ["Fire", "Fire", "Water"] will match attacks with at least
+     * 2 Fire and 1 Water energy, like ["Fire", "Fire", "Water"] or ["Fire", "Fire", "Water", "Lightning"].
+     * <p>
+     * This implements multiset subset matching: the attack's cost multiset must contain
+     * the search multiset as a subset.
      *
-     * @param costTypes List of cost type names to match
-     * @param matchAll  If true, attacks must have ALL cost types (AND logic). If false/null, ANY cost type (OR logic).
+     * @param costTypes List of cost type names to match (can contain duplicates)
+     * @param matchAll  If true, attacks must have ALL cost types with sufficient quantities (multiset subset matching).
+     *                  If false/null, attacks must have ANY of the specified cost types (OR logic).
      * @return Specification that matches cards with attacks having the specified cost types
      */
     public static Specification<Card> hasAttackCost(List<String> costTypes, Boolean matchAll) {
@@ -387,12 +395,13 @@ public class CardSpecification {
                 return criteriaBuilder.conjunction();
             }
 
-            // Normalize search terms
+            // Normalize search terms and count occurrences (create multiset)
             List<String> normalizedCostTypes = costTypes.stream()
                     .map(StringNormalizer::normalize)
                     .toList();
 
             // OR logic (ANY match) - default behavior
+            // For OR logic, we just check if any of the types appear (ignoring quantities)
             if (matchAll == null || !matchAll) {
                 // Join through: Card -> Attack -> AttackCost -> Type
                 Join<Card, Attack> attacksJoin = root.join("attacks", JoinType.INNER);
@@ -406,40 +415,64 @@ public class CardSpecification {
 
                 // Normalize database field and compare
                 Expression<String> normalizedField = normalizeField(typeJoin.get("name"), criteriaBuilder);
-                return normalizedField.in(normalizedCostTypes);
+                // Use a set to avoid checking duplicates multiple times
+                java.util.Set<String> uniqueTypes = new java.util.HashSet<>(normalizedCostTypes);
+                return normalizedField.in(uniqueTypes);
             }
 
-            // AND logic (ALL match) - card's attacks must have ALL specified cost types
-            // Strategy: For each cost type, check if the card has an attack with it, then combine with AND
+            // AND logic (ALL match) with multiset support - card must have at least one attack
+            // with sufficient quantities of each type in the SAME attack
 
-            // Create a predicate for each cost type that must be matched
-            jakarta.persistence.criteria.Predicate[] costPredicates = new jakarta.persistence.criteria.Predicate[normalizedCostTypes.size()];
+            // Count occurrences of each type (multiset/bag)
+            java.util.Map<String, Long> typeCounts = normalizedCostTypes.stream()
+                    .collect(java.util.stream.Collectors.groupingBy(
+                            java.util.function.Function.identity(),
+                            java.util.stream.Collectors.counting()
+                    ));
 
-            for (int i = 0; i < normalizedCostTypes.size(); i++) {
-                String normalizedCostType = normalizedCostTypes.get(i);
+            // Create a main subquery that checks if there exists an attack with all required types/quantities
+            // Key insight: All type requirements must be checked against the SAME attack
+            jakarta.persistence.criteria.Subquery<Integer> mainSubquery = query.subquery(Integer.class);
+            jakarta.persistence.criteria.Root<Card> subCardRoot = mainSubquery.from(Card.class);
+            Join<Card, Attack> subAttackJoin = subCardRoot.join("attacks", JoinType.INNER);
 
-                // Create a subquery that checks if this card has an attack with this specific cost type
-                jakarta.persistence.criteria.Subquery<Long> subquery = query.subquery(Long.class);
-                jakarta.persistence.criteria.Root<Card> subRoot = subquery.from(Card.class);
-                Join<Card, Attack> subAttacksJoin = subRoot.join("attacks", JoinType.INNER);
-                Join<Attack, AttackCost> subCostsJoin = subAttacksJoin.join("costs", JoinType.INNER);
-                Join<AttackCost, Type> subTypeJoin = subCostsJoin.join("type", JoinType.INNER);
+            // For each type/quantity requirement, create a predicate that checks if THIS attack has it
+            java.util.List<jakarta.persistence.criteria.Predicate> attackRequirements = new java.util.ArrayList<>();
 
-                Expression<String> subNormalizedField = normalizeField(subTypeJoin.get("name"), criteriaBuilder);
+            for (java.util.Map.Entry<String, Long> entry : typeCounts.entrySet()) {
+                String normalizedCostType = entry.getKey();
+                Long requiredQuantity = entry.getValue();
 
-                // Count how many times this specific cost type appears in the card's attacks
-                subquery.select(criteriaBuilder.count(subTypeJoin.get("id")))
+                // Create a subquery that checks if this specific attack has an AttackCost
+                // for this type with sufficient quantity
+                jakarta.persistence.criteria.Subquery<Integer> costCheckSubquery = query.subquery(Integer.class);
+                jakarta.persistence.criteria.Root<AttackCost> costRoot = costCheckSubquery.from(AttackCost.class);
+                Join<AttackCost, Type> costTypeJoin = costRoot.join("type", JoinType.INNER);
+
+                Expression<String> costNormalizedField = normalizeField(costTypeJoin.get("name"), criteriaBuilder);
+
+                costCheckSubquery.select(criteriaBuilder.literal(1))
                         .where(
-                                criteriaBuilder.equal(subRoot.get("id"), root.get("id")),
-                                criteriaBuilder.equal(subNormalizedField, normalizedCostType)
+                                criteriaBuilder.equal(costRoot.get("attack"), subAttackJoin),
+                                criteriaBuilder.equal(costNormalizedField, normalizedCostType),
+                                criteriaBuilder.greaterThanOrEqualTo(
+                                        costRoot.get("quantity"),
+                                        requiredQuantity.intValue()
+                                )
                         );
 
-                // This card must have at least one attack with this cost type
-                costPredicates[i] = criteriaBuilder.greaterThan(subquery, 0L);
+                // This attack must have this type/quantity (all requirements reference the same subAttackJoin)
+                attackRequirements.add(criteriaBuilder.exists(costCheckSubquery));
             }
 
-            // All cost predicates must be true (AND them together)
-            return criteriaBuilder.and(costPredicates);
+            // The main subquery checks if there exists an attack that satisfies ALL requirements
+            mainSubquery.select(criteriaBuilder.literal(1))
+                    .where(
+                            criteriaBuilder.equal(subCardRoot.get("id"), root.get("id")),
+                            criteriaBuilder.and(attackRequirements.toArray(new jakarta.persistence.criteria.Predicate[0]))
+                    );
+
+            return criteriaBuilder.exists(mainSubquery);
         };
     }
 
