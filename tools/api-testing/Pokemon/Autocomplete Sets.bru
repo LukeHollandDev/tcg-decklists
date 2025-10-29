@@ -1,0 +1,21 @@
+meta {
+  name: Autocomplete Sets
+  type: http
+  seq: 9
+}
+
+get {
+  url: {{BASE_URL}}/pokemon/sets?query=base
+  body: none
+  auth: inherit
+}
+
+params:query {
+  query: base
+  ~limit: 10
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

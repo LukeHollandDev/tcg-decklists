@@ -208,35 +208,37 @@ public interface Repository extends JpaRepository<Card, String>, JpaSpecificatio
                                              @org.springframework.data.repository.query.Param("limit") int limit);
 
     /**
-     * Find card names starting with the given prefix (accent-insensitive, case-insensitive).
+     * Find card names with IDs starting with the given prefix (accent-insensitive, case-insensitive).
+     * Returns formatted as "CardName (card-id)" to show multiple versions across sets.
      *
      * @param prefix The prefix to search for
      * @param limit  Maximum number of results to return
-     * @return List of distinct card names matching the prefix
+     * @return List of card names with IDs matching the prefix
      */
     @Query(value = """
-            SELECT DISTINCT c.name
+            SELECT CONCAT(c.name, ' (', c.id, ')')
             FROM Card c
             WHERE LOWER(TRANSLATE(c.name,
                 'áàâäãåāăąéèêëēėęíìîïīįóòôöõøōőúùûüūűųýÿŷñńňçćčßśšźżžÁÀÂÄÃÅĀĂĄÉÈÊËĒĖĘÍÌÎÏĪĮÓÒÔÖÕØŌŐÚÙÛÜŪŰŲÝŸŶÑŃŇÇĆČßŚŠŹŻŽ',
                 'aaaaaaaaaeeeeeeeiiiiiiooooooooouuuuuuuyyynnncccssszzzAAAAAAAAAEEEEEEEIIIIIIOOOOOOOOOUUUUUUUYYYNNNCCCSSSZZZ'))
                 LIKE LOWER(CONCAT(:prefix, '%'))
-            ORDER BY c.name
+            ORDER BY c.name, c.id
             LIMIT :limit
             """)
     List<String> findCardNamesByPrefix(@org.springframework.data.repository.query.Param("prefix") String prefix,
                                        @org.springframework.data.repository.query.Param("limit") int limit);
 
     /**
-     * Find card names containing the given substring (accent-insensitive, case-insensitive).
+     * Find card names with IDs containing the given substring (accent-insensitive, case-insensitive).
+     * Returns formatted as "CardName (card-id)" to show multiple versions across sets.
      * Excludes results that start with the substring to avoid duplicates with prefix search.
      *
      * @param substring The substring to search for
      * @param limit     Maximum number of results to return
-     * @return List of distinct card names containing the substring
+     * @return List of card names with IDs containing the substring
      */
     @Query(value = """
-            SELECT DISTINCT c.name
+            SELECT CONCAT(c.name, ' (', c.id, ')')
             FROM Card c
             WHERE LOWER(TRANSLATE(c.name,
                 'áàâäãåāăąéèêëēėęíìîïīįóòôöõøōőúùûüūűųýÿŷñńňçćčßśšźżžÁÀÂÄÃÅĀĂĄÉÈÊËĒĖĘÍÌÎÏĪĮÓÒÔÖÕØŌŐÚÙÛÜŪŰŲÝŸŶÑŃŇÇĆČßŚŠŹŻŽ',
@@ -246,9 +248,58 @@ public interface Repository extends JpaRepository<Card, String>, JpaSpecificatio
                 'áàâäãåāăąéèêëēėęíìîïīįóòôöõøōőúùûüūűųýÿŷñńňçćčßśšźżžÁÀÂÄÃÅĀĂĄÉÈÊËĒĖĘÍÌÎÏĪĮÓÒÔÖÕØŌŐÚÙÛÜŪŰŲÝŸŶÑŃŇÇĆČßŚŠŹŻŽ',
                 'aaaaaaaaaeeeeeeeiiiiiiooooooooouuuuuuuyyynnncccssszzzAAAAAAAAAEEEEEEEIIIIIIOOOOOOOOOUUUUUUUYYYNNNCCCSSSZZZ'))
                 NOT LIKE LOWER(CONCAT(:substring, '%'))
-            ORDER BY c.name
+            ORDER BY c.name, c.id
             LIMIT :limit
             """)
     List<String> findCardNamesBySubstring(@org.springframework.data.repository.query.Param("substring") String substring,
                                           @org.springframework.data.repository.query.Param("limit") int limit);
+
+    /**
+     * Find set names starting with the given prefix (accent-insensitive, case-insensitive).
+     * Returns user-friendly set names (e.g., "Base Set") rather than set IDs (e.g., "base1").
+     *
+     * @param prefix The prefix to search for
+     * @param limit  Maximum number of results to return
+     * @return List of distinct set names matching the prefix
+     */
+    @Query(value = """
+            SELECT DISTINCT s.name
+            FROM Set s
+            WHERE s.name IS NOT NULL
+            AND LOWER(TRANSLATE(s.name,
+                'áàâäãåāăąéèêëēėęíìîïīįóòôöõøōőúùûüūűųýÿŷñńňçćčßśšźżžÁÀÂÄÃÅĀĂĄÉÈÊËĒĖĘÍÌÎÏĪĮÓÒÔÖÕØŌŐÚÙÛÜŪŰŲÝŸŶÑŃŇÇĆČßŚŠŹŻŽ',
+                'aaaaaaaaaeeeeeeeiiiiiiooooooooouuuuuuuyyynnncccssszzzAAAAAAAAAEEEEEEEIIIIIIOOOOOOOOOUUUUUUUYYYNNNCCCSSSZZZ'))
+                LIKE LOWER(CONCAT(:prefix, '%'))
+            ORDER BY s.name
+            LIMIT :limit
+            """)
+    List<String> findSetNamesByPrefix(@org.springframework.data.repository.query.Param("prefix") String prefix,
+                                      @org.springframework.data.repository.query.Param("limit") int limit);
+
+    /**
+     * Find set names containing the given substring (accent-insensitive, case-insensitive).
+     * Returns user-friendly set names (e.g., "Base Set") rather than set IDs (e.g., "base1").
+     * Excludes results that start with the substring to avoid duplicates with prefix search.
+     *
+     * @param substring The substring to search for
+     * @param limit     Maximum number of results to return
+     * @return List of distinct set names containing the substring
+     */
+    @Query(value = """
+            SELECT DISTINCT s.name
+            FROM Set s
+            WHERE s.name IS NOT NULL
+            AND LOWER(TRANSLATE(s.name,
+                'áàâäãåāăąéèêëēėęíìîïīįóòôöõøōőúùûüūűųýÿŷñńňçćčßśšźżžÁÀÂÄÃÅĀĂĄÉÈÊËĒĖĘÍÌÎÏĪĮÓÒÔÖÕØŌŐÚÙÛÜŪŰŲÝŸŶÑŃŇÇĆČßŚŠŹŻŽ',
+                'aaaaaaaaaeeeeeeeiiiiiiooooooooouuuuuuuyyynnncccssszzzAAAAAAAAAEEEEEEEIIIIIIOOOOOOOOOUUUUUUUYYYNNNCCCSSSZZZ'))
+                LIKE LOWER(CONCAT('%', :substring, '%'))
+            AND LOWER(TRANSLATE(s.name,
+                'áàâäãåāăąéèêëēėęíìîïīįóòôöõøōőúùûüūűųýÿŷñńňçćčßśšźżžÁÀÂÄÃÅĀĂĄÉÈÊËĒĖĘÍÌÎÏĪĮÓÒÔÖÕØŌŐÚÙÛÜŪŰŲÝŸŶÑŃŇÇĆČßŚŠŹŻŽ',
+                'aaaaaaaaaeeeeeeeiiiiiiooooooooouuuuuuuyyynnncccssszzzAAAAAAAAAEEEEEEEIIIIIIOOOOOOOOOUUUUUUUYYYNNNCCCSSSZZZ'))
+                NOT LIKE LOWER(CONCAT(:substring, '%'))
+            ORDER BY s.name
+            LIMIT :limit
+            """)
+    List<String> findSetNamesBySubstring(@org.springframework.data.repository.query.Param("substring") String substring,
+                                         @org.springframework.data.repository.query.Param("limit") int limit);
 }

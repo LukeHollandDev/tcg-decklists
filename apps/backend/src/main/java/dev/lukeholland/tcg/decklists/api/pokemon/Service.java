@@ -190,10 +190,11 @@ public class Service {
     /**
      * Autocomplete card names with prefix-first matching.
      * Returns prefix matches first, then substring matches to fill remaining slots.
+     * Format: "CardName (card-id)" to show multiple versions across sets.
      *
      * @param query The search query
      * @param limit Maximum number of results (default: 10, max: 100)
-     * @return List of matching card names
+     * @return List of matching card names with IDs
      */
     public List<String> autocompleteCardNames(String query, int limit) {
         return autocomplete(
@@ -201,6 +202,24 @@ public class Service {
                 limit,
                 repository::findCardNamesByPrefix,
                 repository::findCardNamesBySubstring
+        );
+    }
+
+    /**
+     * Autocomplete set names with prefix-first matching.
+     * Returns prefix matches first, then substring matches to fill remaining slots.
+     * Returns user-friendly set names (e.g., "Base Set") rather than set IDs.
+     *
+     * @param query The search query
+     * @param limit Maximum number of results (default: 10, max: 100)
+     * @return List of matching set names
+     */
+    public List<String> autocompleteSetNames(String query, int limit) {
+        return autocomplete(
+                query,
+                limit,
+                repository::findSetNamesByPrefix,
+                repository::findSetNamesBySubstring
         );
     }
 

@@ -646,7 +646,8 @@ GET /api/pokemon/abilities?query=intimidate&limit=15
 GET /api/pokemon/card-names?query={text}&limit={n}
 ```
 
-Returns card names matching the query for use in search dropdowns.
+Returns card names with their IDs matching the query for use in search dropdowns.
+**Format:** `"CardName (card-id)"` to distinguish between multiple versions across different sets.
 
 **Query Parameters:**
 
@@ -673,16 +674,16 @@ GET /api/pokemon/card-names?query=flabebe
 ```json
 {
   "results": [
-    "Charcadet",
-    "Charity",
-    "Charizard",
-    "Charizard & Braixen-GX",
-    "Charizard G",
-    "Charizard G LV.X",
-    "Charizard Spirit Link",
-    "Charizard V",
-    "Charizard VMAX",
-    "Charizard VSTAR"
+    "Charcadet (sv1-40)",
+    "Charizard (base1-4)",
+    "Charizard (basep-4)",
+    "Charizard (dp-37)",
+    "Charizard (xy121)",
+    "Charizard & Braixen-GX (sm11-22)",
+    "Charizard G (pl3-20)",
+    "Charizard G LV.X (pl3-143)",
+    "Charizard V (swsh9-17)",
+    "Charizard VMAX (swsh9-18)"
   ],
   "count": 10,
   "query": "char",
@@ -690,29 +691,69 @@ GET /api/pokemon/card-names?query=flabebe
 }
 ```
 
-**Accent-Insensitive Example:**
+**Key Features:**
+
+- Shows card ID in parentheses (e.g., "Charizard (base1-4)")
+- Displays all versions of a card across different sets
+- Useful for precise card selection when building decklists
+
+##### Autocomplete Set Names
 
 ```http
-GET /api/pokemon/card-names?query=flabebe
+GET /api/pokemon/sets?query={text}&limit={n}
 ```
+
+Returns user-friendly set names matching the query for use in set selection dropdowns.
+Returns human-readable names (e.g., "Base Set") rather than set IDs (e.g., "base1").
+
+**Query Parameters:**
+
+| Parameter | Type    | Required | Description                       | Default |
+|-----------|---------|----------|-----------------------------------|---------|
+| `query`   | String  | Yes      | Search text (minimum 1 character) | -       |
+| `limit`   | Integer | No       | Maximum results (max: 100)        | 10      |
+
+**Example Requests:**
+
+```http
+# Find Base sets
+GET /api/pokemon/sets?query=base
+
+# Find Sword & Shield sets
+GET /api/pokemon/sets?query=sword&limit=20
+```
+
+**Response:**
 
 ```json
 {
   "results": [
-    "Flabébé"
+    "Base",
+    "Base Set",
+    "Base Set 2",
+    "EX FireRed & LeafGreen",
+    "Gym Heroes",
+    "Gym Challenge"
   ],
-  "count": 1,
-  "query": "flabebe",
+  "count": 6,
+  "query": "base",
   "limit": 10
 }
 ```
 
-**Notes:**
+**Key Features:**
 
-- All autocomplete endpoints use the same response format
-- Results are ordered with prefix matches first, then substring matches
+- Returns display-friendly set names for better UX
+- Useful for set-based filtering in search interfaces
+- Complements the existing `/features` endpoint which returns set IDs
+
+**General Notes for All Autocomplete Endpoints:**
+
+- All endpoints use the same response format
+- Results are ordered with prefix matches first, then substring matches for better relevance
 - Empty or missing `query` parameter returns `400 Bad Request`
-- Duplicate names are automatically deduplicated
+- Accent-insensitive and case-insensitive matching supported
+- Duplicates are automatically deduplicated
 
 ### Planned Future Endpoints
 
