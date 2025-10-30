@@ -409,9 +409,9 @@ public class CardBuilder {
     }
 
     /**
-         * Helper classes to track junction table entries before building.
-         */
-        private record WeaknessEntry(Weakness weakness) {
+     * Helper classes to track junction table entries before building.
+     */
+    private record WeaknessEntry(Weakness weakness) {
     }
 
     private record ResistanceEntry(Resistance resistance) {

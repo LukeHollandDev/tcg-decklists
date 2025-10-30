@@ -1,11 +1,18 @@
 package dev.lukeholland.tcg.decklists.api.pokemon;
 
 import dev.lukeholland.tcg.decklists.api.pokemon.config.AbstractIntegrationTest;
+import dev.lukeholland.tcg.decklists.api.pokemon.entities.AttackCost;
+import dev.lukeholland.tcg.decklists.api.pokemon.entities.Card;
+import dev.lukeholland.tcg.decklists.api.pokemon.enums.EvolutionDirection;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -61,31 +68,80 @@ class TestDataValidationTest extends AbstractIntegrationTest {
     @Test
     @DisplayName("Should have evolution chains in test data")
     void shouldHaveEvolutionChains() {
-        // Verify evolution chain cards exist
-        var charmander = repository.findById("base1-46");
-        var charmeleon = repository.findById("base1-24");
-        var charizard = repository.findById("base1-4");
+        // Verify Charmander → Charmeleon → Charizard evolution chain
+        Card charmeleon = repository.findById("base1-24").orElseThrow();
+        Card charizard = repository.findById("base1-4").orElseThrow();
 
-        assertTrue(charmander.isPresent(), "Charmander should exist");
-        assertTrue(charmeleon.isPresent(), "Charmeleon should exist");
-        assertTrue(charizard.isPresent(), "Charizard should exist");
+        // Charmeleon should evolve FROM Charmander and TO Charizard
+        var charmeleonEvolutions = charmeleon.getEvolutions();
+        assertFalse(charmeleonEvolutions.isEmpty(), "Charmeleon should have evolution data");
 
-        System.out.println("✅ Evolution chain data is present!");
+        boolean evolvesFromCharmander = charmeleonEvolutions.stream()
+                .anyMatch(e -> e.getDirection() == EvolutionDirection.from
+                        && "Charmander".equals(e.getName().getName()));
+        assertTrue(evolvesFromCharmander, "Charmeleon should evolve from Charmander");
+
+        boolean evolvesToCharizard = charmeleonEvolutions.stream()
+                .anyMatch(e -> e.getDirection() == EvolutionDirection.to
+                        && "Charizard".equals(e.getName().getName()));
+        assertTrue(evolvesToCharizard, "Charmeleon should evolve to Charizard");
+
+        // Charizard should evolve FROM Charmeleon
+        var charizardEvolutions = charizard.getEvolutions();
+        assertFalse(charizardEvolutions.isEmpty(), "Charizard should have evolution data");
+
+        boolean charizardEvolvesFromCharmeleon = charizardEvolutions.stream()
+                .anyMatch(e -> e.getDirection() == EvolutionDirection.from
+                        && "Charmeleon".equals(e.getName().getName()));
+        assertTrue(charizardEvolvesFromCharmeleon, "Charizard should evolve from Charmeleon");
+
+        System.out.println("✅ Evolution chains properly configured!");
     }
 
     @Test
     @DisplayName("Should have cards with various attack costs for multiset testing")
     void shouldHaveCardsWithVariousAttackCosts() {
-        // Verify cards with different attack cost patterns exist
-        var charizard = repository.findById("base1-4");
-        var raichu = repository.findById("base1-14");
-        var blastoise = repository.findById("base1-2");
+        // Verify Charizard has an attack with 4x Fire energy
+        Card charizard = repository.findById("base1-4").orElseThrow();
+        boolean has4Fire = charizard.getAttacks().stream()
+                .anyMatch(attack -> {
+                    Map<String, Long> costCounts = attack.getCosts().stream()
+                            .collect(Collectors.groupingBy(
+                                    cost -> cost.getType().getName(),
+                                    Collectors.summingLong(AttackCost::getQuantity)
+                            ));
+                    return costCounts.getOrDefault("Fire", 0L) == 4;
+                });
+        assertTrue(has4Fire, "Charizard should have an attack with 4x Fire energy");
 
-        assertTrue(charizard.isPresent(), "Charizard (4x Fire) should exist");
-        assertTrue(raichu.isPresent(), "Raichu (2x Lightning + 1x Colorless) should exist");
-        assertTrue(blastoise.isPresent(), "Blastoise (3x Water) should exist");
+        // Verify Raichu has an attack with 2x Lightning + 1x Colorless
+        Card raichu = repository.findById("base1-14").orElseThrow();
+        boolean has2Lightning1Colorless = raichu.getAttacks().stream()
+                .anyMatch(attack -> {
+                    Map<String, Long> costCounts = attack.getCosts().stream()
+                            .collect(Collectors.groupingBy(
+                                    cost -> cost.getType().getName(),
+                                    Collectors.summingLong(AttackCost::getQuantity)
+                            ));
+                    return costCounts.getOrDefault("Lightning", 0L) == 2
+                            && costCounts.getOrDefault("Colorless", 0L) == 1;
+                });
+        assertTrue(has2Lightning1Colorless, "Raichu should have an attack with 2x Lightning + 1x Colorless");
 
-        System.out.println("✅ Multiset attack cost test data is present!");
+        // Verify Blastoise has an attack with 3x Water energy
+        Card blastoise = repository.findById("base1-2").orElseThrow();
+        boolean has3Water = blastoise.getAttacks().stream()
+                .anyMatch(attack -> {
+                    Map<String, Long> costCounts = attack.getCosts().stream()
+                            .collect(Collectors.groupingBy(
+                                    cost -> cost.getType().getName(),
+                                    Collectors.summingLong(AttackCost::getQuantity)
+                            ));
+                    return costCounts.getOrDefault("Water", 0L) == 3;
+                });
+        assertTrue(has3Water, "Blastoise should have an attack with 3x Water energy");
+
+        System.out.println("✅ Multiset attack cost patterns validated!");
     }
 
     @Test

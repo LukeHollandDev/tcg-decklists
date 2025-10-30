@@ -26,7 +26,7 @@ Test data can be loaded using the `TestDataLoader` utility:
 
 ```java
 @Autowired
-protected TestDataLoader testDataLoader;
+private TestDataLoader testDataLoader;
 
 @BeforeEach
 void setUp() {

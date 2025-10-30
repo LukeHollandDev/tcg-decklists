@@ -275,8 +275,8 @@ public class AttackBuilder {
     }
 
     /**
-         * Helper class to track attack costs before building.
-         */
-        private record CostEntry(Type type, Integer quantity) {
+     * Helper class to track attack costs before building.
+     */
+    private record CostEntry(Type type, Integer quantity) {
     }
 }
