@@ -1,3 +1,5 @@
 databaseChangeLog:
   - includeAll:
       path: db/changelog/changes/001-create-pokemon-card-tables/
+  - includeAll:
+      path: db/changelog/changes/002-add-autocomplete-indexes/

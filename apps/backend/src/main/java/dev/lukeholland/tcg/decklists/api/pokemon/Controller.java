@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.function.BiFunction;
 
 @RestController
 @RequestMapping("/api/pokemon")
@@ -14,6 +15,36 @@ public class Controller {
 
     public Controller(Service pokemonCardService) {
         this.service = pokemonCardService;
+    }
+
+    /**
+     * Common handler for all autocomplete endpoints
+     * Validates query parameter, enforces max limit, and builds response
+     *
+     * @param query         Search query text
+     * @param limit         Maximum number of results
+     * @param serviceFinder Function that calls the appropriate service method
+     * @return ResponseEntity with autocomplete results or 400 Bad Request
+     */
+    private ResponseEntity<AutocompleteResponse> handleAutocomplete(
+            String query,
+            int limit,
+            BiFunction<String, Integer, List<String>> serviceFinder) {
+
+        // Validate query
+        if (query == null || query.trim().isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        // Enforce max limit
+        int effectiveLimit = Math.min(limit, 100);
+
+        // Call service
+        List<String> results = serviceFinder.apply(query, effectiveLimit);
+
+        // Build response
+        AutocompleteResponse response = new AutocompleteResponse(results, query, effectiveLimit);
+        return ResponseEntity.ok(response);
     }
 
     /**
@@ -137,21 +168,7 @@ public class Controller {
     public ResponseEntity<AutocompleteResponse> autocompleteArtists(
             @RequestParam(required = true) String query,
             @RequestParam(required = false, defaultValue = "10") int limit) {
-
-        // Validate query
-        if (query == null || query.trim().isEmpty()) {
-            return ResponseEntity.badRequest().build();
-        }
-
-        // Enforce max limit
-        int effectiveLimit = Math.min(limit, 100);
-
-        // Call service
-        List<String> results = service.autocompleteArtists(query, effectiveLimit);
-
-        // Build response
-        AutocompleteResponse response = new AutocompleteResponse(results, query, effectiveLimit);
-        return ResponseEntity.ok(response);
+        return handleAutocomplete(query, limit, service::autocompleteArtists);
     }
 
     /**
@@ -178,21 +195,7 @@ public class Controller {
     public ResponseEntity<AutocompleteResponse> autocompleteAttacks(
             @RequestParam(required = true) String query,
             @RequestParam(required = false, defaultValue = "10") int limit) {
-
-        // Validate query
-        if (query == null || query.trim().isEmpty()) {
-            return ResponseEntity.badRequest().build();
-        }
-
-        // Enforce max limit
-        int effectiveLimit = Math.min(limit, 100);
-
-        // Call service
-        List<String> results = service.autocompleteAttacks(query, effectiveLimit);
-
-        // Build response
-        AutocompleteResponse response = new AutocompleteResponse(results, query, effectiveLimit);
-        return ResponseEntity.ok(response);
+        return handleAutocomplete(query, limit, service::autocompleteAttacks);
     }
 
     /**
@@ -219,21 +222,7 @@ public class Controller {
     public ResponseEntity<AutocompleteResponse> autocompleteAbilities(
             @RequestParam(required = true) String query,
             @RequestParam(required = false, defaultValue = "10") int limit) {
-
-        // Validate query
-        if (query == null || query.trim().isEmpty()) {
-            return ResponseEntity.badRequest().build();
-        }
-
-        // Enforce max limit
-        int effectiveLimit = Math.min(limit, 100);
-
-        // Call service
-        List<String> results = service.autocompleteAbilities(query, effectiveLimit);
-
-        // Build response
-        AutocompleteResponse response = new AutocompleteResponse(results, query, effectiveLimit);
-        return ResponseEntity.ok(response);
+        return handleAutocomplete(query, limit, service::autocompleteAbilities);
     }
 
     /**
@@ -260,21 +249,7 @@ public class Controller {
     public ResponseEntity<AutocompleteResponse> autocompleteCardNames(
             @RequestParam(required = true) String query,
             @RequestParam(required = false, defaultValue = "10") int limit) {
-
-        // Validate query
-        if (query == null || query.trim().isEmpty()) {
-            return ResponseEntity.badRequest().build();
-        }
-
-        // Enforce max limit
-        int effectiveLimit = Math.min(limit, 100);
-
-        // Call service
-        List<String> results = service.autocompleteCardNames(query, effectiveLimit);
-
-        // Build response
-        AutocompleteResponse response = new AutocompleteResponse(results, query, effectiveLimit);
-        return ResponseEntity.ok(response);
+        return handleAutocomplete(query, limit, service::autocompleteCardNames);
     }
 
     /**
@@ -302,20 +277,6 @@ public class Controller {
     public ResponseEntity<AutocompleteResponse> autocompleteSets(
             @RequestParam(required = true) String query,
             @RequestParam(required = false, defaultValue = "10") int limit) {
-
-        // Validate query
-        if (query == null || query.trim().isEmpty()) {
-            return ResponseEntity.badRequest().build();
-        }
-
-        // Enforce max limit
-        int effectiveLimit = Math.min(limit, 100);
-
-        // Call service
-        List<String> results = service.autocompleteSetNames(query, effectiveLimit);
-
-        // Build response
-        AutocompleteResponse response = new AutocompleteResponse(results, query, effectiveLimit);
-        return ResponseEntity.ok(response);
+        return handleAutocomplete(query, limit, service::autocompleteSetNames);
     }
 }

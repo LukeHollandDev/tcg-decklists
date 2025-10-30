@@ -1,6 +1,7 @@
 package dev.lukeholland.tcg.decklists.api.pokemon;
 
 import dev.lukeholland.tcg.decklists.api.pokemon.entities.Card;
+import dev.lukeholland.tcg.decklists.api.pokemon.util.QueryConstants;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -82,12 +83,11 @@ public interface Repository extends JpaRepository<Card, String>, JpaSpecificatio
     @Query(value = """
             SELECT DISTINCT a.name
             FROM Artist a
-            WHERE LOWER(TRANSLATE(a.name,
-                'áàâäãåāăąéèêëēėęíìîïīįóòôöõøōőúùûüūűųýÿŷñńňçćčßśšźżžÁÀÂÄÃÅĀĂĄÉÈÊËĒĖĘÍÌÎÏĪĮÓÒÔÖÕØŌŐÚÙÛÜŪŰŲÝŸŶÑŃŇÇĆČßŚŠŹŻŽ',
-                'aaaaaaaaaeeeeeeeiiiiiiooooooooouuuuuuuyyynnncccssszzzAAAAAAAAAEEEEEEEIIIIIIOOOOOOOOOUUUUUUUYYYNNNCCCSSSZZZ'))
-                LIKE LOWER(CONCAT(:prefix, '%'))
-            ORDER BY a.name
-            LIMIT :limit
+            WHERE LOWER(TRANSLATE(a.name, '""" + QueryConstants.ACCENT_SOURCE + "', '" + QueryConstants.ACCENT_TARGET + """
+            '))
+                            LIKE LOWER(CONCAT(:prefix, '%'))
+                        ORDER BY a.name
+                        LIMIT :limit
             """)
     List<String> findArtistNamesByPrefix(@org.springframework.data.repository.query.Param("prefix") String prefix,
                                          @org.springframework.data.repository.query.Param("limit") int limit);
@@ -103,16 +103,14 @@ public interface Repository extends JpaRepository<Card, String>, JpaSpecificatio
     @Query(value = """
             SELECT DISTINCT a.name
             FROM Artist a
-            WHERE LOWER(TRANSLATE(a.name,
-                'áàâäãåāăąéèêëēėęíìîïīįóòôöõøōőúùûüūűųýÿŷñńňçćčßśšźżžÁÀÂÄÃÅĀĂĄÉÈÊËĒĖĘÍÌÎÏĪĮÓÒÔÖÕØŌŐÚÙÛÜŪŰŲÝŸŶÑŃŇÇĆČßŚŠŹŻŽ',
-                'aaaaaaaaaeeeeeeeiiiiiiooooooooouuuuuuuyyynnncccssszzzAAAAAAAAAEEEEEEEIIIIIIOOOOOOOOOUUUUUUUYYYNNNCCCSSSZZZ'))
-                LIKE LOWER(CONCAT('%', :substring, '%'))
-            AND LOWER(TRANSLATE(a.name,
-                'áàâäãåāăąéèêëēėęíìîïīįóòôöõøōőúùûüūűųýÿŷñńňçćčßśšźżžÁÀÂÄÃÅĀĂĄÉÈÊËĒĖĘÍÌÎÏĪĮÓÒÔÖÕØŌŐÚÙÛÜŪŰŲÝŸŶÑŃŇÇĆČßŚŠŹŻŽ',
-                'aaaaaaaaaeeeeeeeiiiiiiooooooooouuuuuuuyyynnncccssszzzAAAAAAAAAEEEEEEEIIIIIIOOOOOOOOOUUUUUUUYYYNNNCCCSSSZZZ'))
-                NOT LIKE LOWER(CONCAT(:substring, '%'))
-            ORDER BY a.name
-            LIMIT :limit
+            WHERE LOWER(TRANSLATE(a.name, '""" + QueryConstants.ACCENT_SOURCE + "', '" + QueryConstants.ACCENT_TARGET + """
+            '))
+                            LIKE LOWER(CONCAT('%', :substring, '%'))
+                        AND LOWER(TRANSLATE(a.name, '""" + QueryConstants.ACCENT_SOURCE + "', '" + QueryConstants.ACCENT_TARGET + """
+            '))
+                            NOT LIKE LOWER(CONCAT(:substring, '%'))
+                        ORDER BY a.name
+                        LIMIT :limit
             """)
     List<String> findArtistNamesBySubstring(@org.springframework.data.repository.query.Param("substring") String substring,
                                             @org.springframework.data.repository.query.Param("limit") int limit);
@@ -127,12 +125,11 @@ public interface Repository extends JpaRepository<Card, String>, JpaSpecificatio
     @Query(value = """
             SELECT DISTINCT a.name
             FROM Attack a
-            WHERE LOWER(TRANSLATE(a.name,
-                'áàâäãåāăąéèêëēėęíìîïīįóòôöõøōőúùûüūűųýÿŷñńňçćčßśšźżžÁÀÂÄÃÅĀĂĄÉÈÊËĒĖĘÍÌÎÏĪĮÓÒÔÖÕØŌŐÚÙÛÜŪŰŲÝŸŶÑŃŇÇĆČßŚŠŹŻŽ',
-                'aaaaaaaaaeeeeeeeiiiiiiooooooooouuuuuuuyyynnncccssszzzAAAAAAAAAEEEEEEEIIIIIIOOOOOOOOOUUUUUUUYYYNNNCCCSSSZZZ'))
-                LIKE LOWER(CONCAT(:prefix, '%'))
-            ORDER BY a.name
-            LIMIT :limit
+            WHERE LOWER(TRANSLATE(a.name, '""" + QueryConstants.ACCENT_SOURCE + "', '" + QueryConstants.ACCENT_TARGET + """
+            '))
+                            LIKE LOWER(CONCAT(:prefix, '%'))
+                        ORDER BY a.name
+                        LIMIT :limit
             """)
     List<String> findAttackNamesByPrefix(@org.springframework.data.repository.query.Param("prefix") String prefix,
                                          @org.springframework.data.repository.query.Param("limit") int limit);
@@ -148,16 +145,14 @@ public interface Repository extends JpaRepository<Card, String>, JpaSpecificatio
     @Query(value = """
             SELECT DISTINCT a.name
             FROM Attack a
-            WHERE LOWER(TRANSLATE(a.name,
-                'áàâäãåāăąéèêëēėęíìîïīįóòôöõøōőúùûüūűųýÿŷñńňçćčßśšźżžÁÀÂÄÃÅĀĂĄÉÈÊËĒĖĘÍÌÎÏĪĮÓÒÔÖÕØŌŐÚÙÛÜŪŰŲÝŸŶÑŃŇÇĆČßŚŠŹŻŽ',
-                'aaaaaaaaaeeeeeeeiiiiiiooooooooouuuuuuuyyynnncccssszzzAAAAAAAAAEEEEEEEIIIIIIOOOOOOOOOUUUUUUUYYYNNNCCCSSSZZZ'))
-                LIKE LOWER(CONCAT('%', :substring, '%'))
-            AND LOWER(TRANSLATE(a.name,
-                'áàâäãåāăąéèêëēėęíìîïīįóòôöõøōőúùûüūűųýÿŷñńňçćčßśšźżžÁÀÂÄÃÅĀĂĄÉÈÊËĒĖĘÍÌÎÏĪĮÓÒÔÖÕØŌŐÚÙÛÜŪŰŲÝŸŶÑŃŇÇĆČßŚŠŹŻŽ',
-                'aaaaaaaaaeeeeeeeiiiiiiooooooooouuuuuuuyyynnncccssszzzAAAAAAAAAEEEEEEEIIIIIIOOOOOOOOOUUUUUUUYYYNNNCCCSSSZZZ'))
-                NOT LIKE LOWER(CONCAT(:substring, '%'))
-            ORDER BY a.name
-            LIMIT :limit
+            WHERE LOWER(TRANSLATE(a.name, '""" + QueryConstants.ACCENT_SOURCE + "', '" + QueryConstants.ACCENT_TARGET + """
+            '))
+                            LIKE LOWER(CONCAT('%', :substring, '%'))
+                        AND LOWER(TRANSLATE(a.name, '""" + QueryConstants.ACCENT_SOURCE + "', '" + QueryConstants.ACCENT_TARGET + """
+            '))
+                            NOT LIKE LOWER(CONCAT(:substring, '%'))
+                        ORDER BY a.name
+                        LIMIT :limit
             """)
     List<String> findAttackNamesBySubstring(@org.springframework.data.repository.query.Param("substring") String substring,
                                             @org.springframework.data.repository.query.Param("limit") int limit);
@@ -172,12 +167,11 @@ public interface Repository extends JpaRepository<Card, String>, JpaSpecificatio
     @Query(value = """
             SELECT DISTINCT a.name
             FROM Ability a
-            WHERE LOWER(TRANSLATE(a.name,
-                'áàâäãåāăąéèêëēėęíìîïīįóòôöõøōőúùûüūűųýÿŷñńňçćčßśšźżžÁÀÂÄÃÅĀĂĄÉÈÊËĒĖĘÍÌÎÏĪĮÓÒÔÖÕØŌŐÚÙÛÜŪŰŲÝŸŶÑŃŇÇĆČßŚŠŹŻŽ',
-                'aaaaaaaaaeeeeeeeiiiiiiooooooooouuuuuuuyyynnncccssszzzAAAAAAAAAEEEEEEEIIIIIIOOOOOOOOOUUUUUUUYYYNNNCCCSSSZZZ'))
-                LIKE LOWER(CONCAT(:prefix, '%'))
-            ORDER BY a.name
-            LIMIT :limit
+            WHERE LOWER(TRANSLATE(a.name, '""" + QueryConstants.ACCENT_SOURCE + "', '" + QueryConstants.ACCENT_TARGET + """
+            '))
+                            LIKE LOWER(CONCAT(:prefix, '%'))
+                        ORDER BY a.name
+                        LIMIT :limit
             """)
     List<String> findAbilityNamesByPrefix(@org.springframework.data.repository.query.Param("prefix") String prefix,
                                           @org.springframework.data.repository.query.Param("limit") int limit);
@@ -193,16 +187,14 @@ public interface Repository extends JpaRepository<Card, String>, JpaSpecificatio
     @Query(value = """
             SELECT DISTINCT a.name
             FROM Ability a
-            WHERE LOWER(TRANSLATE(a.name,
-                'áàâäãåāăąéèêëēėęíìîïīįóòôöõøōőúùûüūűųýÿŷñńňçćčßśšźżžÁÀÂÄÃÅĀĂĄÉÈÊËĒĖĘÍÌÎÏĪĮÓÒÔÖÕØŌŐÚÙÛÜŪŰŲÝŸŶÑŃŇÇĆČßŚŠŹŻŽ',
-                'aaaaaaaaaeeeeeeeiiiiiiooooooooouuuuuuuyyynnncccssszzzAAAAAAAAAEEEEEEEIIIIIIOOOOOOOOOUUUUUUUYYYNNNCCCSSSZZZ'))
-                LIKE LOWER(CONCAT('%', :substring, '%'))
-            AND LOWER(TRANSLATE(a.name,
-                'áàâäãåāăąéèêëēėęíìîïīįóòôöõøōőúùûüūűųýÿŷñńňçćčßśšźżžÁÀÂÄÃÅĀĂĄÉÈÊËĒĖĘÍÌÎÏĪĮÓÒÔÖÕØŌŐÚÙÛÜŪŰŲÝŸŶÑŃŇÇĆČßŚŠŹŻŽ',
-                'aaaaaaaaaeeeeeeeiiiiiiooooooooouuuuuuuyyynnncccssszzzAAAAAAAAAEEEEEEEIIIIIIOOOOOOOOOUUUUUUUYYYNNNCCCSSSZZZ'))
-                NOT LIKE LOWER(CONCAT(:substring, '%'))
-            ORDER BY a.name
-            LIMIT :limit
+            WHERE LOWER(TRANSLATE(a.name, '""" + QueryConstants.ACCENT_SOURCE + "', '" + QueryConstants.ACCENT_TARGET + """
+            '))
+                            LIKE LOWER(CONCAT('%', :substring, '%'))
+                        AND LOWER(TRANSLATE(a.name, '""" + QueryConstants.ACCENT_SOURCE + "', '" + QueryConstants.ACCENT_TARGET + """
+            '))
+                            NOT LIKE LOWER(CONCAT(:substring, '%'))
+                        ORDER BY a.name
+                        LIMIT :limit
             """)
     List<String> findAbilityNamesBySubstring(@org.springframework.data.repository.query.Param("substring") String substring,
                                              @org.springframework.data.repository.query.Param("limit") int limit);
@@ -218,12 +210,11 @@ public interface Repository extends JpaRepository<Card, String>, JpaSpecificatio
     @Query(value = """
             SELECT CONCAT(c.name, ' (', c.id, ')')
             FROM Card c
-            WHERE LOWER(TRANSLATE(c.name,
-                'áàâäãåāăąéèêëēėęíìîïīįóòôöõøōőúùûüūűųýÿŷñńňçćčßśšźżžÁÀÂÄÃÅĀĂĄÉÈÊËĒĖĘÍÌÎÏĪĮÓÒÔÖÕØŌŐÚÙÛÜŪŰŲÝŸŶÑŃŇÇĆČßŚŠŹŻŽ',
-                'aaaaaaaaaeeeeeeeiiiiiiooooooooouuuuuuuyyynnncccssszzzAAAAAAAAAEEEEEEEIIIIIIOOOOOOOOOUUUUUUUYYYNNNCCCSSSZZZ'))
-                LIKE LOWER(CONCAT(:prefix, '%'))
-            ORDER BY c.name, c.id
-            LIMIT :limit
+            WHERE LOWER(TRANSLATE(c.name, '""" + QueryConstants.ACCENT_SOURCE + "', '" + QueryConstants.ACCENT_TARGET + """
+            '))
+                            LIKE LOWER(CONCAT(:prefix, '%'))
+                        ORDER BY c.name, c.id
+                        LIMIT :limit
             """)
     List<String> findCardNamesByPrefix(@org.springframework.data.repository.query.Param("prefix") String prefix,
                                        @org.springframework.data.repository.query.Param("limit") int limit);
@@ -240,16 +231,14 @@ public interface Repository extends JpaRepository<Card, String>, JpaSpecificatio
     @Query(value = """
             SELECT CONCAT(c.name, ' (', c.id, ')')
             FROM Card c
-            WHERE LOWER(TRANSLATE(c.name,
-                'áàâäãåāăąéèêëēėęíìîïīįóòôöõøōőúùûüūűųýÿŷñńňçćčßśšźżžÁÀÂÄÃÅĀĂĄÉÈÊËĒĖĘÍÌÎÏĪĮÓÒÔÖÕØŌŐÚÙÛÜŪŰŲÝŸŶÑŃŇÇĆČßŚŠŹŻŽ',
-                'aaaaaaaaaeeeeeeeiiiiiiooooooooouuuuuuuyyynnncccssszzzAAAAAAAAAEEEEEEEIIIIIIOOOOOOOOOUUUUUUUYYYNNNCCCSSSZZZ'))
-                LIKE LOWER(CONCAT('%', :substring, '%'))
-            AND LOWER(TRANSLATE(c.name,
-                'áàâäãåāăąéèêëēėęíìîïīįóòôöõøōőúùûüūűųýÿŷñńňçćčßśšźżžÁÀÂÄÃÅĀĂĄÉÈÊËĒĖĘÍÌÎÏĪĮÓÒÔÖÕØŌŐÚÙÛÜŪŰŲÝŸŶÑŃŇÇĆČßŚŠŹŻŽ',
-                'aaaaaaaaaeeeeeeeiiiiiiooooooooouuuuuuuyyynnncccssszzzAAAAAAAAAEEEEEEEIIIIIIOOOOOOOOOUUUUUUUYYYNNNCCCSSSZZZ'))
-                NOT LIKE LOWER(CONCAT(:substring, '%'))
-            ORDER BY c.name, c.id
-            LIMIT :limit
+            WHERE LOWER(TRANSLATE(c.name, '""" + QueryConstants.ACCENT_SOURCE + "', '" + QueryConstants.ACCENT_TARGET + """
+            '))
+                            LIKE LOWER(CONCAT('%', :substring, '%'))
+                        AND LOWER(TRANSLATE(c.name, '""" + QueryConstants.ACCENT_SOURCE + "', '" + QueryConstants.ACCENT_TARGET + """
+            '))
+                            NOT LIKE LOWER(CONCAT(:substring, '%'))
+                        ORDER BY c.name, c.id
+                        LIMIT :limit
             """)
     List<String> findCardNamesBySubstring(@org.springframework.data.repository.query.Param("substring") String substring,
                                           @org.springframework.data.repository.query.Param("limit") int limit);
@@ -266,12 +255,11 @@ public interface Repository extends JpaRepository<Card, String>, JpaSpecificatio
             SELECT DISTINCT s.name
             FROM Set s
             WHERE s.name IS NOT NULL
-            AND LOWER(TRANSLATE(s.name,
-                'áàâäãåāăąéèêëēėęíìîïīįóòôöõøōőúùûüūűųýÿŷñńňçćčßśšźżžÁÀÂÄÃÅĀĂĄÉÈÊËĒĖĘÍÌÎÏĪĮÓÒÔÖÕØŌŐÚÙÛÜŪŰŲÝŸŶÑŃŇÇĆČßŚŠŹŻŽ',
-                'aaaaaaaaaeeeeeeeiiiiiiooooooooouuuuuuuyyynnncccssszzzAAAAAAAAAEEEEEEEIIIIIIOOOOOOOOOUUUUUUUYYYNNNCCCSSSZZZ'))
-                LIKE LOWER(CONCAT(:prefix, '%'))
-            ORDER BY s.name
-            LIMIT :limit
+            AND LOWER(TRANSLATE(s.name, '""" + QueryConstants.ACCENT_SOURCE + "', '" + QueryConstants.ACCENT_TARGET + """
+            '))
+                            LIKE LOWER(CONCAT(:prefix, '%'))
+                        ORDER BY s.name
+                        LIMIT :limit
             """)
     List<String> findSetNamesByPrefix(@org.springframework.data.repository.query.Param("prefix") String prefix,
                                       @org.springframework.data.repository.query.Param("limit") int limit);
@@ -289,16 +277,14 @@ public interface Repository extends JpaRepository<Card, String>, JpaSpecificatio
             SELECT DISTINCT s.name
             FROM Set s
             WHERE s.name IS NOT NULL
-            AND LOWER(TRANSLATE(s.name,
-                'áàâäãåāăąéèêëēėęíìîïīįóòôöõøōőúùûüūűųýÿŷñńňçćčßśšźżžÁÀÂÄÃÅĀĂĄÉÈÊËĒĖĘÍÌÎÏĪĮÓÒÔÖÕØŌŐÚÙÛÜŪŰŲÝŸŶÑŃŇÇĆČßŚŠŹŻŽ',
-                'aaaaaaaaaeeeeeeeiiiiiiooooooooouuuuuuuyyynnncccssszzzAAAAAAAAAEEEEEEEIIIIIIOOOOOOOOOUUUUUUUYYYNNNCCCSSSZZZ'))
-                LIKE LOWER(CONCAT('%', :substring, '%'))
-            AND LOWER(TRANSLATE(s.name,
-                'áàâäãåāăąéèêëēėęíìîïīįóòôöõøōőúùûüūűųýÿŷñńňçćčßśšźżžÁÀÂÄÃÅĀĂĄÉÈÊËĒĖĘÍÌÎÏĪĮÓÒÔÖÕØŌŐÚÙÛÜŪŰŲÝŸŶÑŃŇÇĆČßŚŠŹŻŽ',
-                'aaaaaaaaaeeeeeeeiiiiiiooooooooouuuuuuuyyynnncccssszzzAAAAAAAAAEEEEEEEIIIIIIOOOOOOOOOUUUUUUUYYYNNNCCCSSSZZZ'))
-                NOT LIKE LOWER(CONCAT(:substring, '%'))
-            ORDER BY s.name
-            LIMIT :limit
+            AND LOWER(TRANSLATE(s.name, '""" + QueryConstants.ACCENT_SOURCE + "', '" + QueryConstants.ACCENT_TARGET + """
+            '))
+                            LIKE LOWER(CONCAT('%', :substring, '%'))
+                        AND LOWER(TRANSLATE(s.name, '""" + QueryConstants.ACCENT_SOURCE + "', '" + QueryConstants.ACCENT_TARGET + """
+            '))
+                            NOT LIKE LOWER(CONCAT(:substring, '%'))
+                        ORDER BY s.name
+                        LIMIT :limit
             """)
     List<String> findSetNamesBySubstring(@org.springframework.data.repository.query.Param("substring") String substring,
                                          @org.springframework.data.repository.query.Param("limit") int limit);
