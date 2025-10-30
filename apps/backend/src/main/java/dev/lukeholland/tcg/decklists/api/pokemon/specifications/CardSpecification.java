@@ -52,6 +52,169 @@ public class CardSpecification {
     }
 
     /**
+     * Helper method for OR logic (ANY match) in many-to-many relationships.
+     * Generic implementation that handles joining to a collection and checking if any value matches.
+     *
+     * @param root             The root entity
+     * @param query            The criteria query
+     * @param criteriaBuilder  The criteria builder
+     * @param normalizedValues List of normalized values to match
+     * @param joinAttribute    Name of the join attribute on the root entity
+     * @param fieldName        Name of the field to match in the joined entity
+     * @param <T>              Type of the joined entity
+     * @return Predicate for OR logic matching
+     */
+    private static <T> jakarta.persistence.criteria.Predicate buildMatchAnyPredicate(
+            jakarta.persistence.criteria.Root<Card> root,
+            jakarta.persistence.criteria.CriteriaQuery<?> query,
+            jakarta.persistence.criteria.CriteriaBuilder criteriaBuilder,
+            List<String> normalizedValues,
+            String joinAttribute,
+            String fieldName) {
+
+        // Join to the collection (many-to-many or one-to-many)
+        Join<Card, T> join = root.join(joinAttribute, JoinType.INNER);
+
+        // Add DISTINCT to avoid duplicate cards when multiple matches occur
+        if (query != null) {
+            query.distinct(true);
+        }
+
+        // Normalize database field and check if it's in the list
+        Expression<String> normalizedField = normalizeField(join.get(fieldName), criteriaBuilder);
+        return normalizedField.in(normalizedValues);
+    }
+
+    /**
+     * Helper method for AND logic (ALL match) in many-to-many relationships.
+     * Generic implementation that creates subqueries to ensure the card has all specified values.
+     *
+     * @param root             The root entity
+     * @param query            The criteria query
+     * @param criteriaBuilder  The criteria builder
+     * @param normalizedValues List of normalized values to match
+     * @param joinAttribute    Name of the join attribute on the root entity
+     * @param fieldName        Name of the field to match in the joined entity
+     * @param additionalWhere  Optional additional where clause for subquery (can be null)
+     * @param <T>              Type of the joined entity
+     * @return Predicate for AND logic matching
+     */
+    private static <T> jakarta.persistence.criteria.Predicate buildMatchAllPredicate(
+            jakarta.persistence.criteria.Root<Card> root,
+            jakarta.persistence.criteria.CriteriaQuery<?> query,
+            jakarta.persistence.criteria.CriteriaBuilder criteriaBuilder,
+            List<String> normalizedValues,
+            String joinAttribute,
+            String fieldName,
+            jakarta.persistence.criteria.Predicate additionalWhere) {
+
+        // Create a predicate for each value that must be matched
+        jakarta.persistence.criteria.Predicate[] predicates = new jakarta.persistence.criteria.Predicate[normalizedValues.size()];
+
+        for (int i = 0; i < normalizedValues.size(); i++) {
+            String normalizedValue = normalizedValues.get(i);
+
+            // Create a subquery that checks if this card has this specific value
+            jakarta.persistence.criteria.Subquery<Long> subquery = query.subquery(Long.class);
+            jakarta.persistence.criteria.Root<Card> subRoot = subquery.from(Card.class);
+            Join<Card, T> subJoin = subRoot.join(joinAttribute, JoinType.INNER);
+
+            Expression<String> subNormalizedField = normalizeField(subJoin.get(fieldName), criteriaBuilder);
+
+            // Build the where clause
+            jakarta.persistence.criteria.Predicate whereClause = criteriaBuilder.and(
+                    criteriaBuilder.equal(subRoot.get("id"), root.get("id")),
+                    criteriaBuilder.equal(subNormalizedField, normalizedValue)
+            );
+
+            // Add additional where conditions if provided
+            if (additionalWhere != null) {
+                whereClause = criteriaBuilder.and(whereClause, additionalWhere);
+            }
+
+            // Count how many times this specific value appears for this card
+            subquery.select(criteriaBuilder.count(subJoin.get("id"))).where(whereClause);
+
+            // This card must have at least one of this value
+            predicates[i] = criteriaBuilder.greaterThan(subquery, 0L);
+        }
+
+        // All predicates must be true (AND them together)
+        return criteriaBuilder.and(predicates);
+    }
+
+    /**
+     * Helper method for format legality filtering with OR/AND logic.
+     * Handles the nested join path: Card -> CardLegality -> Format
+     *
+     * @param root              The root entity
+     * @param query             The criteria query
+     * @param criteriaBuilder   The criteria builder
+     * @param normalizedFormats List of normalized format names
+     * @param matchAll          If true, use AND logic; if false/null, use OR logic
+     * @param legalityStatus    The legality status to match (legal or banned)
+     * @return Predicate for format matching
+     */
+    private static jakarta.persistence.criteria.Predicate buildFormatPredicate(
+            jakarta.persistence.criteria.Root<Card> root,
+            jakarta.persistence.criteria.CriteriaQuery<?> query,
+            jakarta.persistence.criteria.CriteriaBuilder criteriaBuilder,
+            List<String> normalizedFormats,
+            Boolean matchAll,
+            LegalityStatus legalityStatus) {
+
+        // OR logic (ANY match) - default behavior
+        if (matchAll == null || !matchAll) {
+            // Join to the legalities collection (many-to-many through pokemon_card_legality)
+            Join<Card, CardLegality> legalityJoin = root.join("legalities", JoinType.INNER);
+            Join<CardLegality, Format> formatJoin = legalityJoin.join("format", JoinType.INNER);
+
+            // Add DISTINCT to avoid duplicate cards
+            if (query != null) {
+                query.distinct(true);
+            }
+
+            // Normalize database field and compare
+            Expression<String> normalizedField = normalizeField(formatJoin.get("name"), criteriaBuilder);
+
+            // Match format name AND legality status
+            return criteriaBuilder.and(
+                    normalizedField.in(normalizedFormats),
+                    criteriaBuilder.equal(legalityJoin.get("status"), criteriaBuilder.literal(legalityStatus))
+            );
+        }
+
+        // AND logic (ALL match) - card must match in ALL specified formats
+        jakarta.persistence.criteria.Predicate[] predicates = new jakarta.persistence.criteria.Predicate[normalizedFormats.size()];
+
+        for (int i = 0; i < normalizedFormats.size(); i++) {
+            String normalizedFormat = normalizedFormats.get(i);
+
+            // Create a subquery that checks if this card matches this specific format
+            jakarta.persistence.criteria.Subquery<Long> subquery = query.subquery(Long.class);
+            jakarta.persistence.criteria.Root<Card> subRoot = subquery.from(Card.class);
+            Join<Card, CardLegality> subLegalityJoin = subRoot.join("legalities", JoinType.INNER);
+            Join<CardLegality, Format> subFormatJoin = subLegalityJoin.join("format", JoinType.INNER);
+
+            Expression<String> subNormalizedField = normalizeField(subFormatJoin.get("name"), criteriaBuilder);
+
+            // Count cards with this format and legality status
+            subquery.select(criteriaBuilder.count(subFormatJoin.get("id")))
+                    .where(
+                            criteriaBuilder.equal(subRoot.get("id"), root.get("id")),
+                            criteriaBuilder.equal(subNormalizedField, normalizedFormat),
+                            criteriaBuilder.equal(subLegalityJoin.get("status"), criteriaBuilder.literal(legalityStatus))
+                    );
+
+            // This card must match this format
+            predicates[i] = criteriaBuilder.greaterThan(subquery, 0L);
+        }
+
+        // All format predicates must be true (AND them together)
+        return criteriaBuilder.and(predicates);
+    }
+
+    /**
      * Filter by card name (case-insensitive, accent-insensitive partial match).
      * Supports searches like "pokemon" matching "Pokémon", "flabebe" matching "Flabébé", etc.
      *
@@ -118,48 +281,11 @@ public class CardSpecification {
 
             // OR logic (ANY match) - default behavior
             if (matchAll == null || !matchAll) {
-                // Join to the types collection (many-to-many)
-                Join<Card, Type> typesJoin = root.join("types", JoinType.INNER);
-
-                // Add DISTINCT to avoid duplicate cards when multiple types match
-                if (query != null) {
-                    query.distinct(true);
-                }
-
-                // Normalize database field and compare
-                Expression<String> normalizedField = normalizeField(typesJoin.get("name"), criteriaBuilder);
-                return normalizedField.in(normalizedTypes);
+                return buildMatchAnyPredicate(root, query, criteriaBuilder, normalizedTypes, "types", "name");
             }
 
             // AND logic (ALL match) - card must have ALL specified types
-            // Strategy: For each type, check if the card has it, then combine with AND
-
-            // Create a predicate for each type that must be matched
-            jakarta.persistence.criteria.Predicate[] typePredicates = new jakarta.persistence.criteria.Predicate[normalizedTypes.size()];
-
-            for (int i = 0; i < normalizedTypes.size(); i++) {
-                String normalizedType = normalizedTypes.get(i);
-
-                // Create a subquery that checks if this card has this specific type
-                jakarta.persistence.criteria.Subquery<Long> subquery = query.subquery(Long.class);
-                jakarta.persistence.criteria.Root<Card> subRoot = subquery.from(Card.class);
-                Join<Card, Type> subTypesJoin = subRoot.join("types", JoinType.INNER);
-
-                Expression<String> subNormalizedField = normalizeField(subTypesJoin.get("name"), criteriaBuilder);
-
-                // Count how many times this specific type appears for this card
-                subquery.select(criteriaBuilder.count(subTypesJoin.get("id")))
-                        .where(
-                                criteriaBuilder.equal(subRoot.get("id"), root.get("id")),
-                                criteriaBuilder.equal(subNormalizedField, normalizedType)
-                        );
-
-                // This card must have at least one of this type
-                typePredicates[i] = criteriaBuilder.greaterThan(subquery, 0L);
-            }
-
-            // All type predicates must be true (AND them together)
-            return criteriaBuilder.and(typePredicates);
+            return buildMatchAllPredicate(root, query, criteriaBuilder, normalizedTypes, "types", "name", null);
         };
     }
 
@@ -185,48 +311,11 @@ public class CardSpecification {
 
             // OR logic (ANY match) - default behavior
             if (matchAll == null || !matchAll) {
-                // Join to the subtypes collection (many-to-many)
-                Join<Card, Subtype> subtypesJoin = root.join("subtypes", JoinType.INNER);
-
-                // Add DISTINCT to avoid duplicate cards
-                if (query != null) {
-                    query.distinct(true);
-                }
-
-                // Normalize database field and compare
-                Expression<String> normalizedField = normalizeField(subtypesJoin.get("name"), criteriaBuilder);
-                return normalizedField.in(normalizedSubtypes);
+                return buildMatchAnyPredicate(root, query, criteriaBuilder, normalizedSubtypes, "subtypes", "name");
             }
 
             // AND logic (ALL match) - card must have ALL specified subtypes
-            // Strategy: For each subtype, check if the card has it, then combine with AND
-
-            // Create a predicate for each subtype that must be matched
-            jakarta.persistence.criteria.Predicate[] subtypePredicates = new jakarta.persistence.criteria.Predicate[normalizedSubtypes.size()];
-
-            for (int i = 0; i < normalizedSubtypes.size(); i++) {
-                String normalizedSubtype = normalizedSubtypes.get(i);
-
-                // Create a subquery that checks if this card has this specific subtype
-                jakarta.persistence.criteria.Subquery<Long> subquery = query.subquery(Long.class);
-                jakarta.persistence.criteria.Root<Card> subRoot = subquery.from(Card.class);
-                Join<Card, Subtype> subSubtypesJoin = subRoot.join("subtypes", JoinType.INNER);
-
-                Expression<String> subNormalizedField = normalizeField(subSubtypesJoin.get("name"), criteriaBuilder);
-
-                // Count how many times this specific subtype appears for this card
-                subquery.select(criteriaBuilder.count(subSubtypesJoin.get("id")))
-                        .where(
-                                criteriaBuilder.equal(subRoot.get("id"), root.get("id")),
-                                criteriaBuilder.equal(subNormalizedField, normalizedSubtype)
-                        );
-
-                // This card must have at least one of this subtype
-                subtypePredicates[i] = criteriaBuilder.greaterThan(subquery, 0L);
-            }
-
-            // All subtype predicates must be true (AND them together)
-            return criteriaBuilder.and(subtypePredicates);
+            return buildMatchAllPredicate(root, query, criteriaBuilder, normalizedSubtypes, "subtypes", "name", null);
         };
     }
 
@@ -1006,58 +1095,8 @@ public class CardSpecification {
                     .map(StringNormalizer::normalize)
                     .toList();
 
-            // OR logic (ANY match) - default behavior
-            if (matchAll == null || !matchAll) {
-                // Join to the legalities collection (many-to-many through pokemon_card_legality)
-                Join<Card, CardLegality> legalityJoin = root.join("legalities", JoinType.INNER);
-                Join<CardLegality, Format> formatJoin = legalityJoin.join("format", JoinType.INNER);
-
-                // Add DISTINCT to avoid duplicate cards
-                if (query != null) {
-                    query.distinct(true);
-                }
-
-                // Normalize database field and compare
-                Expression<String> normalizedField = normalizeField(formatJoin.get("name"), criteriaBuilder);
-
-                // Only match cards that are "legal" in the format (not banned)
-                return criteriaBuilder.and(
-                        normalizedField.in(normalizedFormats),
-                        criteriaBuilder.equal(legalityJoin.get("status"), criteriaBuilder.literal(LegalityStatus.legal))
-                );
-            }
-
-            // AND logic (ALL match) - card must be legal in ALL specified formats
-            // Strategy: For each format, check if the card is legal in it, then combine with AND
-
-            // Create a predicate for each format that must be matched
-            jakarta.persistence.criteria.Predicate[] formatPredicates = new jakarta.persistence.criteria.Predicate[normalizedFormats.size()];
-
-            for (int i = 0; i < normalizedFormats.size(); i++) {
-                String normalizedFormat = normalizedFormats.get(i);
-
-                // Create a subquery that checks if this card is legal in this specific format
-                jakarta.persistence.criteria.Subquery<Long> subquery = query.subquery(Long.class);
-                jakarta.persistence.criteria.Root<Card> subRoot = subquery.from(Card.class);
-                Join<Card, CardLegality> subLegalityJoin = subRoot.join("legalities", JoinType.INNER);
-                Join<CardLegality, Format> subFormatJoin = subLegalityJoin.join("format", JoinType.INNER);
-
-                Expression<String> subNormalizedField = normalizeField(subFormatJoin.get("name"), criteriaBuilder);
-
-                // Count how many times this card is legal in this specific format
-                subquery.select(criteriaBuilder.count(subFormatJoin.get("id")))
-                        .where(
-                                criteriaBuilder.equal(subRoot.get("id"), root.get("id")),
-                                criteriaBuilder.equal(subNormalizedField, normalizedFormat),
-                                criteriaBuilder.equal(subLegalityJoin.get("status"), criteriaBuilder.literal(LegalityStatus.legal))
-                        );
-
-                // This card must be legal in this format (count > 0)
-                formatPredicates[i] = criteriaBuilder.greaterThan(subquery, 0L);
-            }
-
-            // All format predicates must be true (AND them together)
-            return criteriaBuilder.and(formatPredicates);
+            // Use helper for both OR and AND logic
+            return buildFormatPredicate(root, query, criteriaBuilder, normalizedFormats, matchAll, LegalityStatus.legal);
         };
     }
 
@@ -1082,58 +1121,8 @@ public class CardSpecification {
                     .map(StringNormalizer::normalize)
                     .toList();
 
-            // OR logic (ANY match) - default behavior
-            if (matchAll == null || !matchAll) {
-                // Join to the legalities collection (many-to-many through pokemon_card_legality)
-                Join<Card, CardLegality> legalityJoin = root.join("legalities", JoinType.INNER);
-                Join<CardLegality, Format> formatJoin = legalityJoin.join("format", JoinType.INNER);
-
-                // Add DISTINCT to avoid duplicate cards
-                if (query != null) {
-                    query.distinct(true);
-                }
-
-                // Normalize database field and compare
-                Expression<String> normalizedField = normalizeField(formatJoin.get("name"), criteriaBuilder);
-
-                // Only match cards that are "banned" in the format
-                return criteriaBuilder.and(
-                        normalizedField.in(normalizedFormats),
-                        criteriaBuilder.equal(legalityJoin.get("status"), criteriaBuilder.literal(LegalityStatus.banned))
-                );
-            }
-
-            // AND logic (ALL match) - card must be banned in ALL specified formats
-            // Strategy: For each format, check if the card is banned in it, then combine with AND
-
-            // Create a predicate for each format that must be matched
-            jakarta.persistence.criteria.Predicate[] formatPredicates = new jakarta.persistence.criteria.Predicate[normalizedFormats.size()];
-
-            for (int i = 0; i < normalizedFormats.size(); i++) {
-                String normalizedFormat = normalizedFormats.get(i);
-
-                // Create a subquery that checks if this card is banned in this specific format
-                jakarta.persistence.criteria.Subquery<Long> subquery = query.subquery(Long.class);
-                jakarta.persistence.criteria.Root<Card> subRoot = subquery.from(Card.class);
-                Join<Card, CardLegality> subLegalityJoin = subRoot.join("legalities", JoinType.INNER);
-                Join<CardLegality, Format> subFormatJoin = subLegalityJoin.join("format", JoinType.INNER);
-
-                Expression<String> subNormalizedField = normalizeField(subFormatJoin.get("name"), criteriaBuilder);
-
-                // Count how many times this card is banned in this specific format
-                subquery.select(criteriaBuilder.count(subFormatJoin.get("id")))
-                        .where(
-                                criteriaBuilder.equal(subRoot.get("id"), root.get("id")),
-                                criteriaBuilder.equal(subNormalizedField, normalizedFormat),
-                                criteriaBuilder.equal(subLegalityJoin.get("status"), criteriaBuilder.literal(LegalityStatus.banned))
-                        );
-
-                // This card must be banned in this format (count > 0)
-                formatPredicates[i] = criteriaBuilder.greaterThan(subquery, 0L);
-            }
-
-            // All format predicates must be true (AND them together)
-            return criteriaBuilder.and(formatPredicates);
+            // Use helper for both OR and AND logic
+            return buildFormatPredicate(root, query, criteriaBuilder, normalizedFormats, matchAll, LegalityStatus.banned);
         };
     }
 
