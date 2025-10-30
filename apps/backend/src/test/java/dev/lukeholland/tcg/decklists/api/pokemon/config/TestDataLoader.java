@@ -43,8 +43,11 @@ public class TestDataLoader {
      * <p>
      * Note: This method will fail silently if the SQL file doesn't exist yet.
      * This is intentional to allow tests to run before fixtures are created.
+     * <p>
+     * This method is idempotent - it will silently skip loading if data already exists
+     * (handles duplicate key exceptions gracefully when running multiple test classes).
      *
-     * @throws RuntimeException if there's an error loading the SQL file
+     * @throws RuntimeException if there's an error loading the SQL file (except duplicate key errors)
      */
     public void loadTestData() {
         if (dataSource == null) {
@@ -65,7 +68,18 @@ public class TestDataLoader {
                 log.info("Successfully loaded test data from sql/test-data.sql");
             }
 
-        } catch (SQLException e) {
+        } catch (Exception e) {
+            // Check if this is a duplicate key error (data already loaded)
+            // Check both the exception and its cause chain for duplicate key errors
+            Throwable cause = e;
+            while (cause != null) {
+                if (cause.getMessage() != null && cause.getMessage().contains("duplicate key value violates unique constraint")) {
+                    log.info("Test data already loaded, skipping...");
+                    return;
+                }
+                cause = cause.getCause();
+            }
+
             log.error("Failed to load test data", e);
             throw new RuntimeException("Failed to load test data from SQL file", e);
         }

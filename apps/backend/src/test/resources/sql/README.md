@@ -25,6 +25,7 @@ Main test data file containing comprehensive Pokemon card test data including:
 Test data can be loaded using the `TestDataLoader` utility:
 
 ```java
+
 @Autowired
 private TestDataLoader testDataLoader;
 
