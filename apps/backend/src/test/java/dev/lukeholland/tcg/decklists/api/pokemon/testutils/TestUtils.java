@@ -123,8 +123,8 @@ public class TestUtils {
     /**
      * Validates that a JSON response contains the expected number of results.
      *
-     * @param jsonResponse   the JSON response string
-     * @param expectedCount  the expected number of results
+     * @param jsonResponse  the JSON response string
+     * @param expectedCount the expected number of results
      * @throws AssertionError if the count doesn't match
      */
     public static void assertResultCount(String jsonResponse, int expectedCount) {
@@ -249,7 +249,7 @@ public class TestUtils {
     /**
      * Validates that all cards in the results have the expected supertype.
      *
-     * @param results         the JSON results array
+     * @param results           the JSON results array
      * @param expectedSupertype the expected supertype
      * @throws AssertionError if any card doesn't match
      */

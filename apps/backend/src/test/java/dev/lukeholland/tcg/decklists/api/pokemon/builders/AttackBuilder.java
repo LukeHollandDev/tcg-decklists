@@ -37,28 +37,15 @@ import java.util.Set;
  */
 public class AttackBuilder {
 
+    private final List<CostEntry> costs = new ArrayList<>();
     private String name;
     private Integer convertedCost = 0;
     private String damage;
     private Integer damageNumeric;
     private String damageModifier;
     private String text;
-    private final List<CostEntry> costs = new ArrayList<>();
 
     private AttackBuilder() {
-    }
-
-    /**
-     * Helper class to track attack costs before building.
-     */
-    private static class CostEntry {
-        final Type type;
-        final Integer quantity;
-
-        CostEntry(Type type, Integer quantity) {
-            this.type = type;
-            this.quantity = quantity;
-        }
     }
 
     /**
@@ -285,5 +272,11 @@ public class AttackBuilder {
         attack.setCosts(attackCosts);
 
         return attack;
+    }
+
+    /**
+         * Helper class to track attack costs before building.
+         */
+        private record CostEntry(Type type, Integer quantity) {
     }
 }

@@ -41,12 +41,20 @@ Track the progress of implementing the comprehensive test suite:
 - [x] Add accent normalization test helpers
 - [x] Add multiset matching validators
 
-### Phase 4: SQL Test Fixtures
-- [ ] Create `test-data.sql` with comprehensive test card data
-- [ ] Include cards with accent characters
-- [ ] Include evolution chains
-- [ ] Include cards across all types, subtypes, and rarities
-- [ ] Include cards with various attack costs (including multiset scenarios)
+### Phase 4: SQL Test Fixtures ✅ COMPLETED
+- [x] Create `test-data.sql` with comprehensive test card data
+- [x] Include cards with accent characters (Flabébé)
+- [x] Include evolution chains (Charmander → Charmeleon → Charizard, Squirtle → Wartortle → Blastoise)
+- [x] Include cards across all types, subtypes, and rarities
+- [x] Include cards with various attack costs (including multiset scenarios: 4x Fire, 2x Lightning + 1x Colorless, 2x Water, 3x Water)
+- [x] Include regulation marks (E, G)
+- [x] Include format legality variations (Standard, Expanded, Unlimited)
+- [x] Include banned cards (Professor Oak)
+- [x] Include rule box cards (Charizard ex)
+- [x] Include trainer and energy cards
+- [x] Create TestDataValidationTest with 5 validation tests
+- [x] Fix schema alignment issues (evolution_direction → direction)
+- [x] Fix test isolation issues
 
 ### Phase 5: Integration Tests (11 test classes)
 - [ ] `CardBasicOperationsIntegrationTest.java` (10 tests)

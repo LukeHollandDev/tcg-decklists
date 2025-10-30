@@ -39,6 +39,14 @@ import java.util.List;
  */
 public class CardBuilder {
 
+    private final java.util.Set<Subtype> subtypes = new HashSet<>();
+    private final java.util.Set<Type> types = new HashSet<>();
+    private final java.util.Set<Ability> abilities = new HashSet<>();
+    private final java.util.Set<Attack> attacks = new HashSet<>();
+    private final java.util.Set<Rule> rules = new HashSet<>();
+    private final List<WeaknessEntry> weaknesses = new ArrayList<>();
+    private final List<ResistanceEntry> resistances = new ArrayList<>();
+    private final List<RetreatCostEntry> retreatCosts = new ArrayList<>();
     private String id;
     private String name;
     private String supertype;
@@ -56,45 +64,7 @@ public class CardBuilder {
     private String level;
     private AncientTrait ancientTrait;
 
-    private final java.util.Set<Subtype> subtypes = new HashSet<>();
-    private final java.util.Set<Type> types = new HashSet<>();
-    private final java.util.Set<Ability> abilities = new HashSet<>();
-    private final java.util.Set<Attack> attacks = new HashSet<>();
-    private final java.util.Set<Rule> rules = new HashSet<>();
-    private final List<WeaknessEntry> weaknesses = new ArrayList<>();
-    private final List<ResistanceEntry> resistances = new ArrayList<>();
-    private final List<RetreatCostEntry> retreatCosts = new ArrayList<>();
-
     private CardBuilder() {
-    }
-
-    /**
-     * Helper classes to track junction table entries before building.
-     */
-    private static class WeaknessEntry {
-        final Weakness weakness;
-
-        WeaknessEntry(Weakness weakness) {
-            this.weakness = weakness;
-        }
-    }
-
-    private static class ResistanceEntry {
-        final Resistance resistance;
-
-        ResistanceEntry(Resistance resistance) {
-            this.resistance = resistance;
-        }
-    }
-
-    private static class RetreatCostEntry {
-        final Type type;
-        final Integer quantity;
-
-        RetreatCostEntry(Type type, Integer quantity) {
-            this.type = type;
-            this.quantity = quantity;
-        }
     }
 
     public static CardBuilder aCard() {
@@ -217,8 +187,6 @@ public class CardBuilder {
                 .withRarity(RarityBuilder.common().build());
     }
 
-    // Fluent API methods
-
     public CardBuilder withId(String id) {
         this.id = id;
         return this;
@@ -233,6 +201,8 @@ public class CardBuilder {
         this.supertype = supertype;
         return this;
     }
+
+    // Fluent API methods
 
     public CardBuilder withHp(String hp) {
         this.hp = hp;
@@ -436,5 +406,17 @@ public class CardBuilder {
         card.setRetreatCosts(cardRetreatCosts);
 
         return card;
+    }
+
+    /**
+         * Helper classes to track junction table entries before building.
+         */
+        private record WeaknessEntry(Weakness weakness) {
+    }
+
+    private record ResistanceEntry(Resistance resistance) {
+    }
+
+    private record RetreatCostEntry(Type type, Integer quantity) {
     }
 }

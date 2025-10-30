@@ -10,8 +10,6 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 /**
  * Abstract base class for all integration tests.
@@ -26,21 +24,30 @@ import org.testcontainers.junit.jupiter.Testcontainers;
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
-@Testcontainers
 @Transactional
 public abstract class AbstractIntegrationTest {
 
     /**
      * PostgreSQL TestContainer instance.
-     * Shared across all tests in the same JVM for performance.
+     * Shared across all tests in the same JVM using singleton pattern.
      * Uses PostgreSQL 16 Alpine for faster startup.
      */
-    @Container
-    protected static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16-alpine")
-            .withDatabaseName("tcg_decklists_test")
-            .withUsername("test")
-            .withPassword("test")
-            .withReuse(true); // Reuse container across test runs for faster execution
+    protected static final PostgreSQLContainer<?> postgres = PostgresTestContainer.getInstance();
+    /**
+     * MockMvc for making HTTP requests in tests.
+     */
+    @Autowired
+    protected MockMvc mockMvc;
+    /**
+     * ObjectMapper for JSON serialization/deserialization in tests.
+     */
+    @Autowired
+    protected ObjectMapper objectMapper;
+    /**
+     * TestDataLoader for loading SQL fixtures into the test database.
+     */
+    @Autowired
+    protected TestDataLoader testDataLoader;
 
     /**
      * Configure Spring properties to use the TestContainers database.
@@ -54,25 +61,16 @@ public abstract class AbstractIntegrationTest {
         // Liquibase configuration for test database
         registry.add("spring.liquibase.enabled", () -> true);
         registry.add("spring.liquibase.change-log", () -> "classpath:db/changelog/db.changelog-master.yaml");
+
+        // HikariCP connection pool configuration for tests
+        // Shorter lifetimes prevent stale connections when container is reused
+        registry.add("spring.datasource.hikari.maximum-pool-size", () -> 5);
+        registry.add("spring.datasource.hikari.minimum-idle", () -> 2);
+        registry.add("spring.datasource.hikari.max-lifetime", () -> 300000); // 5 minutes
+        registry.add("spring.datasource.hikari.connection-timeout", () -> 10000); // 10 seconds
+        registry.add("spring.datasource.hikari.idle-timeout", () -> 60000); // 1 minute
+        registry.add("spring.datasource.hikari.validation-timeout", () -> 5000); // 5 seconds
     }
-
-    /**
-     * MockMvc for making HTTP requests in tests.
-     */
-    @Autowired
-    protected MockMvc mockMvc;
-
-    /**
-     * ObjectMapper for JSON serialization/deserialization in tests.
-     */
-    @Autowired
-    protected ObjectMapper objectMapper;
-
-    /**
-     * TestDataLoader for loading SQL fixtures into the test database.
-     */
-    @Autowired
-    protected TestDataLoader testDataLoader;
 
     /**
      * Setup method run before each test.
