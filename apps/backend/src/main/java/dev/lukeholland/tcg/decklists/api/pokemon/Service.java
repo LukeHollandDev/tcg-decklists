@@ -1,9 +1,6 @@
 package dev.lukeholland.tcg.decklists.api.pokemon;
 
-import dev.lukeholland.tcg.decklists.api.pokemon.dto.CardResponse;
-import dev.lukeholland.tcg.decklists.api.pokemon.dto.CardSearchRequest;
-import dev.lukeholland.tcg.decklists.api.pokemon.dto.CardSearchResponse;
-import dev.lukeholland.tcg.decklists.api.pokemon.dto.FilterOptionsResponse;
+import dev.lukeholland.tcg.decklists.api.pokemon.dto.*;
 import dev.lukeholland.tcg.decklists.api.pokemon.entities.Card;
 import dev.lukeholland.tcg.decklists.api.pokemon.specifications.CardSpecification;
 import org.springframework.data.domain.Page;
@@ -115,21 +112,69 @@ public class Service {
 
     /**
      * Get available filter options for building search UI.
-     * Returns distinct values for types, subtypes, sets, rarities, etc.
+     * Returns both static data (available values) and filter metadata (types, operators, parameters).
      *
-     * @return FilterOptionsResponse containing all available filter values
+     * @return FilterOptionsResponse containing static data and filter definitions
      */
     public FilterOptionsResponse getFilterOptions() {
         FilterOptionsResponse response = new FilterOptionsResponse();
 
-        // Query for distinct values from database
-        response.setSupertypes(repository.findDistinctSupertypes());
-        response.setTypes(repository.findDistinctTypes());
-        response.setSubtypes(repository.findDistinctSubtypes());
-        response.setSets(repository.findDistinctSetIds());
-        response.setRarities(repository.findDistinctRarities());
-        response.setFormats(repository.findDistinctFormats());
-        response.setRegulationMarks(repository.findDistinctRegulationMarks());
+        // Populate static data from database
+        StaticFilterData staticData = new StaticFilterData();
+        staticData.setSupertypes(repository.findDistinctSupertypes());
+        staticData.setTypes(repository.findDistinctTypes());
+        staticData.setSubtypes(repository.findDistinctSubtypes());
+        staticData.setSets(repository.findDistinctSetIds());
+        staticData.setRarities(repository.findDistinctRarities());
+        staticData.setFormats(repository.findDistinctFormats());
+        staticData.setRegulationMarks(repository.findDistinctRegulationMarks());
+        response.setStaticData(staticData);
+
+        // Build filter metadata map
+        Map<String, FilterMetadata> filters = new LinkedHashMap<>();
+
+        // Phase 1 - Core Filters
+        filters.put("name", FilterMetadata.string("name", "Card name search", true));
+        filters.put("supertype", FilterMetadata.enumFilter("supertype", "Card supertype", "static.supertypes"));
+        filters.put("types", FilterMetadata.multiselect("types", "Pokémon types", "static.types", "typesMatchAll"));
+        filters.put("subtypes", FilterMetadata.multiselect("subtypes", "Card subtypes", "static.subtypes", "subtypesMatchAll"));
+        filters.put("setId", FilterMetadata.enumFilter("setId", "Set identifier", "static.sets"));
+        filters.put("rarity", FilterMetadata.enumFilter("rarity", "Rarity", "static.rarities"));
+        filters.put("hp", FilterMetadata.range("Hit points", "hpMin", "hpMax"));
+
+        // Phase 2 - Attack Filters
+        filters.put("attackName", FilterMetadata.string("attackName", "Attack name search", true));
+        filters.put("attackText", FilterMetadata.string("attackText", "Attack text/description search", false));
+        filters.put("attackDamage", FilterMetadata.range("Attack damage", "attackDamageMin", "attackDamageMax"));
+        filters.put("attackCost", FilterMetadata.multiselect("attackCost", "Attack cost types", "static.types", "attackCostMatchAll"));
+
+        // Phase 2 - Ability Filters
+        filters.put("hasAbility", FilterMetadata.booleanFilter("hasAbility", "Has ability"));
+        filters.put("abilityName", FilterMetadata.string("abilityName", "Ability name search", true));
+        filters.put("abilityText", FilterMetadata.string("abilityText", "Ability text/description search", false));
+
+        // Phase 2 - Detail Filters
+        filters.put("artist", FilterMetadata.string("artist", "Artist name", true));
+        filters.put("regulationMark", FilterMetadata.enumFilter("regulationMark", "Regulation mark", "static.regulationMarks"));
+        filters.put("retreatCost", FilterMetadata.range("Retreat cost", "retreatCostMin", "retreatCostMax"));
+        filters.put("formats", FilterMetadata.multiselect("formats", "Format legality", "static.formats", "formatsMatchAll"));
+        filters.put("formatsBanned", FilterMetadata.multiselect("formatsBanned", "Formats where cards are banned", "static.formats", "formatsBannedMatchAll"));
+
+        // Phase 3 - Boolean Filters
+        filters.put("hasRuleBox", FilterMetadata.booleanFilter("hasRuleBox", "Has rule box"));
+        filters.put("hasWeakness", FilterMetadata.booleanFilter("hasWeakness", "Has weakness"));
+        filters.put("hasResistance", FilterMetadata.booleanFilter("hasResistance", "Has resistance"));
+
+        // Phase 3 - Weakness/Resistance Type Filters
+        filters.put("weaknessType", FilterMetadata.multiselect("weaknessType", "Weakness types", "static.types", "weaknessTypeMatchAll"));
+        filters.put("resistanceType", FilterMetadata.multiselect("resistanceType", "Resistance types", "static.types", "resistanceTypeMatchAll"));
+
+        // Phase 3 - Evolution & Rule Filters
+        filters.put("evolvesFrom", FilterMetadata.string("evolvesFrom", "Evolution source", true));
+        filters.put("evolvesTo", FilterMetadata.string("evolvesTo", "Evolution target", true));
+        filters.put("ruleText", FilterMetadata.string("ruleText", "Rule text/description search", false));
+
+        response.setFilters(filters);
 
         return response;
     }

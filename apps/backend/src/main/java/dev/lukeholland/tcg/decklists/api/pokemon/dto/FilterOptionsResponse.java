@@ -1,13 +1,18 @@
 package dev.lukeholland.tcg.decklists.api.pokemon.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.util.List;
+import java.util.Map;
 
 /**
  * Response DTO for the /features endpoint.
- * Returns all available filter values that can be used in search queries.
- * This helps frontend applications build dynamic filter UI components.
+ * Returns filter metadata and available static values for building dynamic filter UI.
+ * <p>
+ * Structure:
+ * - type: Card game type (e.g., "pokemon")
+ * - static: Static data containing all available values for enum/multiselect filters
+ * - filters: Metadata describing each filter (type, operator, parameters, etc.)
  */
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class FilterOptionsResponse {
@@ -18,39 +23,17 @@ public class FilterOptionsResponse {
     private String type = "pokemon";
 
     /**
-     * Available supertypes (Pokemon, Trainer, Energy)
+     * Static filter data (supertypes, types, subtypes, sets, rarities, formats, regulation marks)
      */
-    private List<String> supertypes;
+    @JsonProperty("static")
+    private StaticFilterData staticData;
 
     /**
-     * Available Pokemon types (Grass, Fire, Water, Psychic, etc.)
+     * Filter metadata describing each available filter
+     * Key: filter name (e.g., "name", "supertype", "types", "hp")
+     * Value: FilterMetadata describing the filter
      */
-    private List<String> types;
-
-    /**
-     * Available subtypes (Basic, Stage 1, Stage 2, ex, V, GX, Item, Supporter, etc.)
-     */
-    private List<String> subtypes;
-
-    /**
-     * Available set identifiers (base1, swsh8, etc.)
-     */
-    private List<String> sets;
-
-    /**
-     * Available rarity values (Common, Uncommon, Rare, Rare Holo, etc.)
-     */
-    private List<String> rarities;
-
-    /**
-     * Available format names for legality filtering (Standard, Expanded, Unlimited)
-     */
-    private List<String> formats;
-
-    /**
-     * Available regulation marks (A, B, C, D, E, F, G, H, etc.)
-     */
-    private List<String> regulationMarks;
+    private Map<String, FilterMetadata> filters;
 
     // ===== Getters and Setters =====
 
@@ -62,59 +45,20 @@ public class FilterOptionsResponse {
         this.type = type;
     }
 
-    public List<String> getSupertypes() {
-        return supertypes;
+    public StaticFilterData getStaticData() {
+        return staticData;
     }
 
-    public void setSupertypes(List<String> supertypes) {
-        this.supertypes = supertypes;
+    public void setStaticData(StaticFilterData staticData) {
+        this.staticData = staticData;
     }
 
-    public List<String> getTypes() {
-        return types;
+    public Map<String, FilterMetadata> getFilters() {
+        return filters;
     }
 
-    public void setTypes(List<String> types) {
-        this.types = types;
-    }
-
-    public List<String> getSubtypes() {
-        return subtypes;
-    }
-
-    public void setSubtypes(List<String> subtypes) {
-        this.subtypes = subtypes;
-    }
-
-    public List<String> getSets() {
-        return sets;
-    }
-
-    public void setSets(List<String> sets) {
-        this.sets = sets;
-    }
-
-    public List<String> getRarities() {
-        return rarities;
-    }
-
-    public void setRarities(List<String> rarities) {
-        this.rarities = rarities;
-    }
-
-    public List<String> getFormats() {
-        return formats;
-    }
-
-    public void setFormats(List<String> formats) {
-        this.formats = formats;
-    }
-
-    public List<String> getRegulationMarks() {
-        return regulationMarks;
-    }
-
-    public void setRegulationMarks(List<String> regulationMarks) {
-        this.regulationMarks = regulationMarks;
+    public void setFilters(Map<String, FilterMetadata> filters) {
+        this.filters = filters;
     }
 }
+

@@ -373,98 +373,166 @@ GET /api/pokemon/search?types=Fire&subtypes=Stage%202&weaknessType=Water&hasAbil
 GET /api/pokemon/features
 ```
 
-Returns all available filter values to help build a dynamic search UI.
+Returns filter metadata and static data to dynamically build a search UI. This endpoint provides both:
+1. **Static data** - All available values for enum/multiselect filters
+2. **Filter metadata** - Describes each filter (type, operator, parameters, etc.)
 
 **Response:**
 
 ```json
 {
   "type": "pokemon",
-  "supertypes": [
-    "Energy",
-    "Pokémon",
-    "Trainer"
-  ],
-  "types": [
-    "Colorless",
-    "Darkness",
-    "Dragon",
-    "Fairy",
-    "Fighting",
-    "Fire",
-    "Grass",
-    "Lightning",
-    "Metal",
-    "Psychic",
-    "Water"
-  ],
-  "subtypes": [
-    "ACE SPEC",
-    "Ancient",
-    "Basic",
-    "EX",
-    "ex",
-    "LEGEND",
-    "Level-Up",
-    "MEGA",
-    "Rapid Strike",
-    "Single Strike",
-    "Stage 1",
-    "Stage 2",
-    "Supporter",
-    "Item",
-    "Stadium",
-    "Tool",
-    "V",
-    "VMAX",
-    "VSTAR",
-    ...
-  ],
-  "sets": [
-    "base1",
-    "base2",
-    "base3",
-    "swsh1",
-    "swsh2",
-    ...
-  ],
-  "rarities": [
-    "Common",
-    "Uncommon",
-    "Rare",
-    "Rare Holo",
-    "Rare Ultra",
-    "Rare Rainbow",
-    ...
-  ],
-  "formats": [
-    "Expanded",
-    "Standard",
-    "Unlimited"
-  ],
-  "regulationMarks": [
-    "A",
-    "B",
-    "C",
-    "D",
-    "E",
-    "F",
-    "G",
-    "H"
-  ]
+  "static": {
+    "supertypes": [
+      "Energy",
+      "Pokémon",
+      "Trainer"
+    ],
+    "types": [
+      "Colorless",
+      "Darkness",
+      "Dragon",
+      "Fairy",
+      "Fighting",
+      "Fire",
+      "Grass",
+      "Lightning",
+      "Metal",
+      "Psychic",
+      "Water"
+    ],
+    "subtypes": [
+      "ACE SPEC",
+      "Ancient",
+      "Basic",
+      "EX",
+      "ex",
+      "LEGEND",
+      "Level-Up",
+      "MEGA",
+      "Rapid Strike",
+      "Single Strike",
+      "Stage 1",
+      "Stage 2",
+      "Supporter",
+      "Item",
+      "Stadium",
+      "Tool",
+      "V",
+      "VMAX",
+      "VSTAR"
+    ],
+    "sets": [
+      "base1",
+      "base2",
+      "base3",
+      "swsh1",
+      "swsh2"
+    ],
+    "rarities": [
+      "Common",
+      "Uncommon",
+      "Rare",
+      "Rare Holo",
+      "Rare Ultra",
+      "Rare Rainbow"
+    ],
+    "formats": [
+      "Expanded",
+      "Standard",
+      "Unlimited"
+    ],
+    "regulationMarks": [
+      "A",
+      "B",
+      "C",
+      "D",
+      "E",
+      "F",
+      "G",
+      "H"
+    ]
+  },
+  "filters": {
+    "name": {
+      "type": "string",
+      "operator": "contains",
+      "description": "Card name search",
+      "parameterName": "name",
+      "accentInsensitive": true
+    },
+    "supertype": {
+      "type": "enum",
+      "operator": "equals",
+      "description": "Card supertype",
+      "parameterName": "supertype",
+      "valuesRef": "static.supertypes"
+    },
+    "types": {
+      "type": "multiselect",
+      "operator": "anyOf",
+      "description": "Pokémon types",
+      "parameterName": "types",
+      "valuesRef": "static.types",
+      "matchAllParameter": "typesMatchAll"
+    },
+    "hp": {
+      "type": "range",
+      "operator": "range",
+      "description": "Hit points",
+      "minParameter": "hpMin",
+      "maxParameter": "hpMax"
+    },
+    "hasAbility": {
+      "type": "boolean",
+      "operator": "equals",
+      "description": "Has ability",
+      "parameterName": "hasAbility"
+    }
+  }
 }
 ```
 
-**Response Fields:**
+**Response Structure:**
 
 - `type` - Card game type (always "pokemon")
-- `supertypes` - Available supertypes for filtering
-- `types` - Available Pokémon types for filtering
-- `subtypes` - Available subtypes (stages, mechanics, trainer types)
-- `sets` - Available set identifiers
-- `rarities` - Available rarity values
-- `formats` - Available tournament formats
-- `regulationMarks` - Available regulation marks
+- `static` - Static filter data containing all available values
+  - `supertypes` - Available supertypes for filtering
+  - `types` - Available Pokémon types for filtering
+  - `subtypes` - Available subtypes (stages, mechanics, trainer types)
+  - `sets` - Available set identifiers
+  - `rarities` - Available rarity values
+  - `formats` - Available tournament formats
+  - `regulationMarks` - Available regulation marks
+- `filters` - Map of filter metadata (key: filter name, value: filter metadata)
+
+**Filter Metadata Fields:**
+
+Each filter in the `filters` map contains:
+- `type` - Filter type: `"string"`, `"enum"`, `"multiselect"`, `"range"`, or `"boolean"`
+- `operator` - Query operator: `"contains"`, `"equals"`, `"anyOf"`, or `"range"`
+- `description` - Human-readable description of the filter
+- `parameterName` - Query parameter name (for string, enum, and boolean types)
+- `valuesRef` - Reference to static data values (for enum/multiselect types, e.g., `"static.types"`)
+- `matchAllParameter` - Parameter name for "match all" logic (for multiselect types)
+- `minParameter` - Minimum value parameter name (for range types)
+- `maxParameter` - Maximum value parameter name (for range types)
+- `accentInsensitive` - Whether the filter supports accent-insensitive matching (for string types)
+
+**Available Filters:**
+
+The endpoint returns metadata for all implemented filters including:
+- **Phase 1**: `name`, `supertype`, `types`, `subtypes`, `setId`, `rarity`, `hp`
+- **Phase 2**: `attackName`, `attackText`, `attackDamage`, `attackCost`, `hasAbility`, `abilityName`, `abilityText`, `artist`, `regulationMark`, `retreatCost`, `formats`, `formatsBanned`
+- **Phase 3**: `hasRuleBox`, `hasWeakness`, `hasResistance`, `weaknessType`, `resistanceType`, `evolvesFrom`, `evolvesTo`, `ruleText`
+
+**Usage:**
+
+The frontend can use this endpoint to dynamically build a filter panel:
+1. Use the `filters` map to determine which filters are available and their types
+2. For `enum` and `multiselect` filters, use the `valuesRef` to fetch values from the `static` data
+3. For `range` filters, use the `minParameter` and `maxParameter` to build range inputs
+4. For `multiselect` filters, check if `matchAllParameter` exists to provide AND/OR toggle
 
 #### Autocomplete Endpoints
 

@@ -37,81 +37,154 @@ class CardFeaturesAndAutocompleteIntegrationTest extends AbstractIntegrationTest
     // ============================================================================
 
     @Test
-    @DisplayName("Should return features endpoint with all filter options")
+    @DisplayName("Should return features endpoint with static data and filters")
     void shouldReturnFeaturesEndpoint() throws Exception {
         mockMvc.perform(get("/api/pokemon/features"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.type").value("pokemon"))
-                .andExpect(jsonPath("$.supertypes").isArray())
-                .andExpect(jsonPath("$.types").isArray())
-                .andExpect(jsonPath("$.subtypes").isArray())
-                .andExpect(jsonPath("$.sets").isArray())
-                .andExpect(jsonPath("$.rarities").isArray())
-                .andExpect(jsonPath("$.formats").isArray())
-                .andExpect(jsonPath("$.regulationMarks").isArray());
+                .andExpect(jsonPath("$.static").exists())
+                .andExpect(jsonPath("$.static.supertypes").isArray())
+                .andExpect(jsonPath("$.static.types").isArray())
+                .andExpect(jsonPath("$.static.subtypes").isArray())
+                .andExpect(jsonPath("$.static.sets").isArray())
+                .andExpect(jsonPath("$.static.rarities").isArray())
+                .andExpect(jsonPath("$.static.formats").isArray())
+                .andExpect(jsonPath("$.static.regulationMarks").isArray())
+                .andExpect(jsonPath("$.filters").exists())
+                .andExpect(jsonPath("$.filters").isMap());
     }
 
     @Test
-    @DisplayName("Should return all supertypes")
+    @DisplayName("Should return all supertypes in static data")
     void shouldReturnAllSupertypes() throws Exception {
         mockMvc.perform(get("/api/pokemon/features"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.supertypes").isArray())
-                .andExpect(jsonPath("$.supertypes", hasSize(greaterThan(0))));
+                .andExpect(jsonPath("$.static.supertypes").isArray())
+                .andExpect(jsonPath("$.static.supertypes", hasSize(greaterThan(0))));
     }
 
     @Test
-    @DisplayName("Should return all Pokemon types")
+    @DisplayName("Should return all Pokemon types in static data")
     void shouldReturnAllPokemonTypes() throws Exception {
         mockMvc.perform(get("/api/pokemon/features"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.types").isArray())
-                .andExpect(jsonPath("$.types", hasSize(greaterThan(0))));
+                .andExpect(jsonPath("$.static.types").isArray())
+                .andExpect(jsonPath("$.static.types", hasSize(greaterThan(0))));
     }
 
     @Test
-    @DisplayName("Should return all subtypes")
+    @DisplayName("Should return all subtypes in static data")
     void shouldReturnAllSubtypes() throws Exception {
         mockMvc.perform(get("/api/pokemon/features"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.subtypes").isArray())
-                .andExpect(jsonPath("$.subtypes", hasSize(greaterThan(0))));
+                .andExpect(jsonPath("$.static.subtypes").isArray())
+                .andExpect(jsonPath("$.static.subtypes", hasSize(greaterThan(0))));
     }
 
     @Test
-    @DisplayName("Should return all sets")
+    @DisplayName("Should return all sets in static data")
     void shouldReturnAllSets() throws Exception {
         mockMvc.perform(get("/api/pokemon/features"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.sets").isArray())
-                .andExpect(jsonPath("$.sets", hasSize(greaterThan(0))));
+                .andExpect(jsonPath("$.static.sets").isArray())
+                .andExpect(jsonPath("$.static.sets", hasSize(greaterThan(0))));
     }
 
     @Test
-    @DisplayName("Should return all rarities")
+    @DisplayName("Should return all rarities in static data")
     void shouldReturnAllRarities() throws Exception {
         mockMvc.perform(get("/api/pokemon/features"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.rarities").isArray())
-                .andExpect(jsonPath("$.rarities", hasSize(greaterThan(0))));
+                .andExpect(jsonPath("$.static.rarities").isArray())
+                .andExpect(jsonPath("$.static.rarities", hasSize(greaterThan(0))));
     }
 
     @Test
-    @DisplayName("Should return all formats")
+    @DisplayName("Should return all formats in static data")
     void shouldReturnAllFormats() throws Exception {
         mockMvc.perform(get("/api/pokemon/features"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.formats").isArray())
-                .andExpect(jsonPath("$.formats", hasSize(greaterThan(0))));
+                .andExpect(jsonPath("$.static.formats").isArray())
+                .andExpect(jsonPath("$.static.formats", hasSize(greaterThan(0))));
     }
 
     @Test
-    @DisplayName("Should return all regulation marks")
+    @DisplayName("Should return all regulation marks in static data")
     void shouldReturnAllRegulationMarks() throws Exception {
         mockMvc.perform(get("/api/pokemon/features"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.regulationMarks").isArray());
+                .andExpect(jsonPath("$.static.regulationMarks").isArray());
         // May or may not have regulation marks depending on test data
+    }
+
+    @Test
+    @DisplayName("Should return filter metadata for all filters")
+    void shouldReturnFilterMetadata() throws Exception {
+        mockMvc.perform(get("/api/pokemon/features"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.filters").isMap())
+                .andExpect(jsonPath("$.filters.name").exists())
+                .andExpect(jsonPath("$.filters.supertype").exists())
+                .andExpect(jsonPath("$.filters.types").exists())
+                .andExpect(jsonPath("$.filters.hp").exists())
+                .andExpect(jsonPath("$.filters.attackName").exists())
+                .andExpect(jsonPath("$.filters.hasAbility").exists());
+    }
+
+    @Test
+    @DisplayName("Should return correct metadata for string filter")
+    void shouldReturnCorrectStringFilterMetadata() throws Exception {
+        mockMvc.perform(get("/api/pokemon/features"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.filters.name.type").value("string"))
+                .andExpect(jsonPath("$.filters.name.operator").value("contains"))
+                .andExpect(jsonPath("$.filters.name.parameterName").value("name"))
+                .andExpect(jsonPath("$.filters.name.description").exists())
+                .andExpect(jsonPath("$.filters.name.accentInsensitive").value(true));
+    }
+
+    @Test
+    @DisplayName("Should return correct metadata for enum filter")
+    void shouldReturnCorrectEnumFilterMetadata() throws Exception {
+        mockMvc.perform(get("/api/pokemon/features"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.filters.supertype.type").value("enum"))
+                .andExpect(jsonPath("$.filters.supertype.operator").value("equals"))
+                .andExpect(jsonPath("$.filters.supertype.parameterName").value("supertype"))
+                .andExpect(jsonPath("$.filters.supertype.valuesRef").value("static.supertypes"));
+    }
+
+    @Test
+    @DisplayName("Should return correct metadata for multiselect filter")
+    void shouldReturnCorrectMultiselectFilterMetadata() throws Exception {
+        mockMvc.perform(get("/api/pokemon/features"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.filters.types.type").value("multiselect"))
+                .andExpect(jsonPath("$.filters.types.operator").value("anyOf"))
+                .andExpect(jsonPath("$.filters.types.parameterName").value("types"))
+                .andExpect(jsonPath("$.filters.types.valuesRef").value("static.types"))
+                .andExpect(jsonPath("$.filters.types.matchAllParameter").value("typesMatchAll"));
+    }
+
+    @Test
+    @DisplayName("Should return correct metadata for range filter")
+    void shouldReturnCorrectRangeFilterMetadata() throws Exception {
+        mockMvc.perform(get("/api/pokemon/features"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.filters.hp.type").value("range"))
+                .andExpect(jsonPath("$.filters.hp.operator").value("range"))
+                .andExpect(jsonPath("$.filters.hp.minParameter").value("hpMin"))
+                .andExpect(jsonPath("$.filters.hp.maxParameter").value("hpMax"));
+    }
+
+    @Test
+    @DisplayName("Should return correct metadata for boolean filter")
+    void shouldReturnCorrectBooleanFilterMetadata() throws Exception {
+        mockMvc.perform(get("/api/pokemon/features"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.filters.hasAbility.type").value("boolean"))
+                .andExpect(jsonPath("$.filters.hasAbility.operator").value("equals"))
+                .andExpect(jsonPath("$.filters.hasAbility.parameterName").value("hasAbility"));
     }
 
     // ============================================================================

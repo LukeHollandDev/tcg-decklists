@@ -166,7 +166,7 @@ class ServiceUnitTest {
     // ============================================================================
 
     @Test
-    @DisplayName("Should retrieve all filter options")
+    @DisplayName("Should retrieve static filter data and filter metadata")
     void shouldRetrieveAllFilterOptions() {
         // Given
         when(repository.findDistinctSupertypes()).thenReturn(List.of("Pokémon", "Trainer", "Energy"));
@@ -180,15 +180,46 @@ class ServiceUnitTest {
         // When
         FilterOptionsResponse response = service.getFilterOptions();
 
-        // Then
+        // Then - Verify response structure
         assertThat(response).isNotNull();
-        assertThat(response.getSupertypes()).containsExactly("Pokémon", "Trainer", "Energy");
-        assertThat(response.getTypes()).containsExactly("Fire", "Water", "Grass");
-        assertThat(response.getSubtypes()).containsExactly("Basic", "Stage 1", "Stage 2");
-        assertThat(response.getSets()).containsExactly("base1", "base2");
-        assertThat(response.getRarities()).containsExactly("Common", "Rare");
-        assertThat(response.getFormats()).containsExactly("Standard", "Expanded");
-        assertThat(response.getRegulationMarks()).containsExactly("E", "F");
+        assertThat(response.getType()).isEqualTo("pokemon");
+
+        // Verify static data
+        assertThat(response.getStaticData()).isNotNull();
+        assertThat(response.getStaticData().getSupertypes()).containsExactly("Pokémon", "Trainer", "Energy");
+        assertThat(response.getStaticData().getTypes()).containsExactly("Fire", "Water", "Grass");
+        assertThat(response.getStaticData().getSubtypes()).containsExactly("Basic", "Stage 1", "Stage 2");
+        assertThat(response.getStaticData().getSets()).containsExactly("base1", "base2");
+        assertThat(response.getStaticData().getRarities()).containsExactly("Common", "Rare");
+        assertThat(response.getStaticData().getFormats()).containsExactly("Standard", "Expanded");
+        assertThat(response.getStaticData().getRegulationMarks()).containsExactly("E", "F");
+
+        // Verify filter metadata exists
+        assertThat(response.getFilters()).isNotNull();
+        assertThat(response.getFilters()).isNotEmpty();
+
+        // Verify some key filters are present
+        assertThat(response.getFilters()).containsKeys("name", "supertype", "types", "hp", "attackName", "hasAbility");
+
+        // Verify a string filter metadata
+        assertThat(response.getFilters().get("name").getType()).isEqualTo("string");
+        assertThat(response.getFilters().get("name").getParameterName()).isEqualTo("name");
+
+        // Verify an enum filter metadata
+        assertThat(response.getFilters().get("supertype").getType()).isEqualTo("enum");
+        assertThat(response.getFilters().get("supertype").getValuesRef()).isEqualTo("static.supertypes");
+
+        // Verify a multiselect filter metadata
+        assertThat(response.getFilters().get("types").getType()).isEqualTo("multiselect");
+        assertThat(response.getFilters().get("types").getMatchAllParameter()).isEqualTo("typesMatchAll");
+
+        // Verify a range filter metadata
+        assertThat(response.getFilters().get("hp").getType()).isEqualTo("range");
+        assertThat(response.getFilters().get("hp").getMinParameter()).isEqualTo("hpMin");
+        assertThat(response.getFilters().get("hp").getMaxParameter()).isEqualTo("hpMax");
+
+        // Verify a boolean filter metadata
+        assertThat(response.getFilters().get("hasAbility").getType()).isEqualTo("boolean");
 
         verify(repository).findDistinctSupertypes();
         verify(repository).findDistinctTypes();

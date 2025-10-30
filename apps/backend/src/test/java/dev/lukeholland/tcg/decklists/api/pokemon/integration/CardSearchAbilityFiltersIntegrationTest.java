@@ -55,7 +55,7 @@ class CardSearchAbilityFiltersIntegrationTest extends AbstractIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.results").isArray())
                 .andExpect(jsonPath("$.results", hasSize(greaterThan(0))));
-                // Note: Cards without abilities may have empty array or no abilities field
+        // Note: Cards without abilities may have empty array or no abilities field
     }
 
     // ============================================================================
