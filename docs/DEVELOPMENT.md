@@ -69,6 +69,66 @@ cd apps/backend
 
 The API will be available at `http://localhost:8080`
 
+### Testing (Backend)
+
+We use **TestContainers** with PostgreSQL for integration testing. See [TESTING.md](TESTING.md) for complete details.
+
+#### Quick Test Commands
+
+```bash
+cd apps/backend
+
+# Run all tests
+./gradlew test
+
+# Run specific test class
+./gradlew test --tests "InfrastructureSmokeTest"
+
+# Run with coverage report
+./gradlew test jacocoTestReport
+
+# View coverage report
+open build/reports/jacoco/test/html/index.html
+```
+
+#### Using Test Data Builders
+
+**Phase 2 (Test Data Builders) and Phase 3 (Test Utilities) are complete!** Use the builders to create test data:
+
+```java
+// Use preset cards
+Card charizard = CardBuilder.charizard().build();
+Card pikachu = CardBuilder.pikachu().build();
+
+// Create custom cards
+Card customCard = CardBuilder.aCard()
+    .withId("test-1")
+    .withName("Test Card")
+    .withSupertype("Pokémon")
+    .withHp("100")
+    .addType(TypeBuilder.fire().build())
+    .addSubtype(SubtypeBuilder.basic().build())
+    .build();
+
+// Use custom matchers for assertions
+assertThat(attackCosts, hasAtLeast(2, "Fire"));  // Multiset matching
+assertThat("Flabébé", normalizedEquals("flabebe"));  // Accent-insensitive
+```
+
+**Available Builders**:
+- `CardBuilder` - Full card entities with all relationships
+- `AttackBuilder` - Attacks with multiset cost support
+- `AbilityBuilder` - Abilities with type and text
+- `TypeBuilder` - All 11 Pokémon types
+- `WeaknessBuilder` / `ResistanceBuilder` - Weakness/resistance with values
+- `SetBuilder`, `ArtistBuilder`, `RarityBuilder`, `SubtypeBuilder` - Supporting entities
+
+**Test Utilities**:
+- `CustomMatchers` - Hamcrest matchers for multiset matching and accent-insensitive comparison
+- `TestUtils` - JSON parsing, pagination validation, and common test helpers
+
+See **[TESTING.md](TESTING.md)** for complete usage examples and testing strategy.
+
 ### Frontend (React + Vite)
 
 ```bash

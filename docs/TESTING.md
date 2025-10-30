@@ -26,19 +26,20 @@ Track the progress of implementing the comprehensive test suite:
 - [x] Create `TestConfig.java` (test-specific Spring configuration)
 - [x] Create `TestDataLoader.java` (utility to load SQL fixtures)
 
-### Phase 2: Test Data Builders
-- [ ] Create `CardBuilder.java` with fluent API and common presets
-- [ ] Create `AttackBuilder.java` for attack data
-- [ ] Create `AbilityBuilder.java` for ability data
-- [ ] Create `TypeBuilder.java` for type data
-- [ ] Create `WeaknessBuilder.java` for weakness/resistance data
-- [ ] Create `SetBuilder.java` for set data
+### Phase 2: Test Data Builders ✅ COMPLETED
+- [x] Create `CardBuilder.java` with fluent API and common presets
+- [x] Create `AttackBuilder.java` for attack data
+- [x] Create `AbilityBuilder.java` for ability data
+- [x] Create `TypeBuilder.java` for type data
+- [x] Create `WeaknessBuilder.java` and `ResistanceBuilder.java` for weakness/resistance data
+- [x] Create `SetBuilder.java` for set data
+- [x] Create `ArtistBuilder.java`, `RarityBuilder.java`, `SubtypeBuilder.java` for supporting entities
 
-### Phase 3: Test Utilities
-- [ ] Create `TestUtils.java` with common assertions and helpers
-- [ ] Create `CustomMatchers.java` with Hamcrest matchers for complex validations
-- [ ] Add accent normalization test helpers
-- [ ] Add multiset matching validators
+### Phase 3: Test Utilities ✅ COMPLETED
+- [x] Create `TestUtils.java` with common assertions and helpers
+- [x] Create `CustomMatchers.java` with Hamcrest matchers for complex validations
+- [x] Add accent normalization test helpers
+- [x] Add multiset matching validators
 
 ### Phase 4: SQL Test Fixtures
 - [ ] Create `test-data.sql` with comprehensive test card data
@@ -152,7 +153,7 @@ Located in `apps/backend/src/test/java/dev/lukeholland/tcg/decklists/api/pokemon
 
 ```
 apps/backend/src/test/java/dev/lukeholland/tcg/decklists/api/pokemon/
-├── integration/
+├── integration/ (NOT YET CREATED)
 │   ├── CardBasicOperationsIntegrationTest.java
 │   ├── CardSearchCoreFiltersIntegrationTest.java
 │   ├── CardSearchAttackFiltersIntegrationTest.java
@@ -164,22 +165,26 @@ apps/backend/src/test/java/dev/lukeholland/tcg/decklists/api/pokemon/
 │   ├── CardFeaturesAndAutocompleteIntegrationTest.java
 │   ├── CardErrorHandlingIntegrationTest.java
 │   └── CardPaginationSortingIntegrationTest.java
-├── unit/
+├── unit/ (NOT YET CREATED)
 │   ├── CardServiceUnitTest.java
 │   ├── CardSpecificationUnitTest.java
 │   └── CardRepositoryUnitTest.java
-├── builders/
+├── builders/ ✅ COMPLETED
 │   ├── CardBuilder.java
 │   ├── AttackBuilder.java
 │   ├── AbilityBuilder.java
 │   ├── TypeBuilder.java
 │   ├── WeaknessBuilder.java
-│   └── SetBuilder.java
-├── config/
+│   ├── ResistanceBuilder.java
+│   ├── SetBuilder.java
+│   ├── ArtistBuilder.java
+│   ├── RarityBuilder.java
+│   └── SubtypeBuilder.java
+├── config/ ✅ COMPLETED
 │   ├── AbstractIntegrationTest.java
 │   ├── TestConfig.java
 │   └── TestDataLoader.java
-└── util/
+└── testutils/ ✅ COMPLETED
     ├── TestUtils.java
     └── CustomMatchers.java
 ```
@@ -329,60 +334,87 @@ Contains known test cards covering:
 
 ## Test Data Builders
 
-We use the **Builder pattern** to create test data fluently and readably.
+We use the **Builder pattern** to create test data fluently and readably. All builders support method chaining and properly handle JPA entity relationships.
 
 ### CardBuilder
 
 **Location**: `apps/backend/src/test/java/dev/lukeholland/tcg/decklists/api/pokemon/builders/CardBuilder.java`
 
+**Features**:
+- Fluent API with method chaining
+- Common presets for popular cards (Charizard, Pikachu, Prof. Oak, Fire Energy)
+- Properly handles bidirectional JPA relationships
+- Supports all card properties and relationships
+
 **Usage**:
 
 ```java
-// Create a basic Fire-type Pokemon
-Card charizard = CardBuilder.create()
-    .id("base1-4")
-    .name("Charizard")
-    .supertype("Pokémon")
-    .types(List.of("Fire"))
-    .subtypes(List.of("Stage 2"))
-    .hp("120")
+// Use presets for common cards (fully configured)
+Card charizard = CardBuilder.charizard().build();
+Card pikachu = CardBuilder.pikachu().build();
+Card professorOak = CardBuilder.professorOak().build();
+Card fireEnergy = CardBuilder.fireEnergy().build();
+
+// Create a custom card with all relationships
+Type fire = TypeBuilder.fire().build();
+Type water = TypeBuilder.water().build();
+Subtype stage2 = SubtypeBuilder.stage2().build();
+Set baseSet = SetBuilder.baseSet().build();
+Artist artist = ArtistBuilder.kenSugimori().build();
+Rarity rarity = RarityBuilder.rareHolo().build();
+
+Attack attack = AttackBuilder.fireBlast()
+    .addCost(fire, 3)
+    .addCost(TypeBuilder.colorless().build(), 1)
     .build();
 
-// Create with attacks and abilities
-Card pikachu = CardBuilder.create()
-    .id("base1-58")
-    .name("Pikachu")
-    .supertype("Pokémon")
-    .types(List.of("Lightning"))
-    .subtypes(List.of("Basic"))
-    .hp("40")
-    .attacks(List.of(
-        AttackBuilder.create()
-            .name("Thunderbolt")
-            .damage("100")
-            .cost(List.of("Lightning", "Lightning", "Colorless"))
-            .text("Discard all Energy from this Pokémon.")
-            .build()
-    ))
+Card customCard = CardBuilder.aCard()
+    .withId("test-1")
+    .withName("Custom Charizard")
+    .withSupertype("Pokémon")
+    .withHp("150")
+    .withHpNumeric(150)
+    .withNumber("1")
+    .addType(fire)
+    .addSubtype(stage2)
+    .withSet(baseSet)
+    .withArtist(artist)
+    .withRarity(rarity)
+    .addAttack(attack)
+    .addWeakness(WeaknessBuilder.times2(water).build())
+    .addResistance(ResistanceBuilder.minus30(TypeBuilder.fighting().build()).build())
+    .addRetreatCost(TypeBuilder.colorless().build(), 3)
+    .withConvertedRetreatCost(3)
     .build();
-
-// Use presets for common cards
-Card fireEnergy = CardBuilder.fireEnergy();
-Card waterEnergy = CardBuilder.waterEnergy();
 ```
 
 ### AttackBuilder
 
 **Location**: `apps/backend/src/test/java/dev/lukeholland/tcg/decklists/api/pokemon/builders/AttackBuilder.java`
 
+**Features**:
+- Supports attack costs with multiset matching (e.g., 2x Fire + 1x Water)
+- Properly creates AttackCost junction table entities
+- Preset attacks (Fire Blast, Thunderbolt, Tackle, etc.)
+
 **Usage**:
 
 ```java
-Attack attack = AttackBuilder.create()
-    .name("Fire Blast")
-    .damage("120")
-    .cost(List.of("Fire", "Fire", "Colorless"))
-    .text("Discard 1 Energy from this Pokémon.")
+// Use preset attacks
+Attack fireBlast = AttackBuilder.fireBlast().build();
+Attack thunderbolt = AttackBuilder.thunderbolt().build();
+
+// Create custom attack with specific costs
+Type fire = TypeBuilder.fire().build();
+Type colorless = TypeBuilder.colorless().build();
+
+Attack customAttack = AttackBuilder.anAttack()
+    .withName("Inferno")
+    .withDamage("150")
+    .withDamageNumeric(150)
+    .withText("Discard 2 Fire Energy from this Pokémon.")
+    .addCost(fire, 2)        // 2x Fire
+    .addCost(colorless, 1)   // 1x Colorless
     .build();
 ```
 
@@ -390,33 +422,141 @@ Attack attack = AttackBuilder.create()
 
 **Location**: `apps/backend/src/test/java/dev/lukeholland/tcg/decklists/api/pokemon/builders/AbilityBuilder.java`
 
+**Features**:
+- Preset abilities (Blaze, Intimidate, Power Draw, etc.)
+- Supports all ability types (Ability, Poké-Power, Poké-Body)
+
 **Usage**:
 
 ```java
-Ability ability = AbilityBuilder.create()
-    .name("Intimidate")
-    .type("Ability")
-    .text("As long as this Pokémon is in the Active Spot, your opponent's Active Pokémon's attacks do 20 less damage.")
+// Use preset abilities
+Ability blaze = AbilityBuilder.blaze().build();
+Ability intimidate = AbilityBuilder.intimidate().build();
+
+// Create custom ability
+Ability customAbility = AbilityBuilder.anAbility()
+    .withName("Energy Boost")
+    .withType("Ability")
+    .withText("Once during your turn, you may attach an Energy card from your hand to this Pokémon.")
     .build();
 ```
 
-### Common Presets
+### TypeBuilder
 
-Builders include common presets for frequently used cards:
+**Location**: `apps/backend/src/test/java/dev/lukeholland/tcg/decklists/api/pokemon/builders/TypeBuilder.java`
+
+**Features**:
+- Factory methods for all 11 Pokémon types
+- Custom type creation for test scenarios
+
+**Usage**:
 
 ```java
-// Pokemon
-Card charizard = CardBuilder.charizard();
-Card pikachu = CardBuilder.pikachu();
-Card mewtwo = CardBuilder.mewtwo();
+// Use preset types
+Type fire = TypeBuilder.fire().build();
+Type water = TypeBuilder.water().build();
+Type grass = TypeBuilder.grass().build();
 
-// Energy
-Card fireEnergy = CardBuilder.fireEnergy();
-Card waterEnergy = CardBuilder.waterEnergy();
+// All 11 types available:
+// fire(), water(), grass(), lightning(), fighting(), psychic(),
+// colorless(), darkness(), metal(), dragon(), fairy()
+```
 
-// Trainers
-Card professorOak = CardBuilder.professorOak();
-Card pokeBall = CardBuilder.pokeBall();
+### WeaknessBuilder & ResistanceBuilder
+
+**Locations**:
+- `apps/backend/src/test/java/dev/lukeholland/tcg/decklists/api/pokemon/builders/WeaknessBuilder.java`
+- `apps/backend/src/test/java/dev/lukeholland/tcg/decklists/api/pokemon/builders/ResistanceBuilder.java`
+
+**Features**:
+- Factory methods for common values (×2, +10, +20, -20, -30)
+- Custom value configuration
+
+**Usage**:
+
+```java
+// Weakness
+Type water = TypeBuilder.water().build();
+Weakness weakness = WeaknessBuilder.times2(water).build();  // ×2 multiplier
+Weakness oldWeakness = WeaknessBuilder.plus20(water).build();  // +20 modifier
+
+// Resistance
+Type fighting = TypeBuilder.fighting().build();
+Resistance resistance = ResistanceBuilder.minus30(fighting).build();  // -30 modifier
+Resistance resistance2 = ResistanceBuilder.minus20(fighting).build();  // -20 modifier
+```
+
+### SetBuilder, ArtistBuilder, RarityBuilder, SubtypeBuilder
+
+**Features**:
+- Factory methods for common values
+- Preset configurations for popular sets, artists, rarities, subtypes
+
+**Usage**:
+
+```java
+// Sets
+Set baseSet = SetBuilder.baseSet().build();
+Set jungle = SetBuilder.jungle().build();
+Set swordAndShield = SetBuilder.swordAndShield().build();
+
+// Artists
+Artist kenSugimori = ArtistBuilder.kenSugimori().build();
+Artist mitsuhiroArita = ArtistBuilder.mitsuhiroArita().build();
+
+// Rarities
+Rarity common = RarityBuilder.common().build();
+Rarity rareHolo = RarityBuilder.rareHolo().build();
+Rarity rareUltra = RarityBuilder.rareUltra().build();
+
+// Subtypes
+Subtype basic = SubtypeBuilder.basic().build();
+Subtype stage1 = SubtypeBuilder.stage1().build();
+Subtype ex = SubtypeBuilder.ex().build();
+Subtype item = SubtypeBuilder.item().build();
+```
+
+### Complete Example
+
+Here's a complete example creating a fully configured card:
+
+```java
+// Create all required entities
+Type fire = TypeBuilder.fire().build();
+Type colorless = TypeBuilder.colorless().build();
+Subtype stage2 = SubtypeBuilder.stage2().build();
+Set baseSet = SetBuilder.baseSet().build();
+Artist artist = ArtistBuilder.mitsuhiroArita().build();
+Rarity rarity = RarityBuilder.rareHolo().build();
+
+// Create attack with costs
+Attack fireBlast = AttackBuilder.anAttack()
+    .withName("Fire Blast")
+    .withDamage("120")
+    .withDamageNumeric(120)
+    .withText("Discard 1 Fire Energy from this Pokémon.")
+    .addCost(fire, 4)  // 4x Fire energy
+    .build();
+
+// Create the card with all relationships
+Card charizard = CardBuilder.aCard()
+    .withId("base1-4")
+    .withName("Charizard")
+    .withSupertype("Pokémon")
+    .withHp("120")
+    .withHpNumeric(120)
+    .withNumber("4")
+    .addType(fire)
+    .addSubtype(stage2)
+    .withSet(baseSet)
+    .withArtist(artist)
+    .withRarity(rarity)
+    .addAttack(fireBlast)
+    .addWeakness(WeaknessBuilder.times2(TypeBuilder.water().build()).build())
+    .addResistance(ResistanceBuilder.minus30(TypeBuilder.fighting().build()).build())
+    .addRetreatCost(colorless, 3)
+    .withConvertedRetreatCost(3)
+    .build();
 ```
 
 ## Integration Tests
