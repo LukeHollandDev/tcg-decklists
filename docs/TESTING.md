@@ -56,13 +56,13 @@ Track the progress of implementing the comprehensive test suite:
 - [x] Fix schema alignment issues (evolution_direction → direction)
 - [x] Fix test isolation issues
 
-### Phase 5: Integration Tests (11 test classes)
-- [ ] `CardBasicOperationsIntegrationTest.java` (10 tests)
-- [ ] `CardSearchCoreFiltersIntegrationTest.java` (35 tests)
-- [ ] `CardSearchAttackFiltersIntegrationTest.java` (30 tests)
-- [ ] `CardSearchAbilityFiltersIntegrationTest.java` (15 tests)
-- [ ] `CardSearchDetailFiltersIntegrationTest.java` (25 tests)
-- [ ] `CardSearchBooleanEvolutionIntegrationTest.java` (27 tests)
+### Phase 5: Integration Tests (11 test classes) - IN PROGRESS (6/11 completed - 130 tests passing ✅)
+- [x] `CardBasicOperationsIntegrationTest.java` (10 tests) ✅ **COMPLETED**
+- [x] `CardSearchCoreFiltersIntegrationTest.java` (32 tests) ✅ **COMPLETED**
+- [x] `CardSearchAttackFiltersIntegrationTest.java` (26 tests) ✅ **COMPLETED**
+- [x] `CardSearchAbilityFiltersIntegrationTest.java` (15 tests) ✅ **COMPLETED**
+- [x] `CardSearchDetailFiltersIntegrationTest.java` (23 tests) ✅ **COMPLETED**
+- [x] `CardSearchBooleanEvolutionIntegrationTest.java` (24 tests) ✅ **COMPLETED**
 - [ ] `CardSearchWeaknessResistanceIntegrationTest.java` (15 tests)
 - [ ] `CardSearchComplexScenariosIntegrationTest.java` (20 tests)
 - [ ] `CardFeaturesAndAutocompleteIntegrationTest.java` (38 tests)
