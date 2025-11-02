@@ -1,18 +1,18 @@
 meta {
-  name: Autocomplete Attacks
+  name: Ability Name
   type: http
-  seq: 5
+  seq: 2
 }
 
 get {
-  url: {{BASE_URL}}/pokemon/attacks?query=fire
+  url: {{BASE_URL}}/pokemon/autocomplete/ability?query=power
   body: none
   auth: inherit
 }
 
 params:query {
-  query: fire
-  ~limit: 10
+  query: power
+  ~limit: 15
 }
 
 settings {

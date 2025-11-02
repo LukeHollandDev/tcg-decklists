@@ -1,17 +1,17 @@
 meta {
-  name: Autocomplete Artists
+  name: Attack Name
   type: http
-  seq: 4
+  seq: 3
 }
 
 get {
-  url: {{BASE_URL}}/pokemon/artists?query=ken
+  url: {{BASE_URL}}/pokemon/autocomplete/attack?query=fire
   body: none
   auth: inherit
 }
 
 params:query {
-  query: ken
+  query: fire
   ~limit: 10
 }
 

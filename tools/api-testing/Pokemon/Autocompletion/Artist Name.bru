@@ -1,17 +1,17 @@
 meta {
-  name: Autocomplete Card Names
+  name: Artist Name
   type: http
-  seq: 7
+  seq: 4
 }
 
 get {
-  url: {{BASE_URL}}/pokemon/card-names?query=char
+  url: {{BASE_URL}}/pokemon/autocomplete/artist?query=ken
   body: none
   auth: inherit
 }
 
 params:query {
-  query: char
+  query: ken
   ~limit: 10
 }
 
