@@ -4,7 +4,19 @@ Pokémon TCG deck builder and viewer with comprehensive card search, designed fo
 
 ## Project Structure
 
-TODO: add the tree project structure in here explaining each directory's use.
+```tree
+tcg-decklists
+├── CLAUDE.md               # CLAUDE file to provide additional context to Claude Code
+├── README.md               # This file
+├── apps
+│   ├── backend             # Source code for the Spring Boot API
+│   └── frontend            # Source code for the React website
+├── config
+│   └── docker-compose.yml  # Docker compose file to run the application stack
+└── tools
+    ├── api-testing         # Bruno HTTP collection and test suite to verify data integrity
+    └── data-pipeline       # ETL pipeline for ingesting card data and storing it in the database
+```
 
 ## Features
 
