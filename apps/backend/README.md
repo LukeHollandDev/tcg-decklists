@@ -161,3 +161,22 @@ For the filters, the response might contain the following:
 | `maxParameter`      | string  | (Optional) Parameter name for maximum value in range filters           |
 
 The response is a JSON object which provides filters and static data as objects.
+
+#### `POST /decklist`
+
+This endpoint allows the creation of a decklist. The request body should contain a JSON object with the decklist
+details:
+
+| Field   | Type         | Required | Description                                                     |
+|---------|--------------|----------|-----------------------------------------------------------------|
+| `name`  | string       | Yes      | Name of the decklist                                            |
+| `type`  | string       | Yes      | Card game type. Supported values: "pokemon" (case-insensitive)  |
+| `cards` | string array | Yes      | List of card IDs (duplicates allowed for quantity)              |
+
+It returns a JSON response with the created decklist ID. A 400 error is returned if validation fails (invalid card IDs,
+missing fields, etc.).
+
+#### `GET /decklist/:id`
+
+This endpoint retrieves a decklist by its ID. It returns a JSON response containing the decklist details with card IDs
+expanded by quantity. A 404 error is returned if the decklist is not found.

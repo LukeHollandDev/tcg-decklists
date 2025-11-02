@@ -1,0 +1,58 @@
+meta {
+  name: Get Decklist
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{BASE_URL}}/pokemon/decklist/:id
+  body: none
+  auth: inherit
+}
+
+params:path {
+  id: 1
+}
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("Response contains all required fields", function() {
+    const body = res.getBody();
+    expect(body).to.have.property('id');
+    expect(body).to.have.property('name');
+    expect(body).to.have.property('type');
+    expect(body).to.have.property('cards');
+    expect(body).to.have.property('createdAt');
+  });
+  
+  test("Decklist ID matches requested ID", function() {
+    const body = res.getBody();
+    const requestedId = parseInt(req.getUrl().split('/').at(-1));
+    expect(body.id).to.equal(requestedId);
+  });
+  
+  test("Type is valid card game", function() {
+    const body = res.getBody();
+    expect(body.type).to.equal('pokemon');
+  });
+  
+  test("Cards is an array", function() {
+    const body = res.getBody();
+    expect(body.cards).to.be.an('array');
+    expect(body.cards.length).to.be.greaterThan(0);
+  });
+  
+  test("CreatedAt is a valid timestamp", function() {
+    const body = res.getBody();
+    expect(body.createdAt).to.be.a('string');
+    expect(new Date(body.createdAt).toString()).to.not.equal('Invalid Date');
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

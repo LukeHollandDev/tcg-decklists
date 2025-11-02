@@ -1,0 +1,46 @@
+meta {
+  name: Create Decklist
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{BASE_URL}}/pokemon/decklist
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "My Fire Deck",
+    "type": "pokemon",
+    "cards": [
+      "base1-4",
+      "base1-4",
+      "base1-4",
+      "base1-46",
+      "base1-46"
+    ]
+  }
+}
+
+tests {
+  test("Status code is 201", function() {
+    expect(res.getStatus()).to.equal(201);
+  });
+
+  test("Response contains decklist ID", function() {
+    const body = res.getBody();
+    expect(body).to.have.property('id');
+    expect(body.id).to.be.a('number');
+    expect(body.id).to.be.greaterThan(0);
+  });
+
+  // Store the ID for use in other requests
+  bru.setVar("decklistId", res.getBody().id);
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
