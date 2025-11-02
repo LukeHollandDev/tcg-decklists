@@ -2,6 +2,7 @@ package dev.lukeholland.tcg.decklists.api.pokemon;
 
 import dev.lukeholland.tcg.decklists.api.pokemon.dto.*;
 import dev.lukeholland.tcg.decklists.api.pokemon.entities.Card;
+import dev.lukeholland.tcg.decklists.api.pokemon.enums.AutocompleteField;
 import dev.lukeholland.tcg.decklists.api.pokemon.specifications.CardSpecification;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -179,93 +180,44 @@ public class Service {
         return response;
     }
 
-    // ========== Autocomplete Methods ==========
+    // ========== Autocomplete Method ==========
 
     /**
-     * Autocomplete artist names with prefix-first matching.
+     * Autocomplete field values with prefix-first matching.
      * Returns prefix matches first, then substring matches to fill remaining slots.
      *
+     * @param field The field to autocomplete (ARTIST, ATTACK, ABILITY, SET)
      * @param query The search query
-     * @param limit Maximum number of results (default: 10, max: 100)
-     * @return List of matching artist names
+     * @param limit Maximum number of results (default: 10, max: 50)
+     * @return List of matching values for the specified field
      */
-    public List<String> autocompleteArtists(String query, int limit) {
-        return autocomplete(
-                query,
-                limit,
-                repository::findArtistNamesByPrefix,
-                repository::findArtistNamesBySubstring
-        );
-    }
-
-    /**
-     * Autocomplete attack names with prefix-first matching.
-     * Returns prefix matches first, then substring matches to fill remaining slots.
-     *
-     * @param query The search query
-     * @param limit Maximum number of results (default: 10, max: 100)
-     * @return List of matching attack names
-     */
-    public List<String> autocompleteAttacks(String query, int limit) {
-        return autocomplete(
-                query,
-                limit,
-                repository::findAttackNamesByPrefix,
-                repository::findAttackNamesBySubstring
-        );
-    }
-
-    /**
-     * Autocomplete ability names with prefix-first matching.
-     * Returns prefix matches first, then substring matches to fill remaining slots.
-     *
-     * @param query The search query
-     * @param limit Maximum number of results (default: 10, max: 100)
-     * @return List of matching ability names
-     */
-    public List<String> autocompleteAbilities(String query, int limit) {
-        return autocomplete(
-                query,
-                limit,
-                repository::findAbilityNamesByPrefix,
-                repository::findAbilityNamesBySubstring
-        );
-    }
-
-    /**
-     * Autocomplete card names with prefix-first matching.
-     * Returns prefix matches first, then substring matches to fill remaining slots.
-     * Format: "CardName (card-id)" to show multiple versions across sets.
-     *
-     * @param query The search query
-     * @param limit Maximum number of results (default: 10, max: 100)
-     * @return List of matching card names with IDs
-     */
-    public List<String> autocompleteCardNames(String query, int limit) {
-        return autocomplete(
-                query,
-                limit,
-                repository::findCardNamesByPrefix,
-                repository::findCardNamesBySubstring
-        );
-    }
-
-    /**
-     * Autocomplete set names with prefix-first matching.
-     * Returns prefix matches first, then substring matches to fill remaining slots.
-     * Returns user-friendly set names (e.g., "Base Set") rather than set IDs.
-     *
-     * @param query The search query
-     * @param limit Maximum number of results (default: 10, max: 100)
-     * @return List of matching set names
-     */
-    public List<String> autocompleteSetNames(String query, int limit) {
-        return autocomplete(
-                query,
-                limit,
-                repository::findSetNamesByPrefix,
-                repository::findSetNamesBySubstring
-        );
+    public List<String> autocomplete(AutocompleteField field, String query, int limit) {
+        return switch (field) {
+            case ARTIST -> autocomplete(
+                    query,
+                    limit,
+                    repository::findArtistNamesByPrefix,
+                    repository::findArtistNamesBySubstring
+            );
+            case ATTACK -> autocomplete(
+                    query,
+                    limit,
+                    repository::findAttackNamesByPrefix,
+                    repository::findAttackNamesBySubstring
+            );
+            case ABILITY -> autocomplete(
+                    query,
+                    limit,
+                    repository::findAbilityNamesByPrefix,
+                    repository::findAbilityNamesBySubstring
+            );
+            case SET -> autocomplete(
+                    query,
+                    limit,
+                    repository::findSetNamesByPrefix,
+                    repository::findSetNamesBySubstring
+            );
+        };
     }
 
     /**
