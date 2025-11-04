@@ -224,6 +224,46 @@ public class CardSearchRequest {
      */
     private String ruleText;
 
+    // ===== Generic Search Filters =====
+
+    /**
+     * Generic search term that searches across multiple fields:
+     * name, attack names, attack text, ability names, ability text, rule text, and artist name.
+     * Uses OR logic (matches if found in ANY non-excluded field).
+     * Case-insensitive, accent-insensitive, partial match.
+     */
+    private String q;
+
+    /**
+     * Exclude card name from generic search (default: false).
+     * Only applies when 'q' parameter is provided.
+     */
+    private Boolean excludeName = false;
+
+    /**
+     * Exclude attack names and attack text from generic search (default: false).
+     * Only applies when 'q' parameter is provided.
+     */
+    private Boolean excludeAttacks = false;
+
+    /**
+     * Exclude ability names and ability text from generic search (default: false).
+     * Only applies when 'q' parameter is provided.
+     */
+    private Boolean excludeAbilities = false;
+
+    /**
+     * Exclude rule text from generic search (default: false).
+     * Only applies when 'q' parameter is provided.
+     */
+    private Boolean excludeRules = false;
+
+    /**
+     * Exclude artist name from generic search (default: false).
+     * Only applies when 'q' parameter is provided.
+     */
+    private Boolean excludeArtist = false;
+
     // ===== Pagination & Sorting =====
 
     /**
@@ -593,6 +633,54 @@ public class CardSearchRequest {
         this.ruleText = ruleText;
     }
 
+    public String getQ() {
+        return q;
+    }
+
+    public void setQ(String q) {
+        this.q = q;
+    }
+
+    public Boolean getExcludeName() {
+        return excludeName != null ? excludeName : false;
+    }
+
+    public void setExcludeName(Boolean excludeName) {
+        this.excludeName = excludeName;
+    }
+
+    public Boolean getExcludeAttacks() {
+        return excludeAttacks != null ? excludeAttacks : false;
+    }
+
+    public void setExcludeAttacks(Boolean excludeAttacks) {
+        this.excludeAttacks = excludeAttacks;
+    }
+
+    public Boolean getExcludeAbilities() {
+        return excludeAbilities != null ? excludeAbilities : false;
+    }
+
+    public void setExcludeAbilities(Boolean excludeAbilities) {
+        this.excludeAbilities = excludeAbilities;
+    }
+
+    public Boolean getExcludeRules() {
+        return excludeRules != null ? excludeRules : false;
+    }
+
+    public void setExcludeRules(Boolean excludeRules) {
+        this.excludeRules = excludeRules;
+    }
+
+    public Boolean getExcludeArtist() {
+        return excludeArtist != null ? excludeArtist : false;
+    }
+
+    public void setExcludeArtist(Boolean excludeArtist) {
+        this.excludeArtist = excludeArtist;
+    }
+
     /**
      * Check if any filters are applied
      *
@@ -628,6 +716,7 @@ public class CardSearchRequest {
                 || (resistanceType != null && !resistanceType.isEmpty())
                 || evolvesFrom != null
                 || evolvesTo != null
-                || ruleText != null;
+                || ruleText != null
+                || q != null;
     }
 }

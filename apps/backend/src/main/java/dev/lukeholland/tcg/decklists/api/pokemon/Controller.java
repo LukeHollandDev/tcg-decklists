@@ -43,6 +43,14 @@ public class Controller {
      * Search for Pokemon cards with filters, pagination, and sorting
      * GET /api/pokemon/search
      * <p>
+     * Query parameters (Generic Search):
+     * - q: Generic search term across multiple fields (name, attacks, abilities, rules, artist)
+     * - excludeName: Exclude name from generic search (default: false)
+     * - excludeAttacks: Exclude attack names/text from generic search (default: false)
+     * - excludeAbilities: Exclude ability names/text from generic search (default: false)
+     * - excludeRules: Exclude rule text from generic search (default: false)
+     * - excludeArtist: Exclude artist name from generic search (default: false)
+     * <p>
      * Query parameters (Phase 1):
      * - name: Card name search (partial match)
      * - supertype: Card supertype (Pokemon, Trainer, Energy)
@@ -85,6 +93,9 @@ public class Controller {
      * - sortOrder: Sort order "asc" or "desc" (default: "asc")
      * <p>
      * Examples:
+     * - Generic search for "pikachu": /search?q=pikachu
+     * - Generic search excluding artist: /search?q=thunderbolt&excludeArtist=true
+     * - Generic search only in name and attacks: /search?q=fire&excludeAbilities=true&excludeRules=true&excludeArtist=true
      * - Fire OR Water types: /search?types=Fire&types=Water
      * - Fire AND Grass types: /search?types=Fire&types=Grass&typesMatchAll=true
      * - Attacks with Fire OR Colorless cost: /search?attackCost=Fire&attackCost=Colorless
@@ -95,6 +106,7 @@ public class Controller {
      * - Legal in Expanded but banned in Standard: /search?formats=Expanded&formatsBanned=Standard
      * - Cards by specific artist: /search?artist=Ken Sugimori
      * - High damage attacks: /search?attackDamageMin=100
+     * - Generic search with filters: /search?q=charizard&types=Fire&rarity=Rare
      *
      * @param request Search request parameters
      * @return 200 OK with paginated search results

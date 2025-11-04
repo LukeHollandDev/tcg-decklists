@@ -88,7 +88,13 @@ public class Service {
                 request.getResistanceTypeMatchAll(),
                 request.getEvolvesFrom(),
                 request.getEvolvesTo(),
-                request.getRuleText()
+                request.getRuleText(),
+                request.getQ(),
+                request.getExcludeName(),
+                request.getExcludeAttacks(),
+                request.getExcludeAbilities(),
+                request.getExcludeRules(),
+                request.getExcludeArtist()
         );
 
         // Build Sort object from request

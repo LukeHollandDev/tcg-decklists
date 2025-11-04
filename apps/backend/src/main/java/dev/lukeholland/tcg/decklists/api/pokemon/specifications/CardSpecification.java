@@ -1048,6 +1048,100 @@ public class CardSpecification {
     }
 
     /**
+     * Generic search across multiple fields with configurable field exclusions.
+     * Searches across: name, attack names, attack text, ability names, ability text, rule text, and artist name.
+     * Uses OR logic - matches if found in ANY non-excluded field.
+     * Case-insensitive, accent-insensitive, partial match.
+     * <p>
+     * Note: For result ranking (exact matches first, then partial matches), ordering should be
+     * applied separately in the service layer as JPA Specifications handle filtering only.
+     *
+     * @param searchTerm      The term to search for across multiple fields
+     * @param excludeName     If true, exclude name field from search
+     * @param excludeAttacks  If true, exclude attack name and text fields from search
+     * @param excludeAbilities If true, exclude ability name and text fields from search
+     * @param excludeRules    If true, exclude rule text field from search
+     * @param excludeArtist   If true, exclude artist name field from search
+     * @return Specification that matches cards containing the search term in any non-excluded field
+     */
+    public static Specification<Card> hasGenericSearch(
+            String searchTerm,
+            Boolean excludeName,
+            Boolean excludeAttacks,
+            Boolean excludeAbilities,
+            Boolean excludeRules,
+            Boolean excludeArtist
+    ) {
+        return (root, query, criteriaBuilder) -> {
+            if (StringNormalizer.isNullOrEmpty(searchTerm)) {
+                return criteriaBuilder.conjunction();
+            }
+
+            // Normalize search term
+            String normalizedSearch = StringNormalizer.normalize(searchTerm.trim());
+
+            // List to hold all predicates (one for each searchable field)
+            java.util.List<jakarta.persistence.criteria.Predicate> predicates = new java.util.ArrayList<>();
+
+            // 1. Search in name field (unless excluded)
+            if (excludeName == null || !excludeName) {
+                Expression<String> normalizedName = normalizeField(root.get("name"), criteriaBuilder);
+                predicates.add(criteriaBuilder.like(normalizedName, "%" + normalizedSearch + "%"));
+            }
+
+            // 2. Search in attack names and text (unless excluded)
+            if (excludeAttacks == null || !excludeAttacks) {
+                Join<Card, Attack> attacksJoin = root.join("attacks", JoinType.LEFT);
+
+                // Attack name
+                Expression<String> normalizedAttackName = normalizeField(attacksJoin.get("name"), criteriaBuilder);
+                predicates.add(criteriaBuilder.like(normalizedAttackName, "%" + normalizedSearch + "%"));
+
+                // Attack text
+                Expression<String> normalizedAttackText = normalizeField(attacksJoin.get("text"), criteriaBuilder);
+                predicates.add(criteriaBuilder.like(normalizedAttackText, "%" + normalizedSearch + "%"));
+            }
+
+            // 3. Search in ability names and text (unless excluded)
+            if (excludeAbilities == null || !excludeAbilities) {
+                Join<Card, Ability> abilitiesJoin = root.join("abilities", JoinType.LEFT);
+
+                // Ability name
+                Expression<String> normalizedAbilityName = normalizeField(abilitiesJoin.get("name"), criteriaBuilder);
+                predicates.add(criteriaBuilder.like(normalizedAbilityName, "%" + normalizedSearch + "%"));
+
+                // Ability text
+                Expression<String> normalizedAbilityText = normalizeField(abilitiesJoin.get("text"), criteriaBuilder);
+                predicates.add(criteriaBuilder.like(normalizedAbilityText, "%" + normalizedSearch + "%"));
+            }
+
+            // 4. Search in rule text (unless excluded)
+            if (excludeRules == null || !excludeRules) {
+                Join<Card, Rule> rulesJoin = root.join("rules", JoinType.LEFT);
+
+                Expression<String> normalizedRuleText = normalizeField(rulesJoin.get("text"), criteriaBuilder);
+                predicates.add(criteriaBuilder.like(normalizedRuleText, "%" + normalizedSearch + "%"));
+            }
+
+            // 5. Search in artist name (unless excluded)
+            if (excludeArtist == null || !excludeArtist) {
+                Join<Card, Artist> artistJoin = root.join("artist", JoinType.LEFT);
+
+                Expression<String> normalizedArtistName = normalizeField(artistJoin.get("name"), criteriaBuilder);
+                predicates.add(criteriaBuilder.like(normalizedArtistName, "%" + normalizedSearch + "%"));
+            }
+
+            // Add DISTINCT to avoid duplicate cards from multiple field matches
+            if (query != null) {
+                query.distinct(true);
+            }
+
+            // Combine all predicates with OR logic (match if found in ANY field)
+            return criteriaBuilder.or(predicates.toArray(new jakarta.persistence.criteria.Predicate[0]));
+        };
+    }
+
+    /**
      * Filter by retreat cost range (inclusive).
      * Uses the converted_retreat_cost field for efficient numeric comparison.
      *
@@ -1167,6 +1261,12 @@ public class CardSpecification {
      * @param evolvesFrom            Evolution source name (what this card evolves from)
      * @param evolvesTo              Evolution target name (what this card evolves to)
      * @param ruleText               Rule text/description search
+     * @param q                      Generic search term across multiple fields
+     * @param excludeName            If true, exclude name from generic search
+     * @param excludeAttacks         If true, exclude attacks from generic search
+     * @param excludeAbilities       If true, exclude abilities from generic search
+     * @param excludeRules           If true, exclude rules from generic search
+     * @param excludeArtist          If true, exclude artist from generic search
      * @return Combined Specification with all applicable filters
      */
     public static Specification<Card> buildSpecification(
@@ -1206,7 +1306,13 @@ public class CardSpecification {
             Boolean resistanceTypeMatchAll,
             String evolvesFrom,
             String evolvesTo,
-            String ruleText
+            String ruleText,
+            String q,
+            Boolean excludeName,
+            Boolean excludeAttacks,
+            Boolean excludeAbilities,
+            Boolean excludeRules,
+            Boolean excludeArtist
     ) {
         // Build list of all specifications and combine them with allOf()
         return Specification.allOf(
@@ -1236,7 +1342,8 @@ public class CardSpecification {
                 hasResistanceTypes(resistanceType, resistanceTypeMatchAll),
                 evolvesFrom(evolvesFrom),
                 evolvesTo(evolvesTo),
-                hasRuleText(ruleText)
+                hasRuleText(ruleText),
+                hasGenericSearch(q, excludeName, excludeAttacks, excludeAbilities, excludeRules, excludeArtist)
         );
     }
 }

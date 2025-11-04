@@ -112,6 +112,66 @@ The test validates both required and optional fields:
 - `level` - Pokémon level
 - `ancientTrait` - Ancient trait (name and text)
 
+##### Search (`Search.bru`)
+
+- **Endpoint:** `GET /api/pokemon/search`
+- **Description:** Search for Pokémon cards using various filters
+- **Testing:** Provides a comprehensive set of filter parameters for testing search functionality
+
+**Available Search Filters:**
+
+The search endpoint supports numerous filters that can be combined:
+
+**Core Filters:**
+- `name` - Card name (partial match)
+- `supertype` - Pokemon/Trainer/Energy
+- `types` - Pokemon types (supports multiple values)
+- `typesMatchAll` - Require ALL specified types (AND logic)
+- `subtypes` - Card subtypes
+- `subtypesMatchAll` - Require ALL specified subtypes (AND logic)
+- `setId` - Set identifier
+- `rarity` - Rarity name
+- `hpMin`, `hpMax` - HP range
+
+**Generic Search (NEW):**
+- `q` - Generic search term that searches across multiple fields simultaneously
+- `excludeName` - Exclude name from generic search
+- `excludeAttacks` - Exclude attack names/text from generic search
+- `excludeAbilities` - Exclude ability names/text from generic search
+- `excludeRules` - Exclude rule text from generic search
+- `excludeArtist` - Exclude artist name from generic search
+
+**Pagination & Sorting:**
+- `page` - Page number (0-indexed)
+- `pageSize` - Results per page (max 100)
+- `sortBy` - Field to sort by
+- `sortOrder` - Sort order (asc/desc)
+
+##### Generic Search (`Generic Search.bru`)
+
+- **Endpoint:** `GET /api/pokemon/search`
+- **Description:** Dedicated request for testing the generic search feature
+- **Features:**
+  - Search across multiple fields at once (name, attacks, abilities, rules, artist)
+  - Case-insensitive and accent-insensitive matching
+  - Field exclusion toggles for focused searches
+  - Combines with all other filters
+
+**Generic Search Examples:**
+```
+# Basic search
+q=pikachu
+
+# Search excluding artist field
+q=thunderbolt&excludeArtist=true
+
+# Search only in attacks (exclude all other fields)
+q=damage&excludeName=true&excludeAbilities=true&excludeRules=true&excludeArtist=true
+
+# Combined with other filters
+q=charizard&types=Fire&rarity=Rare
+```
+
 ## Running Tests
 
 ### Run a Single Request
