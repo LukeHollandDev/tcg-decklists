@@ -43,12 +43,22 @@ kill <pid>
 ### Data Pipeline
 
 ```shell
-# using the shell script, it decides if the migrate should be run based on the tools/data-pipeline/metadata.json
-cd tools/data-pipeline && ./run.sh
+# run the pipeline to check for updates and migrate new data (automatically creates venv on first run)
+cd tools/data-pipeline && python pipeline.py run
 ```
 
 ```shell
-# directly run the migration script to populate the database, assumes the data exists at tools/data-pipeline/data
+# force re-download and re-migrate all data, ignoring version checks
+cd tools/data-pipeline && python pipeline.py run --force
+```
+
+```shell
+# check the status of all data sources
+cd tools/data-pipeline && python pipeline.py status
+```
+
+```shell
+# directly run the migration scripts to populate the database (assumes data exists at tools/data-pipeline/data)
 cd tools/data-pipeline
 python -m venv venv
 source venv/bin/activate

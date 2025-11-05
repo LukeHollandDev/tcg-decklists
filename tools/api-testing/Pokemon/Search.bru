@@ -5,18 +5,18 @@ meta {
 }
 
 get {
-  url: {{BASE_URL}}/pokemon/search
+  url: {{BASE_URL}}/pokemon/search?q=pikachu&excludeName=true&excludeAttacks=true&excludeAbilities=true&excludeRules=true&excludeArtist=true
   body: none
   auth: inherit
 }
 
 params:query {
-  ~q: pikachu
-  ~excludeName: false
-  ~excludeAttacks: false
-  ~excludeAbilities: false
-  ~excludeRules: false
-  ~excludeArtist: false
+  q: pikachu
+  excludeName: true
+  excludeAttacks: true
+  excludeAbilities: true
+  excludeRules: true
+  excludeArtist: true
   ~typesMatchAll: true
   ~types: fire,water
   ~name: poke ball

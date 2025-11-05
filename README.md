@@ -46,7 +46,7 @@ Download and load the card data into the database:
 
 ```shell
 # Load card data (Python 3.12+ required)
-cd tools/data-pipeline && ./run.sh
+cd tools/data-pipeline && python pipeline.py run
 ```
 
 Start the API hosted at `http://localhost:8080`:
