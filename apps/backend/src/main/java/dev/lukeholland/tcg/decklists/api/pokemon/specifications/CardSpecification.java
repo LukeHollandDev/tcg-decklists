@@ -2,6 +2,7 @@ package dev.lukeholland.tcg.decklists.api.pokemon.specifications;
 
 import dev.lukeholland.tcg.decklists.api.pokemon.entities.*;
 import dev.lukeholland.tcg.decklists.api.pokemon.enums.LegalityStatus;
+import dev.lukeholland.tcg.decklists.api.pokemon.util.QueryConstants;
 import dev.lukeholland.tcg.decklists.api.pokemon.util.StringNormalizer;
 import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.Join;
@@ -27,24 +28,20 @@ public class CardSpecification {
 
     /**
      * Normalize a database text field to remove accents and convert to lowercase.
-     * Uses PostgreSQL's translate() function with explicit character mappings.
+     * Uses PostgreSQL's translate() function with character mappings from QueryConstants.
      *
      * @param expression      The field expression to normalize
      * @param criteriaBuilder The criteria builder
      * @return Expression representing the normalized field
      */
     private static Expression<String> normalizeField(Expression<String> expression, jakarta.persistence.criteria.CriteriaBuilder criteriaBuilder) {
-        // Common accented characters found in Pokémon card names
-        String from = "áàâäãåāăąéèêëēėęíìîïīįóòôöõøōőúùûüūűųýÿŷñńňçćčßśšźżžÁÀÂÄÃÅĀĂĄÉÈÊËĒĖĘÍÌÎÏĪĮÓÒÔÖÕØŌŐÚÙÛÜŪŰŲÝŸŶÑŃŇÇĆČßŚŠŹŻŽ";
-        String to = "aaaaaaaaaeeeeeeeiiiiiiooooooooouuuuuuuyyynnncccssszzzAAAAAAAAAEEEEEEEIIIIIIOOOOOOOOOUUUUUUUYYYNNNCCCSSSZZZ";
-
         // Apply translate() to map accented characters to their base forms
         Expression<String> translated = criteriaBuilder.function(
                 "translate",
                 String.class,
                 expression,
-                criteriaBuilder.literal(from),
-                criteriaBuilder.literal(to)
+                criteriaBuilder.literal(QueryConstants.ACCENT_SOURCE),
+                criteriaBuilder.literal(QueryConstants.ACCENT_TARGET)
         );
 
         // Then convert to lowercase

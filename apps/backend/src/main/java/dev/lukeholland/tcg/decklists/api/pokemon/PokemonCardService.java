@@ -90,14 +90,15 @@ public class PokemonCardService {
     public FilterOptionsResponse getFilterOptions() {
         FilterOptionsResponse response = new FilterOptionsResponse();
 
-        StaticFilterData staticData = new StaticFilterData();
-        staticData.setSupertypes(repository.findDistinctSupertypes());
-        staticData.setTypes(repository.findDistinctTypes());
-        staticData.setSubtypes(repository.findDistinctSubtypes());
-        staticData.setSets(repository.findDistinctSetIds());
-        staticData.setRarities(repository.findDistinctRarities());
-        staticData.setFormats(repository.findDistinctFormats());
-        staticData.setRegulationMarks(repository.findDistinctRegulationMarks());
+        StaticFilterData staticData = new StaticFilterData(
+                repository.findDistinctSupertypes(),
+                repository.findDistinctTypes(),
+                repository.findDistinctSubtypes(),
+                repository.findDistinctSetIds(),
+                repository.findDistinctRarities(),
+                repository.findDistinctFormats(),
+                repository.findDistinctRegulationMarks()
+        );
         response.setStaticData(staticData);
 
         // Build filter metadata map

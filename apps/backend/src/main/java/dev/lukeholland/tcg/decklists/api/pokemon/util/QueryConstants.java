@@ -23,7 +23,7 @@ public class QueryConstants {
      */
     public static final String ACCENT_SOURCE =
             "áàâäãåāăąéèêëēėęíìîïīįóòôöõøōőúùûüūűųýÿŷñńňçćčßśšźżž" +
-                    "ÁÀÂÄÃÅĀĂĄÉÈÊËĒĖĘÍÌÎÏĪĮÓÒÔÖÕØŌŐÚÙÛÜŪŰŲÝŸŶÑŃŇÇĆČSŚŠŹŻŽ";
+                    "ÁÀÂÄÃÅĀĂĄÉÈÊËĒĖĘÍÌÎÏĪĮÓÒÔÖÕØŌŐÚÙÛÜŪŰŲÝŸŶÑŃŇÇĆČßŚŠŹŻŽ";
 
     /**
      * Target characters for TRANSLATE function - base characters without accents.
@@ -32,7 +32,7 @@ public class QueryConstants {
      * Use in TRANSLATE(field, ACCENT_SOURCE, ACCENT_TARGET)
      */
     public static final String ACCENT_TARGET =
-            "aaaaaaaaaeeeeeeeiiiiiiooooooooouuuuuuuyyynnncccssszzzS" +
+            "aaaaaaaaaeeeeeeeiiiiiiooooooooouuuuuuuyyynnncccssszzzs" +
                     "AAAAAAAAAEEEEEEEIIIIIIOOOOOOOOUUUUUUUYYYNNNCCCSSSZZZ";
 
     // Private constructor to prevent instantiation

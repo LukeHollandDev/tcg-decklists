@@ -34,8 +34,6 @@ public interface PokemonCardRepository extends JpaRepository<Card, String>, JpaS
     @Query("SELECT DISTINCT c.regulationMark FROM Card c WHERE c.regulationMark IS NOT NULL ORDER BY c.regulationMark")
     List<String> findDistinctRegulationMarks();
 
-    // Autocomplete methods: all use accent-insensitive, case-insensitive matching
-
     @Query(value = """
             SELECT DISTINCT a.name
             FROM Artist a
