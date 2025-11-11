@@ -30,16 +30,16 @@ public class CardResponse {
     private String level;
     private Set<String> subtypes;
     private Set<String> types;
-    private AncientTrait ancientTrait;
-    private Set<Ability> abilities;
-    private Set<Attack> attacks;
+    private AncientTraitResponse ancientTrait;
+    private Set<AbilityResponse> abilities;
+    private Set<AttackResponse> attacks;
     private Set<String> rules;
     private Set<Integer> pokedexNumbers;
     private Map<String, String> legalities;
     private List<String> evolvesFrom;
     private List<String> evolvesTo;
-    private Set<Resistance> resistances;
-    private Set<Weakness> weaknesses;
+    private Set<ResistanceResponse> resistances;
+    private Set<WeaknessResponse> weaknesses;
 
     public CardResponse(Card card) {
         this.id = card.getId();
@@ -73,12 +73,12 @@ public class CardResponse {
                 .map(Type::getName)
                 .collect(Collectors.toSet());
         this.ancientTrait = card.getAncientTrait() != null ?
-                new AncientTrait(card.getAncientTrait()) : null;
+                new AncientTraitResponse(card.getAncientTrait()) : null;
         this.abilities = card.getAbilities().stream()
-                .map(Ability::new)
+                .map(AbilityResponse::new)
                 .collect(Collectors.toSet());
         this.attacks = card.getAttacks().stream()
-                .map(Attack::new)
+                .map(AttackResponse::new)
                 .collect(Collectors.toSet());
         this.rules = card.getRules().stream()
                 .map(Rule::getText)
@@ -100,10 +100,10 @@ public class CardResponse {
                 .map(evo -> evo.getName().getName())
                 .collect(Collectors.toList());
         this.resistances = card.getResistances().stream()
-                .map(cr -> new Resistance(cr.getResistance()))
+                .map(cr -> new ResistanceResponse(cr.getResistance()))
                 .collect(Collectors.toSet());
         this.weaknesses = card.getWeaknesses().stream()
-                .map(cw -> new Weakness(cw.getWeakness()))
+                .map(cw -> new WeaknessResponse(cw.getWeakness()))
                 .collect(Collectors.toSet());
     }
 
@@ -259,27 +259,27 @@ public class CardResponse {
         this.types = types;
     }
 
-    public AncientTrait getAncientTrait() {
+    public AncientTraitResponse getAncientTrait() {
         return ancientTrait;
     }
 
-    public void setAncientTrait(AncientTrait ancientTrait) {
+    public void setAncientTrait(AncientTraitResponse ancientTrait) {
         this.ancientTrait = ancientTrait;
     }
 
-    public Set<Ability> getAbilities() {
+    public Set<AbilityResponse> getAbilities() {
         return abilities;
     }
 
-    public void setAbilities(Set<Ability> abilities) {
+    public void setAbilities(Set<AbilityResponse> abilities) {
         this.abilities = abilities;
     }
 
-    public Set<Attack> getAttacks() {
+    public Set<AttackResponse> getAttacks() {
         return attacks;
     }
 
-    public void setAttacks(Set<Attack> attacks) {
+    public void setAttacks(Set<AttackResponse> attacks) {
         this.attacks = attacks;
     }
 
@@ -323,19 +323,19 @@ public class CardResponse {
         this.evolvesTo = evolvesTo;
     }
 
-    public Set<Resistance> getResistances() {
+    public Set<ResistanceResponse> getResistances() {
         return resistances;
     }
 
-    public void setResistances(Set<Resistance> resistances) {
+    public void setResistances(Set<ResistanceResponse> resistances) {
         this.resistances = resistances;
     }
 
-    public Set<Weakness> getWeaknesses() {
+    public Set<WeaknessResponse> getWeaknesses() {
         return weaknesses;
     }
 
-    public void setWeaknesses(Set<Weakness> weaknesses) {
+    public void setWeaknesses(Set<WeaknessResponse> weaknesses) {
         this.weaknesses = weaknesses;
     }
 }

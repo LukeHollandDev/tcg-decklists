@@ -1056,12 +1056,12 @@ public class CardSpecification {
      * Note: For result ranking (exact matches first, then partial matches), ordering should be
      * applied separately in the service layer as JPA Specifications handle filtering only.
      *
-     * @param searchTerm      The term to search for across multiple fields
-     * @param excludeName     If true, exclude name field from search
-     * @param excludeAttacks  If true, exclude attack name and text fields from search
+     * @param searchTerm       The term to search for across multiple fields
+     * @param excludeName      If true, exclude name field from search
+     * @param excludeAttacks   If true, exclude attack name and text fields from search
      * @param excludeAbilities If true, exclude ability name and text fields from search
-     * @param excludeRules    If true, exclude rule text field from search
-     * @param excludeArtist   If true, exclude artist name field from search
+     * @param excludeRules     If true, exclude rule text field from search
+     * @param excludeArtist    If true, exclude artist name field from search
      * @return Specification that matches cards containing the search term in any non-excluded field
      */
     public static Specification<Card> hasGenericSearch(

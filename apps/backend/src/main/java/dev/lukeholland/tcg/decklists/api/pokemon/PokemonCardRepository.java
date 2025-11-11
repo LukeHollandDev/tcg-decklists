@@ -5,6 +5,8 @@ import dev.lukeholland.tcg.decklists.api.pokemon.util.QueryConstants;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
@@ -12,8 +14,8 @@ import java.util.List;
  * Repository interface for Pokemon Card entities.
  * Extends JpaSpecificationExecutor to enable dynamic query building with Specifications.
  */
-@org.springframework.stereotype.Repository
-public interface Repository extends JpaRepository<Card, String>, JpaSpecificationExecutor<Card> {
+@Repository
+public interface PokemonCardRepository extends JpaRepository<Card, String>, JpaSpecificationExecutor<Card> {
 
     /**
      * Find all distinct supertypes (Pokemon, Trainer, Energy)
@@ -89,8 +91,8 @@ public interface Repository extends JpaRepository<Card, String>, JpaSpecificatio
                         ORDER BY a.name
                         LIMIT :limit
             """)
-    List<String> findArtistNamesByPrefix(@org.springframework.data.repository.query.Param("prefix") String prefix,
-                                         @org.springframework.data.repository.query.Param("limit") int limit);
+    List<String> findArtistNamesByPrefix(@Param("prefix") String prefix,
+                                         @Param("limit") int limit);
 
     /**
      * Find artist names containing the given substring (accent-insensitive, case-insensitive).
@@ -112,8 +114,8 @@ public interface Repository extends JpaRepository<Card, String>, JpaSpecificatio
                         ORDER BY a.name
                         LIMIT :limit
             """)
-    List<String> findArtistNamesBySubstring(@org.springframework.data.repository.query.Param("substring") String substring,
-                                            @org.springframework.data.repository.query.Param("limit") int limit);
+    List<String> findArtistNamesBySubstring(@Param("substring") String substring,
+                                            @Param("limit") int limit);
 
     /**
      * Find attack names starting with the given prefix (accent-insensitive, case-insensitive).
@@ -131,8 +133,8 @@ public interface Repository extends JpaRepository<Card, String>, JpaSpecificatio
                         ORDER BY a.name
                         LIMIT :limit
             """)
-    List<String> findAttackNamesByPrefix(@org.springframework.data.repository.query.Param("prefix") String prefix,
-                                         @org.springframework.data.repository.query.Param("limit") int limit);
+    List<String> findAttackNamesByPrefix(@Param("prefix") String prefix,
+                                         @Param("limit") int limit);
 
     /**
      * Find attack names containing the given substring (accent-insensitive, case-insensitive).
@@ -154,8 +156,8 @@ public interface Repository extends JpaRepository<Card, String>, JpaSpecificatio
                         ORDER BY a.name
                         LIMIT :limit
             """)
-    List<String> findAttackNamesBySubstring(@org.springframework.data.repository.query.Param("substring") String substring,
-                                            @org.springframework.data.repository.query.Param("limit") int limit);
+    List<String> findAttackNamesBySubstring(@Param("substring") String substring,
+                                            @Param("limit") int limit);
 
     /**
      * Find ability names starting with the given prefix (accent-insensitive, case-insensitive).
@@ -173,8 +175,8 @@ public interface Repository extends JpaRepository<Card, String>, JpaSpecificatio
                         ORDER BY a.name
                         LIMIT :limit
             """)
-    List<String> findAbilityNamesByPrefix(@org.springframework.data.repository.query.Param("prefix") String prefix,
-                                          @org.springframework.data.repository.query.Param("limit") int limit);
+    List<String> findAbilityNamesByPrefix(@Param("prefix") String prefix,
+                                          @Param("limit") int limit);
 
     /**
      * Find ability names containing the given substring (accent-insensitive, case-insensitive).
@@ -196,8 +198,8 @@ public interface Repository extends JpaRepository<Card, String>, JpaSpecificatio
                         ORDER BY a.name
                         LIMIT :limit
             """)
-    List<String> findAbilityNamesBySubstring(@org.springframework.data.repository.query.Param("substring") String substring,
-                                             @org.springframework.data.repository.query.Param("limit") int limit);
+    List<String> findAbilityNamesBySubstring(@Param("substring") String substring,
+                                             @Param("limit") int limit);
 
     /**
      * Find set names starting with the given prefix (accent-insensitive, case-insensitive).
@@ -217,8 +219,8 @@ public interface Repository extends JpaRepository<Card, String>, JpaSpecificatio
                         ORDER BY s.name
                         LIMIT :limit
             """)
-    List<String> findSetNamesByPrefix(@org.springframework.data.repository.query.Param("prefix") String prefix,
-                                      @org.springframework.data.repository.query.Param("limit") int limit);
+    List<String> findSetNamesByPrefix(@Param("prefix") String prefix,
+                                      @Param("limit") int limit);
 
     /**
      * Find set names containing the given substring (accent-insensitive, case-insensitive).
@@ -242,6 +244,6 @@ public interface Repository extends JpaRepository<Card, String>, JpaSpecificatio
                         ORDER BY s.name
                         LIMIT :limit
             """)
-    List<String> findSetNamesBySubstring(@org.springframework.data.repository.query.Param("substring") String substring,
-                                         @org.springframework.data.repository.query.Param("limit") int limit);
+    List<String> findSetNamesBySubstring(@Param("substring") String substring,
+                                         @Param("limit") int limit);
 }

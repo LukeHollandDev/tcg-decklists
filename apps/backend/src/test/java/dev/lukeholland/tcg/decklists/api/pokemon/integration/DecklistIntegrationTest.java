@@ -48,7 +48,7 @@ class DecklistIntegrationTest extends AbstractIntegrationTest {
                 }
                 """;
 
-        mockMvc.perform(post("/api/pokemon/decklist")
+        mockMvc.perform(post("/api/decklist")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
                 .andExpect(status().isCreated())
@@ -69,7 +69,7 @@ class DecklistIntegrationTest extends AbstractIntegrationTest {
                 }
                 """;
 
-        String createResponse = mockMvc.perform(post("/api/pokemon/decklist")
+        String createResponse = mockMvc.perform(post("/api/decklist")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
                 .andExpect(status().isCreated())
@@ -81,7 +81,7 @@ class DecklistIntegrationTest extends AbstractIntegrationTest {
         int decklistId = objectMapper.readTree(createResponse).get("id").asInt();
 
         // Retrieve the decklist
-        mockMvc.perform(get("/api/pokemon/decklist/" + decklistId))
+        mockMvc.perform(get("/api/decklist/" + decklistId))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").value(decklistId))
@@ -106,7 +106,7 @@ class DecklistIntegrationTest extends AbstractIntegrationTest {
                 }
                 """;
 
-        String createResponse = mockMvc.perform(post("/api/pokemon/decklist")
+        String createResponse = mockMvc.perform(post("/api/decklist")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
                 .andExpect(status().isCreated())
@@ -117,7 +117,7 @@ class DecklistIntegrationTest extends AbstractIntegrationTest {
         int decklistId = objectMapper.readTree(createResponse).get("id").asInt();
 
         // Retrieve the decklist and verify cards are expanded with quantities
-        mockMvc.perform(get("/api/pokemon/decklist/" + decklistId))
+        mockMvc.perform(get("/api/decklist/" + decklistId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.cards").isArray())
                 .andExpect(jsonPath("$.cards", hasSize(5)))  // 3 + 2 = 5 total cards
@@ -136,7 +136,7 @@ class DecklistIntegrationTest extends AbstractIntegrationTest {
                 }
                 """;
 
-        String createResponse = mockMvc.perform(post("/api/pokemon/decklist")
+        String createResponse = mockMvc.perform(post("/api/decklist")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
                 .andExpect(status().isCreated())
@@ -146,7 +146,7 @@ class DecklistIntegrationTest extends AbstractIntegrationTest {
 
         int decklistId = objectMapper.readTree(createResponse).get("id").asInt();
 
-        mockMvc.perform(get("/api/pokemon/decklist/" + decklistId))
+        mockMvc.perform(get("/api/decklist/" + decklistId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.cards").isArray())
                 .andExpect(jsonPath("$.cards", hasSize(1)))
@@ -172,7 +172,7 @@ class DecklistIntegrationTest extends AbstractIntegrationTest {
                 }
                 """, cardsJson.toString());
 
-        String createResponse = mockMvc.perform(post("/api/pokemon/decklist")
+        String createResponse = mockMvc.perform(post("/api/decklist")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
                 .andExpect(status().isCreated())
@@ -182,7 +182,7 @@ class DecklistIntegrationTest extends AbstractIntegrationTest {
 
         int decklistId = objectMapper.readTree(createResponse).get("id").asInt();
 
-        mockMvc.perform(get("/api/pokemon/decklist/" + decklistId))
+        mockMvc.perform(get("/api/decklist/" + decklistId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.cards").isArray())
                 .andExpect(jsonPath("$.cards", hasSize(60)));
@@ -203,7 +203,7 @@ class DecklistIntegrationTest extends AbstractIntegrationTest {
                 }
                 """;
 
-        mockMvc.perform(post("/api/pokemon/decklist")
+        mockMvc.perform(post("/api/decklist")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
                 .andExpect(status().isBadRequest())
@@ -223,7 +223,7 @@ class DecklistIntegrationTest extends AbstractIntegrationTest {
                 }
                 """;
 
-        mockMvc.perform(post("/api/pokemon/decklist")
+        mockMvc.perform(post("/api/decklist")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
                 .andExpect(status().isBadRequest())
@@ -241,7 +241,7 @@ class DecklistIntegrationTest extends AbstractIntegrationTest {
                 }
                 """;
 
-        mockMvc.perform(post("/api/pokemon/decklist")
+        mockMvc.perform(post("/api/decklist")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
                 .andExpect(status().isBadRequest())
@@ -260,7 +260,7 @@ class DecklistIntegrationTest extends AbstractIntegrationTest {
                 }
                 """;
 
-        mockMvc.perform(post("/api/pokemon/decklist")
+        mockMvc.perform(post("/api/decklist")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
                 .andExpect(status().isBadRequest())
@@ -278,7 +278,7 @@ class DecklistIntegrationTest extends AbstractIntegrationTest {
                 }
                 """;
 
-        mockMvc.perform(post("/api/pokemon/decklist")
+        mockMvc.perform(post("/api/decklist")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
                 .andExpect(status().isBadRequest());
@@ -295,7 +295,7 @@ class DecklistIntegrationTest extends AbstractIntegrationTest {
                 }
                 """;
 
-        mockMvc.perform(post("/api/pokemon/decklist")
+        mockMvc.perform(post("/api/decklist")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
                 .andExpect(status().isBadRequest());
@@ -311,7 +311,7 @@ class DecklistIntegrationTest extends AbstractIntegrationTest {
                 }
                 """;
 
-        mockMvc.perform(post("/api/pokemon/decklist")
+        mockMvc.perform(post("/api/decklist")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
                 .andExpect(status().isBadRequest())
@@ -330,7 +330,7 @@ class DecklistIntegrationTest extends AbstractIntegrationTest {
                 }
                 """;
 
-        mockMvc.perform(post("/api/pokemon/decklist")
+        mockMvc.perform(post("/api/decklist")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
                 .andExpect(status().isBadRequest())
@@ -341,14 +341,14 @@ class DecklistIntegrationTest extends AbstractIntegrationTest {
     @Test
     @DisplayName("Should return 404 for non-existent decklist ID")
     void shouldReturn404ForNonExistentDecklistId() throws Exception {
-        mockMvc.perform(get("/api/pokemon/decklist/999999"))
+        mockMvc.perform(get("/api/decklist/999999"))
                 .andExpect(status().isNotFound());
     }
 
     @Test
     @DisplayName("Should return 404 for negative decklist ID")
     void shouldReturn404ForNegativeDecklistId() throws Exception {
-        mockMvc.perform(get("/api/pokemon/decklist/-1"))
+        mockMvc.perform(get("/api/decklist/-1"))
                 .andExpect(status().isNotFound());
     }
 }

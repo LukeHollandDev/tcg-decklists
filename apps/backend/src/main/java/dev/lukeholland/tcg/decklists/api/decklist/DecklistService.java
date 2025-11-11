@@ -3,7 +3,7 @@ package dev.lukeholland.tcg.decklists.api.decklist;
 import dev.lukeholland.tcg.decklists.api.decklist.dto.DecklistRequest;
 import dev.lukeholland.tcg.decklists.api.decklist.entities.Decklist;
 import dev.lukeholland.tcg.decklists.api.decklist.entities.DecklistCard;
-import dev.lukeholland.tcg.decklists.api.pokemon.Repository;
+import dev.lukeholland.tcg.decklists.api.pokemon.PokemonCardRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,9 +19,9 @@ import java.util.stream.Collectors;
 public class DecklistService {
 
     private final DecklistRepository decklistRepository;
-    private final Repository pokemonCardRepository;
+    private final PokemonCardRepository pokemonCardRepository;
 
-    public DecklistService(DecklistRepository decklistRepository, Repository pokemonCardRepository) {
+    public DecklistService(DecklistRepository decklistRepository, PokemonCardRepository pokemonCardRepository) {
         this.decklistRepository = decklistRepository;
         this.pokemonCardRepository = pokemonCardRepository;
     }
@@ -48,18 +48,18 @@ public class DecklistService {
     @Transactional
     public Decklist createDecklist(DecklistRequest request) {
         // Validate request
-        if (request.getName() == null || request.getName().trim().isEmpty()) {
+        if (request.name() == null || request.name().trim().isEmpty()) {
             throw new IllegalArgumentException("Decklist name is required");
         }
-        if (request.getType() == null) {
+        if (request.type() == null) {
             throw new IllegalArgumentException("Decklist type is required");
         }
-        if (request.getCards() == null || request.getCards().isEmpty()) {
+        if (request.cards() == null || request.cards().isEmpty()) {
             throw new IllegalArgumentException("Decklist must contain at least one card");
         }
 
         // Get unique card IDs
-        Set<String> uniqueCardIds = new HashSet<>(request.getCards());
+        Set<String> uniqueCardIds = new HashSet<>(request.cards());
 
         // Validate all card IDs exist
         List<String> invalidCardIds = uniqueCardIds.stream()
@@ -73,7 +73,7 @@ public class DecklistService {
         }
 
         // Count occurrences of each card ID
-        Map<String, Long> cardQuantities = request.getCards().stream()
+        Map<String, Long> cardQuantities = request.cards().stream()
                 .collect(Collectors.groupingBy(
                         cardId -> cardId,
                         Collectors.counting()
@@ -81,8 +81,8 @@ public class DecklistService {
 
         // Create decklist entity
         Decklist decklist = new Decklist();
-        decklist.setName(request.getName());
-        decklist.setType(request.getType());
+        decklist.setName(request.name());
+        decklist.setType(request.type());
 
         // Create DecklistCard entities with quantities
         cardQuantities.forEach((cardId, quantity) -> {

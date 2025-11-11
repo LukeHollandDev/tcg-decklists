@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class TestDataValidationTest extends AbstractIntegrationTest {
 
     @Autowired
-    private Repository repository;
+    private PokemonCardRepository repository;
 
     @BeforeEach
     void loadDataIfNeeded() {

@@ -1,27 +1,20 @@
 package dev.lukeholland.tcg.decklists.api.pokemon;
 
-import dev.lukeholland.tcg.decklists.api.decklist.DecklistService;
-import dev.lukeholland.tcg.decklists.api.decklist.dto.DecklistRequest;
-import dev.lukeholland.tcg.decklists.api.decklist.dto.DecklistResponse;
 import dev.lukeholland.tcg.decklists.api.pokemon.dto.*;
 import dev.lukeholland.tcg.decklists.api.pokemon.enums.AutocompleteField;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/pokemon")
-public class Controller {
+public class PokemonCardController {
 
-    private final Service service;
-    private final DecklistService decklistService;
+    private final PokemonCardService service;
 
-    public Controller(Service pokemonCardService, DecklistService decklistService) {
+    public PokemonCardController(PokemonCardService pokemonCardService) {
         this.service = pokemonCardService;
-        this.decklistService = decklistService;
     }
 
     /**
@@ -187,57 +180,5 @@ public class Controller {
         // Build response
         AutocompleteResponse response = new AutocompleteResponse(results, query, effectiveLimit);
         return ResponseEntity.ok(response);
-    }
-
-    // ========== Decklist Endpoints ==========
-
-    /**
-     * Create a new decklist
-     * POST /api/pokemon/decklist
-     * <p>
-     * Request body should contain:
-     * - name: Decklist name (required)
-     * - type: Card game type (required)
-     * - cards: List of card IDs, allowing duplicates (required, must not be empty)
-     * <p>
-     * Example:
-     * {
-     * "name": "My Fire Deck",
-     * "type": "pokemon",
-     * "cards": ["base1-4", "base1-4", "base1-46"]
-     * }
-     *
-     * @param request The decklist creation request
-     * @return 201 Created with the decklist ID, or 400 Bad Request if validation fails
-     */
-    @PostMapping("/decklist")
-    public ResponseEntity<?> createDecklist(@RequestBody DecklistRequest request) {
-        try {
-            var decklist = decklistService.createDecklist(request);
-            return ResponseEntity
-                    .status(HttpStatus.CREATED)
-                    .body(Map.of("id", decklist.getId()));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity
-                    .badRequest()
-                    .body(Map.of("error", e.getMessage()));
-        }
-    }
-
-    /**
-     * Get a decklist by its ID
-     * GET /api/pokemon/decklist/{id}
-     * <p>
-     * Returns the complete decklist with all card IDs expanded by quantity.
-     *
-     * @param id The decklist ID
-     * @return 200 OK with the decklist DTO if found, 404 Not Found otherwise
-     */
-    @GetMapping("/decklist/{id}")
-    public ResponseEntity<DecklistResponse> getDecklistById(@PathVariable Integer id) {
-        return decklistService.findById(id)
-                .map(DecklistResponse::new)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
     }
 }
