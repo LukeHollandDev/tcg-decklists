@@ -3,16 +3,14 @@ package dev.lukeholland.tcg.decklists.api.decklist.dto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import dev.lukeholland.tcg.decklists.api.decklist.entities.Decklist;
 import dev.lukeholland.tcg.decklists.api.enums.CardGame;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-/**
- * Response DTO for decklist data.
- * Transforms the entity to API response format, expanding card quantities into a flat list.
- */
+@Schema(description = "Decklist response with card IDs expanded by quantity")
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public record DecklistResponse(
         Integer id,
@@ -21,12 +19,7 @@ public record DecklistResponse(
         List<String> cards,
         LocalDateTime createdAt
 ) {
-    /**
-     * Constructs a DecklistResponse from a Decklist entity.
-     * Expands cards with quantities into a flat list (e.g., quantity 3 becomes 3 entries).
-     *
-     * @param decklist the decklist entity to transform
-     */
+    // Expands cards with quantities into a flat list (e.g., quantity 3 becomes 3 entries)
     public DecklistResponse(Decklist decklist) {
         this(
                 decklist.getId(),

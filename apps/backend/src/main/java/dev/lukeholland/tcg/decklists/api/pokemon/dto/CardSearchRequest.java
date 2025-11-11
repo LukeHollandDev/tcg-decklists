@@ -1,292 +1,68 @@
 package dev.lukeholland.tcg.decklists.api.pokemon.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import java.util.List;
 
-/**
- * Request DTO for searching Pokemon cards.
- * Captures filter parameters, pagination, and sorting options.
- * <p>
- * Phase 1 includes: name search, supertype, types, subtypes, set, rarity, HP range
- * Future phases will add: attack filters, ability filters, format legality, etc.
- */
+@Schema(description = "Search request with filters for Pokemon cards, including pagination and sorting options")
 public class CardSearchRequest {
 
-    // ===== Phase 1 Filters =====
-
-    /**
-     * Case-insensitive name search (partial match)
-     */
     private String name;
-
-    /**
-     * Exact match on supertype (Pokemon, Trainer, Energy)
-     */
     private String supertype;
-
-    /**
-     * Filter by one or more Pokemon types (Fire, Water, etc.)
-     * By default uses OR logic (ANY match). Set typesMatchAll=true for AND logic.
-     */
     private List<String> types;
-
-    /**
-     * If true, cards must have ALL specified types (AND logic).
-     * If false/null, cards must have ANY specified type (OR logic) - default behavior.
-     */
     private Boolean typesMatchAll;
-
-    /**
-     * Filter by one or more subtypes (ex, V, Basic, Stage 1, etc.)
-     * By default uses OR logic (ANY match). Set subtypesMatchAll=true for AND logic.
-     */
     private List<String> subtypes;
-
-    /**
-     * If true, cards must have ALL specified subtypes (AND logic).
-     * If false/null, cards must have ANY specified subtype (OR logic) - default behavior.
-     */
     private Boolean subtypesMatchAll;
-
-    /**
-     * Filter by set identifier (e.g., "base1", "swsh8")
-     */
     private String setId;
-
-    /**
-     * Filter by rarity name
-     */
     private String rarity;
-
-    /**
-     * Minimum HP value (inclusive) - uses hp_numeric field
-     */
     private Integer hpMin;
-
-    /**
-     * Maximum HP value (inclusive) - uses hp_numeric field
-     */
     private Integer hpMax;
 
-    // ===== Phase 2 Filters =====
-
-    /**
-     * Filter by attack name (partial match)
-     */
     private String attackName;
-
-    /**
-     * Filter by attack text/description (partial match)
-     */
     private String attackText;
-
-    /**
-     * Minimum attack damage value (inclusive) - uses damage_numeric field
-     */
     private Integer attackDamageMin;
-
-    /**
-     * Maximum attack damage value (inclusive) - uses damage_numeric field
-     */
     private Integer attackDamageMax;
-
-    /**
-     * Filter by one or more attack cost types (Fire, Water, Colorless, etc.)
-     * By default uses OR logic (ANY match). Set attackCostMatchAll=true for AND logic.
-     */
     private List<String> attackCost;
-
-    /**
-     * If true, attacks must require ALL specified cost types (AND logic).
-     * If false/null, attacks must require ANY specified cost type (OR logic) - default behavior.
-     */
     private Boolean attackCostMatchAll;
 
-    /**
-     * Filter to only cards with abilities (true) or without abilities (false).
-     * If null, no filtering by ability presence.
-     */
     private Boolean hasAbility;
-
-    /**
-     * Filter by ability name (partial match)
-     */
     private String abilityName;
-
-    /**
-     * Filter by ability text/description (partial match)
-     */
     private String abilityText;
 
-    /**
-     * Filter by artist name (exact match)
-     */
     private String artist;
-
-    /**
-     * Filter by regulation mark (A, B, C, D, E, F, G, H)
-     */
     private String regulationMark;
-
-    /**
-     * Minimum retreat cost value (inclusive) - uses converted_retreat_cost field
-     */
     private Integer retreatCostMin;
-
-    /**
-     * Maximum retreat cost value (inclusive) - uses converted_retreat_cost field
-     */
     private Integer retreatCostMax;
 
-    /**
-     * Filter by one or more formats (Standard, Expanded, Unlimited)
-     * By default uses OR logic (ANY match). Set formatsMatchAll=true for AND logic.
-     */
     private List<String> formats;
-
-    /**
-     * If true, cards must be legal in ALL specified formats (AND logic).
-     * If false/null, cards must be legal in ANY specified format (OR logic) - default behavior.
-     */
     private Boolean formatsMatchAll;
-
-    /**
-     * Filter by one or more formats where cards are BANNED (Standard, Expanded, Unlimited)
-     * By default uses OR logic (ANY match). Set formatsBannedMatchAll=true for AND logic.
-     * Useful for finding cards banned in specific formats.
-     */
     private List<String> formatsBanned;
-
-    /**
-     * If true, cards must be banned in ALL specified formats (AND logic).
-     * If false/null, cards must be banned in ANY specified format (OR logic) - default behavior.
-     */
     private Boolean formatsBannedMatchAll;
 
-    // ===== Phase 3 Filters =====
-
-    /**
-     * Filter to only cards with rule boxes (true) or without rule boxes (false).
-     * If null, no filtering by rule box presence.
-     */
     private Boolean hasRuleBox;
-
-    /**
-     * Filter to only cards with weaknesses (true) or without weaknesses (false).
-     * If null, no filtering by weakness presence.
-     */
     private Boolean hasWeakness;
-
-    /**
-     * Filter to only cards with resistances (true) or without resistances (false).
-     * If null, no filtering by resistance presence.
-     */
     private Boolean hasResistance;
-
-    /**
-     * Filter by one or more weakness types (Fire, Water, Psychic, etc.)
-     * By default uses OR logic (ANY match). Set weaknessTypeMatchAll=true for AND logic.
-     */
     private List<String> weaknessType;
-
-    /**
-     * If true, cards must have ALL specified weakness types (AND logic).
-     * If false/null, cards must have ANY specified weakness type (OR logic) - default behavior.
-     */
     private Boolean weaknessTypeMatchAll;
-
-    /**
-     * Filter by one or more resistance types (Fire, Water, Psychic, etc.)
-     * By default uses OR logic (ANY match). Set resistanceTypeMatchAll=true for AND logic.
-     */
     private List<String> resistanceType;
-
-    /**
-     * If true, cards must have ALL specified resistance types (AND logic).
-     * If false/null, cards must have ANY specified resistance type (OR logic) - default behavior.
-     */
     private Boolean resistanceTypeMatchAll;
 
-    /**
-     * Filter by evolution source name (what this card evolves from).
-     * Partial match, case-insensitive, accent-insensitive.
-     */
     private String evolvesFrom;
-
-    /**
-     * Filter by evolution target name (what this card evolves to).
-     * Partial match, case-insensitive, accent-insensitive.
-     */
     private String evolvesTo;
-
-    /**
-     * Filter by rule text/description (partial match).
-     * Case-insensitive, accent-insensitive.
-     */
     private String ruleText;
 
-    // ===== Generic Search Filters =====
-
-    /**
-     * Generic search term that searches across multiple fields:
-     * name, attack names, attack text, ability names, ability text, rule text, and artist name.
-     * Uses OR logic (matches if found in ANY non-excluded field).
-     * Case-insensitive, accent-insensitive, partial match.
-     */
+    @Schema(description = "Generic search across name, attacks, abilities, rules, and artist")
     private String q;
-
-    /**
-     * Exclude card name from generic search (default: false).
-     * Only applies when 'q' parameter is provided.
-     */
     private Boolean excludeName = false;
-
-    /**
-     * Exclude attack names and attack text from generic search (default: false).
-     * Only applies when 'q' parameter is provided.
-     */
     private Boolean excludeAttacks = false;
-
-    /**
-     * Exclude ability names and ability text from generic search (default: false).
-     * Only applies when 'q' parameter is provided.
-     */
     private Boolean excludeAbilities = false;
-
-    /**
-     * Exclude rule text from generic search (default: false).
-     * Only applies when 'q' parameter is provided.
-     */
     private Boolean excludeRules = false;
-
-    /**
-     * Exclude artist name from generic search (default: false).
-     * Only applies when 'q' parameter is provided.
-     */
     private Boolean excludeArtist = false;
 
-    // ===== Pagination & Sorting =====
-
-    /**
-     * Page number (0-indexed, default: 0)
-     */
     private Integer page = 0;
-
-    /**
-     * Number of results per page (default: 20, max: 100)
-     */
     private Integer pageSize = 20;
-
-    /**
-     * Field to sort by (e.g., "name", "hp", "number") - default: "name"
-     */
     private String sortBy = "name";
-
-    /**
-     * Sort order: "asc" or "desc" (default: "asc")
-     */
     private String sortOrder = "asc";
-
-    // ===== Getters and Setters =====
 
     public String getName() {
         return name;

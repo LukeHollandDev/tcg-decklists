@@ -2,6 +2,9 @@ package dev.lukeholland.tcg.decklists.api.decklist;
 
 import dev.lukeholland.tcg.decklists.api.decklist.dto.DecklistRequest;
 import dev.lukeholland.tcg.decklists.api.decklist.dto.DecklistResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -10,6 +13,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/decklist")
+@Tag(name = "Decklists", description = "Endpoints for creating and retrieving decklists")
 public class DecklistController {
 
     private final DecklistService decklistService;
@@ -18,27 +22,11 @@ public class DecklistController {
         this.decklistService = decklistService;
     }
 
-    /**
-     * Create a new decklist
-     * POST /api/decklist
-     * <p>
-     * Request body should contain:
-     * - name: Decklist name (required)
-     * - type: Card game type (required)
-     * - cards: List of card IDs, allowing duplicates (required, must not be empty)
-     * <p>
-     * Example:
-     * {
-     * "name": "My Fire Deck",
-     * "type": "pokemon",
-     * "cards": ["base1-4", "base1-4", "base1-46"]
-     * }
-     *
-     * @param request The decklist creation request
-     * @return 201 Created with the decklist ID, or 400 Bad Request if validation fails
-     */
+    @Operation(summary = "Create a new decklist",
+            description = "Creates a decklist with a name, card game type, and list of card IDs (duplicates allowed)")
     @PostMapping
-    public ResponseEntity<?> createDecklist(@RequestBody DecklistRequest request) {
+    public ResponseEntity<?> createDecklist(
+            @Parameter(description = "Decklist creation request") @RequestBody DecklistRequest request) {
         try {
             var decklist = decklistService.createDecklist(request);
             return ResponseEntity
@@ -51,17 +39,10 @@ public class DecklistController {
         }
     }
 
-    /**
-     * Get a decklist by its ID
-     * GET /api/decklist/{id}
-     * <p>
-     * Returns the complete decklist with all card IDs expanded by quantity.
-     *
-     * @param id The decklist ID
-     * @return 200 OK with the decklist DTO if found, 404 Not Found otherwise
-     */
+    @Operation(summary = "Get decklist by ID")
     @GetMapping("/{id}")
-    public ResponseEntity<DecklistResponse> getDecklistById(@PathVariable Integer id) {
+    public ResponseEntity<DecklistResponse> getDecklistById(
+            @Parameter(description = "Decklist ID") @PathVariable Integer id) {
         return decklistService.findById(id)
                 .map(DecklistResponse::new)
                 .map(ResponseEntity::ok)

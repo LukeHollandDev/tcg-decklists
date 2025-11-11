@@ -1,69 +1,24 @@
 package dev.lukeholland.tcg.decklists.api.pokemon.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import io.swagger.v3.oas.annotations.media.Schema;
 
-/**
- * Metadata describing a single filter parameter.
- * Used to dynamically build filter UI components on the frontend.
- */
+@Schema(description = "Metadata describing a filter parameter for building dynamic search UIs")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class FilterMetadata {
 
-    /**
-     * The filter type (e.g., "string", "enum", "multiselect", "range", "boolean")
-     */
     private String type;
-
-    /**
-     * The query operator (e.g., "contains", "equals", "anyOf", "range")
-     */
     private String operator;
-
-    /**
-     * Human-readable description of the filter
-     */
     private String description;
-
-    /**
-     * The query parameter name for this filter
-     */
     private String parameterName;
-
-    /**
-     * Reference to static data values (e.g., "static.types")
-     * Only applicable for enum/multiselect types
-     */
     private String valuesRef;
-
-    /**
-     * The parameter name for "match all" logic (for multiselect filters)
-     * Only applicable for multiselect types
-     */
     private String matchAllParameter;
-
-    /**
-     * The minimum value parameter name (for range filters)
-     * Only applicable for range types
-     */
     private String minParameter;
-
-    /**
-     * The maximum value parameter name (for range filters)
-     * Only applicable for range types
-     */
     private String maxParameter;
-
-    /**
-     * Whether this filter supports accent-insensitive matching
-     */
     private Boolean accentInsensitive;
-
-    // ===== Constructors =====
 
     public FilterMetadata() {
     }
-
-    // ===== Builder Methods =====
 
     public static FilterMetadata string(String parameterName, String description, boolean accentInsensitive) {
         FilterMetadata meta = new FilterMetadata();
@@ -114,8 +69,6 @@ public class FilterMetadata {
         meta.description = description;
         return meta;
     }
-
-    // ===== Getters and Setters =====
 
     public String getType() {
         return type;
