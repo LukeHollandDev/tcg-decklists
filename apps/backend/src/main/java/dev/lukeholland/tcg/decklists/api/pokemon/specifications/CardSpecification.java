@@ -14,7 +14,7 @@ import java.util.List;
  * JPA Specifications for building dynamic Card queries.
  * Each static method returns a Specification that can be composed with others using and(), or(), etc.
  * <p>
- * Supports accent-insensitive searching using StringNormalizer utility.
+ * All string searches are case-insensitive and accent-insensitive unless stated otherwise.
  * <p>
  * Example usage:
  * <pre>
@@ -215,8 +215,7 @@ public class CardSpecification {
     }
 
     /**
-     * Filter by card name (case-insensitive, accent-insensitive partial match).
-     * Supports searches like "pokemon" matching "Pokémon", "flabebe" matching "Flabébé", etc.
+     * Filter by card name (partial match).
      *
      * @param name The name to search for (will match cards containing this string)
      * @return Specification that matches cards with names containing the search term
@@ -238,7 +237,7 @@ public class CardSpecification {
     }
 
     /**
-     * Filter by supertype (exact match, case-insensitive, accent-insensitive).
+     * Filter by supertype (exact match).
      *
      * @param supertype The supertype to match (Pokemon, Trainer, Energy)
      * @return Specification that matches cards with the specified supertype
@@ -262,7 +261,6 @@ public class CardSpecification {
     /**
      * Filter by one or more Pokemon types (Fire, Water, etc.).
      * Supports both OR logic (ANY match) and AND logic (ALL match).
-     * Supports accent-insensitive matching.
      *
      * @param typeNames List of type names to match
      * @param matchAll  If true, cards must have ALL types (AND logic). If false/null, ANY type (OR logic).
@@ -292,7 +290,6 @@ public class CardSpecification {
     /**
      * Filter by one or more subtypes (ex, V, Basic, Stage 1, etc.).
      * Supports both OR logic (ANY match) and AND logic (ALL match).
-     * Supports accent-insensitive matching.
      *
      * @param subtypeNames List of subtype names to match
      * @param matchAll     If true, cards must have ALL subtypes (AND logic). If false/null, ANY subtype (OR logic).
@@ -321,7 +318,6 @@ public class CardSpecification {
 
     /**
      * Filter by set identifier (e.g., "base1", "swsh8").
-     * Supports accent-insensitive matching.
      *
      * @param setId The set identifier to match
      * @return Specification that matches cards from the specified set
@@ -346,7 +342,6 @@ public class CardSpecification {
 
     /**
      * Filter by rarity name.
-     * Supports accent-insensitive matching.
      *
      * @param rarityName The rarity to match (Common, Uncommon, Rare, etc.)
      * @return Specification that matches cards with the specified rarity
@@ -397,7 +392,7 @@ public class CardSpecification {
     }
 
     /**
-     * Filter by attack name (case-insensitive, accent-insensitive partial match).
+     * Filter by attack name (partial match).
      *
      * @param attackName The attack name to search for
      * @return Specification that matches cards with attacks containing the search term
@@ -464,7 +459,6 @@ public class CardSpecification {
     /**
      * Filter by one or more attack cost types (Fire, Water, Colorless, etc.).
      * Supports both OR logic (ANY match) and AND logic (ALL match).
-     * Supports accent-insensitive matching and multiset subset matching.
      * <p>
      * When matchAll=true, supports searching for attacks with multiple of the same type.
      * For example, searching for ["Fire", "Fire", "Water"] will match attacks with at least
@@ -566,7 +560,7 @@ public class CardSpecification {
     }
 
     /**
-     * Filter by attack text/description (case-insensitive, accent-insensitive partial match).
+     * Filter by attack text/description (partial match).
      *
      * @param attackText The attack text to search for
      * @return Specification that matches cards with attacks containing the search term in their description
@@ -621,7 +615,7 @@ public class CardSpecification {
     }
 
     /**
-     * Filter by ability name (case-insensitive, accent-insensitive partial match).
+     * Filter by ability name (partial match).
      *
      * @param abilityName The ability name to search for
      * @return Specification that matches cards with abilities containing the search term
@@ -651,7 +645,7 @@ public class CardSpecification {
     }
 
     /**
-     * Filter by ability text/description (case-insensitive, accent-insensitive partial match).
+     * Filter by ability text/description (partial match).
      *
      * @param abilityText The ability text to search for
      * @return Specification that matches cards with abilities containing the search term in their description
@@ -758,7 +752,6 @@ public class CardSpecification {
     /**
      * Filter by one or more weakness types (Fire, Water, etc.).
      * Supports both OR logic (ANY match) and AND logic (ALL match).
-     * Uses accent-insensitive matching.
      *
      * @param typeNames List of weakness type names to match
      * @param matchAll  If true, cards must have weaknesses of ALL specified types (AND logic). If false/null, ANY type (OR logic).
@@ -830,7 +823,6 @@ public class CardSpecification {
     /**
      * Filter by one or more resistance types (Fire, Water, etc.).
      * Supports both OR logic (ANY match) and AND logic (ALL match).
-     * Uses accent-insensitive matching.
      *
      * @param typeNames List of resistance type names to match
      * @param matchAll  If true, cards must have resistances of ALL specified types (AND logic). If false/null, ANY type (OR logic).
@@ -901,7 +893,6 @@ public class CardSpecification {
 
     /**
      * Filter by evolution source (what this card evolves from).
-     * Uses case-insensitive, accent-insensitive partial matching.
      *
      * @param name The name of the Pokemon this card evolves from
      * @return Specification that matches cards that evolve from the specified Pokemon
@@ -938,7 +929,6 @@ public class CardSpecification {
 
     /**
      * Filter by evolution target (what this card evolves to).
-     * Uses case-insensitive, accent-insensitive partial matching.
      *
      * @param name The name of the Pokemon this card evolves to
      * @return Specification that matches cards that evolve to the specified Pokemon
@@ -974,7 +964,7 @@ public class CardSpecification {
     }
 
     /**
-     * Filter by rule text/description (case-insensitive, accent-insensitive partial match).
+     * Filter by rule text/description (partial match).
      *
      * @param ruleText The rule text to search for
      * @return Specification that matches cards with rules containing the search term
@@ -1004,7 +994,7 @@ public class CardSpecification {
     }
 
     /**
-     * Filter by artist name (case-insensitive, accent-insensitive exact match).
+     * Filter by artist name (exact match).
      *
      * @param artistName The artist name to match
      * @return Specification that matches cards by the specified artist
@@ -1050,8 +1040,7 @@ public class CardSpecification {
     /**
      * Generic search across multiple fields with configurable field exclusions.
      * Searches across: name, attack names, attack text, ability names, ability text, rule text, and artist name.
-     * Uses OR logic - matches if found in ANY non-excluded field.
-     * Case-insensitive, accent-insensitive, partial match.
+     * Uses OR logic - matches if found in ANY non-excluded field (partial match).
      * <p>
      * Note: For result ranking (exact matches first, then partial matches), ordering should be
      * applied separately in the service layer as JPA Specifications handle filtering only.
@@ -1172,7 +1161,6 @@ public class CardSpecification {
      * Filter by one or more formats (Standard, Expanded, Unlimited).
      * Supports both OR logic (ANY match) and AND logic (ALL match).
      * Only matches cards that are legal in the specified format(s).
-     * Supports accent-insensitive matching.
      *
      * @param formatNames List of format names to match
      * @param matchAll    If true, cards must be legal in ALL formats (AND logic). If false/null, ANY format (OR logic).
@@ -1198,7 +1186,6 @@ public class CardSpecification {
      * Filter by one or more formats where cards are BANNED (Standard, Expanded, Unlimited).
      * Supports both OR logic (ANY match) and AND logic (ALL match).
      * Only matches cards that are banned in the specified format(s).
-     * Supports accent-insensitive matching.
      *
      * @param formatNames List of format names to match
      * @param matchAll    If true, cards must be banned in ALL formats (AND logic). If false/null, ANY format (OR logic).

@@ -15,6 +15,8 @@ import java.util.List;
 @Tag(name = "Pokemon Cards", description = "Endpoints for searching and retrieving Pokemon TCG card data")
 public class PokemonCardController {
 
+    private static final int MAX_AUTOCOMPLETE_LIMIT = 50;
+
     private final PokemonCardService service;
 
     public PokemonCardController(PokemonCardService pokemonCardService) {
@@ -67,7 +69,7 @@ public class PokemonCardController {
             return ResponseEntity.badRequest().build();
         }
 
-        int effectiveLimit = Math.min(limit, 50);
+        int effectiveLimit = Math.min(limit, MAX_AUTOCOMPLETE_LIMIT);
         List<String> results = service.autocomplete(autocompleteField, query, effectiveLimit);
         AutocompleteResponse response = new AutocompleteResponse(results, query, effectiveLimit);
         return ResponseEntity.ok(response);
