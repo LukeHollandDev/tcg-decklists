@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/pokemon")
+@RequestMapping("/api/v1/pokemon")
 @Tag(name = "Pokemon Cards", description = "Endpoints for searching and retrieving Pokemon TCG card data")
 public class PokemonCardController {
 

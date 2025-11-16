@@ -38,7 +38,7 @@ class CardPaginationSortingIntegrationTest extends AbstractIntegrationTest {
     @Test
     @DisplayName("Should return first page with default page size")
     void shouldReturnFirstPageWithDefaultPageSize() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search"))
+        mockMvc.perform(get("/api/v1/pokemon/search"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.results").isArray())
                 .andExpect(jsonPath("$.currentPage").value(0))
@@ -52,7 +52,7 @@ class CardPaginationSortingIntegrationTest extends AbstractIntegrationTest {
     @Test
     @DisplayName("Should return custom page size")
     void shouldReturnCustomPageSize() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("pageSize", "5"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.results").isArray())
@@ -63,7 +63,7 @@ class CardPaginationSortingIntegrationTest extends AbstractIntegrationTest {
     @Test
     @DisplayName("Should navigate to second page")
     void shouldNavigateToSecondPage() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("page", "1")
                         .param("pageSize", "5"))
                 .andExpect(status().isOk())
@@ -75,7 +75,7 @@ class CardPaginationSortingIntegrationTest extends AbstractIntegrationTest {
     @Test
     @DisplayName("Should calculate totalPages correctly")
     void shouldCalculateTotalPagesCorrectly() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("pageSize", "10"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.totalResults").exists())
@@ -87,7 +87,7 @@ class CardPaginationSortingIntegrationTest extends AbstractIntegrationTest {
     @Test
     @DisplayName("Should indicate hasNext correctly")
     void shouldIndicateHasNextCorrectly() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("page", "0")
                         .param("pageSize", "5"))
                 .andExpect(status().isOk())
@@ -98,12 +98,12 @@ class CardPaginationSortingIntegrationTest extends AbstractIntegrationTest {
     @Test
     @DisplayName("Should indicate hasPrevious correctly")
     void shouldIndicateHasPreviousCorrectly() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("page", "0"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.hasPrevious").value(false));
 
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("page", "1")
                         .param("pageSize", "5"))
                 .andExpect(status().isOk())
@@ -117,7 +117,7 @@ class CardPaginationSortingIntegrationTest extends AbstractIntegrationTest {
     @Test
     @DisplayName("Should sort by name ascending (default)")
     void shouldSortByNameAscending() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("sortBy", "name")
                         .param("sortOrder", "asc")
                         .param("pageSize", "10"))
@@ -130,7 +130,7 @@ class CardPaginationSortingIntegrationTest extends AbstractIntegrationTest {
     @Test
     @DisplayName("Should sort by name descending")
     void shouldSortByNameDescending() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("sortBy", "name")
                         .param("sortOrder", "desc")
                         .param("pageSize", "10"))
@@ -143,7 +143,7 @@ class CardPaginationSortingIntegrationTest extends AbstractIntegrationTest {
     @Test
     @DisplayName("Should sort by HP ascending")
     void shouldSortByHpAscending() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("sortBy", "hpNumeric")
                         .param("sortOrder", "asc")
                         .param("pageSize", "10"))
@@ -155,7 +155,7 @@ class CardPaginationSortingIntegrationTest extends AbstractIntegrationTest {
     @Test
     @DisplayName("Should sort by HP descending")
     void shouldSortByHpDescending() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("sortBy", "hpNumeric")
                         .param("sortOrder", "desc")
                         .param("pageSize", "10"))
@@ -171,7 +171,7 @@ class CardPaginationSortingIntegrationTest extends AbstractIntegrationTest {
     @Test
     @DisplayName("Should combine pagination and sorting")
     void shouldCombinePaginationAndSorting() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("page", "1")
                         .param("pageSize", "5")
                         .param("sortBy", "name")
@@ -185,7 +185,7 @@ class CardPaginationSortingIntegrationTest extends AbstractIntegrationTest {
     @Test
     @DisplayName("Should paginate filtered results")
     void shouldPaginateFilteredResults() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("types", "Fire")
                         .param("page", "0")
                         .param("pageSize", "3"))
@@ -198,7 +198,7 @@ class CardPaginationSortingIntegrationTest extends AbstractIntegrationTest {
     @Test
     @DisplayName("Should sort filtered results")
     void shouldSortFilteredResults() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("types", "Water")
                         .param("sortBy", "hpNumeric")
                         .param("sortOrder", "desc")
@@ -210,7 +210,7 @@ class CardPaginationSortingIntegrationTest extends AbstractIntegrationTest {
     @Test
     @DisplayName("Should handle pagination with complex filters")
     void shouldHandlePaginationWithComplexFilters() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("types", "Fire")
                         .param("hpMin", "60")
                         .param("hasAbility", "true")
@@ -228,7 +228,7 @@ class CardPaginationSortingIntegrationTest extends AbstractIntegrationTest {
     @DisplayName("Should maintain sort order across pages")
     void shouldMaintainSortOrderAcrossPages() throws Exception {
         // Get first page
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("page", "0")
                         .param("pageSize", "5")
                         .param("sortBy", "name")
@@ -237,7 +237,7 @@ class CardPaginationSortingIntegrationTest extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.results").isArray());
 
         // Get second page - should continue sorted order
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("page", "1")
                         .param("pageSize", "5")
                         .param("sortBy", "name")

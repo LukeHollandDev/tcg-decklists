@@ -40,7 +40,7 @@ class CardBasicOperationsIntegrationTest extends AbstractIntegrationTest {
     @Test
     @DisplayName("Should successfully retrieve card by valid ID")
     void shouldRetrieveCardByValidId() throws Exception {
-        mockMvc.perform(get("/api/pokemon/base1-46"))
+        mockMvc.perform(get("/api/v1/pokemon/base1-46"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json"))
                 .andExpect(jsonPath("$.id").value("base1-46"))
@@ -53,7 +53,7 @@ class CardBasicOperationsIntegrationTest extends AbstractIntegrationTest {
     @Test
     @DisplayName("Should retrieve card with all relationships (attacks, abilities, weaknesses, resistances)")
     void shouldRetrieveCardWithAllRelationships() throws Exception {
-        mockMvc.perform(get("/api/pokemon/base1-4"))
+        mockMvc.perform(get("/api/v1/pokemon/base1-4"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value("base1-4"))
                 .andExpect(jsonPath("$.name").value("Charizard"))
@@ -108,7 +108,7 @@ class CardBasicOperationsIntegrationTest extends AbstractIntegrationTest {
     void shouldRetrieveCardWithAccentCharacters() throws Exception {
         // Find the Flabébé card ID from test data
         // This tests that the API correctly handles and returns accent characters
-        MvcResult result = mockMvc.perform(get("/api/pokemon/search")
+        MvcResult result = mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("name", "Flabebe"))  // Search without accent
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.results").isArray())
@@ -123,7 +123,7 @@ class CardBasicOperationsIntegrationTest extends AbstractIntegrationTest {
                 .get("id")
                 .asText();
 
-        mockMvc.perform(get("/api/pokemon/" + cardId))
+        mockMvc.perform(get("/api/v1/pokemon/" + cardId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Flabébé"));  // Should return with accent
     }
@@ -132,7 +132,7 @@ class CardBasicOperationsIntegrationTest extends AbstractIntegrationTest {
     @DisplayName("Should retrieve card with evolution data")
     void shouldRetrieveCardWithEvolutionData() throws Exception {
         // Charmeleon evolves from Charmander and to Charizard
-        mockMvc.perform(get("/api/pokemon/base1-24"))
+        mockMvc.perform(get("/api/v1/pokemon/base1-24"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Charmeleon"))
                 .andExpect(jsonPath("$.evolvesFrom").exists())
@@ -143,7 +143,7 @@ class CardBasicOperationsIntegrationTest extends AbstractIntegrationTest {
     @DisplayName("Should retrieve Trainer card (Professor Oak)")
     void shouldRetrieveTrainerCard() throws Exception {
         // Find Professor Oak in test data
-        MvcResult result = mockMvc.perform(get("/api/pokemon/search")
+        MvcResult result = mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("supertype", "Trainer"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.results").isArray())
@@ -157,7 +157,7 @@ class CardBasicOperationsIntegrationTest extends AbstractIntegrationTest {
                 .get("id")
                 .asText();
 
-        mockMvc.perform(get("/api/pokemon/" + cardId))
+        mockMvc.perform(get("/api/v1/pokemon/" + cardId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.supertype").value("Trainer"))
                 .andExpect(jsonPath("$.subtypes").isArray())
@@ -169,7 +169,7 @@ class CardBasicOperationsIntegrationTest extends AbstractIntegrationTest {
     @DisplayName("Should retrieve Energy card (Fire Energy)")
     void shouldRetrieveEnergyCard() throws Exception {
         // Find Fire Energy in test data
-        MvcResult result = mockMvc.perform(get("/api/pokemon/search")
+        MvcResult result = mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("supertype", "Energy"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.results").isArray())
@@ -183,7 +183,7 @@ class CardBasicOperationsIntegrationTest extends AbstractIntegrationTest {
                 .get("id")
                 .asText();
 
-        mockMvc.perform(get("/api/pokemon/" + cardId))
+        mockMvc.perform(get("/api/v1/pokemon/" + cardId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.supertype").value("Energy"))
                 .andExpect(jsonPath("$.hp").doesNotExist())  // Energy cards don't have HP
@@ -194,7 +194,7 @@ class CardBasicOperationsIntegrationTest extends AbstractIntegrationTest {
     @DisplayName("Should retrieve card with rule box (Charizard ex)")
     void shouldRetrieveCardWithRuleBox() throws Exception {
         // Find Charizard ex in test data
-        MvcResult result = mockMvc.perform(get("/api/pokemon/search")
+        MvcResult result = mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("subtypes", "ex"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.results").isArray())
@@ -208,7 +208,7 @@ class CardBasicOperationsIntegrationTest extends AbstractIntegrationTest {
                 .get("id")
                 .asText();
 
-        mockMvc.perform(get("/api/pokemon/" + cardId))
+        mockMvc.perform(get("/api/v1/pokemon/" + cardId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.rules").isArray())
                 .andExpect(jsonPath("$.rules", hasSize(greaterThan(0))))
@@ -218,7 +218,7 @@ class CardBasicOperationsIntegrationTest extends AbstractIntegrationTest {
     @Test
     @DisplayName("Should retrieve card with format legality information")
     void shouldRetrieveCardWithFormatLegality() throws Exception {
-        mockMvc.perform(get("/api/pokemon/base1-46"))
+        mockMvc.perform(get("/api/v1/pokemon/base1-46"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.legalities").exists())
                 .andExpect(jsonPath("$.legalities").isMap())
@@ -233,14 +233,14 @@ class CardBasicOperationsIntegrationTest extends AbstractIntegrationTest {
     @Test
     @DisplayName("Should return 404 for non-existent card ID")
     void shouldReturn404ForNonExistentCard() throws Exception {
-        mockMvc.perform(get("/api/pokemon/invalid-card-id-12345"))
+        mockMvc.perform(get("/api/v1/pokemon/invalid-card-id-12345"))
                 .andExpect(status().isNotFound());
     }
 
     @Test
     @DisplayName("Should return 405 for unsupported HTTP method (POST)")
     void shouldReturn405ForUnsupportedMethod() throws Exception {
-        mockMvc.perform(post("/api/pokemon/base1-46"))
+        mockMvc.perform(post("/api/v1/pokemon/base1-46"))
                 .andExpect(status().isMethodNotAllowed());
     }
 }

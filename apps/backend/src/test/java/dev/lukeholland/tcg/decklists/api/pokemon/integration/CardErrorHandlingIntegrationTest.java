@@ -41,13 +41,13 @@ class CardErrorHandlingIntegrationTest extends AbstractIntegrationTest {
     void shouldReturn404ForNonExistentCardId() throws Exception {
         String nonExistentId = "nonexistent-card-123";
 
-        mockMvc.perform(get("/api/pokemon/" + nonExistentId))
+        mockMvc.perform(get("/api/v1/pokemon/" + nonExistentId))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.type").value("/errors/not-found"))
                 .andExpect(jsonPath("$.title").value("Entity Not Found"))
                 .andExpect(jsonPath("$.status").value(404))
                 .andExpect(jsonPath("$.detail").value("Card not found with id: " + nonExistentId))
-                .andExpect(jsonPath("$.instance").value("/api/pokemon/" + nonExistentId))
+                .andExpect(jsonPath("$.instance").value("/api/v1/pokemon/" + nonExistentId))
                 .andExpect(jsonPath("$.timestamp").exists())
                 .andExpect(jsonPath("$.entityType").value("Card"))
                 .andExpect(jsonPath("$.entityId").value(nonExistentId));
@@ -58,7 +58,7 @@ class CardErrorHandlingIntegrationTest extends AbstractIntegrationTest {
     void shouldReturn404ForMalformedCardId() throws Exception {
         String malformedId = "!!!invalid!!!";
 
-        mockMvc.perform(get("/api/pokemon/" + malformedId))
+        mockMvc.perform(get("/api/v1/pokemon/" + malformedId))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.type").value("/errors/not-found"))
                 .andExpect(jsonPath("$.title").value("Entity Not Found"))
@@ -76,7 +76,7 @@ class CardErrorHandlingIntegrationTest extends AbstractIntegrationTest {
     @Test
     @DisplayName("Should handle empty search results gracefully")
     void shouldHandleEmptySearchResultsGracefully() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("name", "ThisCardDefinitelyDoesNotExist12345"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.results").isArray())
@@ -90,7 +90,7 @@ class CardErrorHandlingIntegrationTest extends AbstractIntegrationTest {
     @Test
     @DisplayName("Should handle search with no parameters (return all cards paginated)")
     void shouldHandleSearchWithNoParameters() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search"))
+        mockMvc.perform(get("/api/v1/pokemon/search"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.results").isArray())
                 .andExpect(jsonPath("$.results", hasSize(greaterThan(0))))
@@ -102,7 +102,7 @@ class CardErrorHandlingIntegrationTest extends AbstractIntegrationTest {
     @Test
     @DisplayName("Should handle invalid page number gracefully (negative)")
     void shouldHandleNegativePageNumber() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("page", "-1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.results").isArray());
@@ -112,7 +112,7 @@ class CardErrorHandlingIntegrationTest extends AbstractIntegrationTest {
     @Test
     @DisplayName("Should handle invalid pageSize gracefully (negative)")
     void shouldHandleNegativePageSize() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("pageSize", "-1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.results").isArray());
@@ -122,7 +122,7 @@ class CardErrorHandlingIntegrationTest extends AbstractIntegrationTest {
     @Test
     @DisplayName("Should handle page beyond available results")
     void shouldHandlePageBeyondAvailableResults() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("page", "9999"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.results").isArray())
@@ -134,7 +134,7 @@ class CardErrorHandlingIntegrationTest extends AbstractIntegrationTest {
     @Test
     @DisplayName("Should handle invalid HP range (min > max)")
     void shouldHandleInvalidHpRange() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("hpMin", "200")
                         .param("hpMax", "50"))
                 .andExpect(status().isOk())
@@ -146,7 +146,7 @@ class CardErrorHandlingIntegrationTest extends AbstractIntegrationTest {
     @Test
     @DisplayName("Should handle invalid retreat cost range (min > max)")
     void shouldHandleInvalidRetreatCostRange() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("retreatCostMin", "5")
                         .param("retreatCostMax", "1"))
                 .andExpect(status().isOk())
@@ -158,7 +158,7 @@ class CardErrorHandlingIntegrationTest extends AbstractIntegrationTest {
     @Test
     @DisplayName("Should handle search with all filters resulting in no matches")
     void shouldHandleSearchWithNoMatches() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("types", "Dragon")
                         .param("subtypes", "Basic")
                         .param("hpMin", "500")

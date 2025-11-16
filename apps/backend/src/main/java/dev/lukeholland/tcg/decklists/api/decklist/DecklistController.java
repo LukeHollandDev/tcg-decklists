@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/decklist")
+@RequestMapping("/api/v1/decklist")
 @Tag(name = "Decklists", description = "Endpoints for creating and retrieving decklists")
 public class DecklistController {
 

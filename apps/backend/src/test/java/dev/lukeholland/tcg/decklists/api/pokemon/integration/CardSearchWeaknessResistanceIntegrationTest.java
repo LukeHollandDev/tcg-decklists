@@ -38,7 +38,7 @@ class CardSearchWeaknessResistanceIntegrationTest extends AbstractIntegrationTes
     @Test
     @DisplayName("Should find cards weak to Fire")
     void shouldFindCardsWeakToFire() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("weaknessType", "Fire"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.results").isArray());
@@ -48,7 +48,7 @@ class CardSearchWeaknessResistanceIntegrationTest extends AbstractIntegrationTes
     @Test
     @DisplayName("Should find cards weak to Water")
     void shouldFindCardsWeakToWater() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("weaknessType", "Water"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.results").isArray())
@@ -59,7 +59,7 @@ class CardSearchWeaknessResistanceIntegrationTest extends AbstractIntegrationTes
     @Test
     @DisplayName("Should return empty results for non-existent weakness type")
     void shouldReturnEmptyResultsForNonExistentWeaknessType() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("weaknessType", "Dragon"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.results").isArray())
@@ -69,7 +69,7 @@ class CardSearchWeaknessResistanceIntegrationTest extends AbstractIntegrationTes
     @Test
     @DisplayName("Should find cards weak to Fire OR Water (OR logic)")
     void shouldFindCardsWeakToFireOrWater() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("weaknessType", "Fire")
                         .param("weaknessType", "Water"))
                 .andExpect(status().isOk())
@@ -81,7 +81,7 @@ class CardSearchWeaknessResistanceIntegrationTest extends AbstractIntegrationTes
     @Test
     @DisplayName("Should find cards weak to BOTH Fire AND Water (AND logic)")
     void shouldFindCardsWeakToBothFireAndWater() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("weaknessType", "Fire")
                         .param("weaknessType", "Water")
                         .param("weaknessTypeMatchAll", "true"))
@@ -97,7 +97,7 @@ class CardSearchWeaknessResistanceIntegrationTest extends AbstractIntegrationTes
     @Test
     @DisplayName("Should find cards resistant to Fighting")
     void shouldFindCardsResistantToFighting() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("resistanceType", "Fighting"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.results").isArray())
@@ -108,7 +108,7 @@ class CardSearchWeaknessResistanceIntegrationTest extends AbstractIntegrationTes
     @Test
     @DisplayName("Should find cards resistant to Psychic")
     void shouldFindCardsResistantToPsychic() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("resistanceType", "Psychic"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.results").isArray());
@@ -118,7 +118,7 @@ class CardSearchWeaknessResistanceIntegrationTest extends AbstractIntegrationTes
     @Test
     @DisplayName("Should find cards resistant to Fighting OR Psychic (OR logic)")
     void shouldFindCardsResistantToFightingOrPsychic() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("resistanceType", "Fighting")
                         .param("resistanceType", "Psychic"))
                 .andExpect(status().isOk())
@@ -129,7 +129,7 @@ class CardSearchWeaknessResistanceIntegrationTest extends AbstractIntegrationTes
     @Test
     @DisplayName("Should find cards resistant to BOTH Fighting AND Psychic (AND logic)")
     void shouldFindCardsResistantToBothFightingAndPsychic() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("resistanceType", "Fighting")
                         .param("resistanceType", "Psychic")
                         .param("resistanceTypeMatchAll", "true"))
@@ -145,7 +145,7 @@ class CardSearchWeaknessResistanceIntegrationTest extends AbstractIntegrationTes
     @Test
     @DisplayName("Should find cards weak to Fire and resistant to Fighting")
     void shouldFindCardsWeakToFireResistantToFighting() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("weaknessType", "Fire")
                         .param("resistanceType", "Fighting"))
                 .andExpect(status().isOk())
@@ -156,7 +156,7 @@ class CardSearchWeaknessResistanceIntegrationTest extends AbstractIntegrationTes
     @Test
     @DisplayName("Should find Grass-type cards weak to Fire")
     void shouldFindGrassTypeCardsWeakToFire() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("types", "Grass")
                         .param("weaknessType", "Fire"))
                 .andExpect(status().isOk())
@@ -167,7 +167,7 @@ class CardSearchWeaknessResistanceIntegrationTest extends AbstractIntegrationTes
     @Test
     @DisplayName("Should find Fire-type cards weak to Water")
     void shouldFindFireTypeCardsWeakToWater() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("types", "Fire")
                         .param("weaknessType", "Water"))
                 .andExpect(status().isOk())
@@ -179,7 +179,7 @@ class CardSearchWeaknessResistanceIntegrationTest extends AbstractIntegrationTes
     @Test
     @DisplayName("Should find Psychic-type cards resistant to Fighting")
     void shouldFindPsychicTypeCardsResistantToFighting() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("types", "Psychic")
                         .param("resistanceType", "Fighting"))
                 .andExpect(status().isOk())
@@ -190,7 +190,7 @@ class CardSearchWeaknessResistanceIntegrationTest extends AbstractIntegrationTes
     @Test
     @DisplayName("Should combine weakness/resistance filters with other filters")
     void shouldCombineWeaknessResistanceWithOtherFilters() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("weaknessType", "Water")
                         .param("hpMin", "60")
                         .param("subtypes", "Stage 2"))

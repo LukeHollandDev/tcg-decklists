@@ -42,7 +42,7 @@ class CardSearchCoreFiltersIntegrationTest extends AbstractIntegrationTest {
     @Test
     @DisplayName("Should find cards by exact name match")
     void shouldFindCardsByExactName() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("name", "Charizard"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.results").isArray())
@@ -53,7 +53,7 @@ class CardSearchCoreFiltersIntegrationTest extends AbstractIntegrationTest {
     @Test
     @DisplayName("Should find cards by partial name match")
     void shouldFindCardsByPartialName() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("name", "char"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.results").isArray())
@@ -65,7 +65,7 @@ class CardSearchCoreFiltersIntegrationTest extends AbstractIntegrationTest {
     @DisplayName("Should find cards with accent-insensitive name search")
     void shouldFindCardsByAccentInsensitiveName() throws Exception {
         // Search for "Flabebe" should find "Flabébé"
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("name", "flabebe"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.results").isArray())
@@ -76,7 +76,7 @@ class CardSearchCoreFiltersIntegrationTest extends AbstractIntegrationTest {
     @Test
     @DisplayName("Should find cards with case-insensitive name search")
     void shouldFindCardsByCaseInsensitiveName() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("name", "PIKACHU"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.results").isArray())
@@ -87,7 +87,7 @@ class CardSearchCoreFiltersIntegrationTest extends AbstractIntegrationTest {
     @Test
     @DisplayName("Should return empty results for non-existent name")
     void shouldReturnEmptyResultsForNonExistentName() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("name", "NonExistentCardName12345"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.results").isArray())
@@ -102,7 +102,7 @@ class CardSearchCoreFiltersIntegrationTest extends AbstractIntegrationTest {
     @Test
     @DisplayName("Should find cards by supertype: Pokémon")
     void shouldFindCardsBySupertypePokemon() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("supertype", "Pokémon"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.results").isArray())
@@ -113,7 +113,7 @@ class CardSearchCoreFiltersIntegrationTest extends AbstractIntegrationTest {
     @Test
     @DisplayName("Should find cards by supertype: Trainer")
     void shouldFindCardsBySupertypeTrainer() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("supertype", "Trainer"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.results").isArray())
@@ -124,7 +124,7 @@ class CardSearchCoreFiltersIntegrationTest extends AbstractIntegrationTest {
     @Test
     @DisplayName("Should find cards by supertype: Energy")
     void shouldFindCardsBySupertypeEnergy() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("supertype", "Energy"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.results").isArray())
@@ -139,7 +139,7 @@ class CardSearchCoreFiltersIntegrationTest extends AbstractIntegrationTest {
     @Test
     @DisplayName("Should find cards by single type: Fire")
     void shouldFindCardsBySingleType() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("types", "Fire"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.results").isArray())
@@ -151,7 +151,7 @@ class CardSearchCoreFiltersIntegrationTest extends AbstractIntegrationTest {
     @DisplayName("Should find cards by multiple types with OR logic (default)")
     void shouldFindCardsByMultipleTypesOrLogic() throws Exception {
         // Default OR logic - cards with Fire OR Water
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("types", "Fire")
                         .param("types", "Water"))
                 .andExpect(status().isOk())
@@ -166,7 +166,7 @@ class CardSearchCoreFiltersIntegrationTest extends AbstractIntegrationTest {
     void shouldFindCardsByMultipleTypesAndLogic() throws Exception {
         // AND logic - cards with BOTH Fire AND another type (if any exist)
         // Note: Most Pokemon have single types, but some have dual types
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("types", "Fire")
                         .param("typesMatchAll", "true"))
                 .andExpect(status().isOk())
@@ -178,7 +178,7 @@ class CardSearchCoreFiltersIntegrationTest extends AbstractIntegrationTest {
     @Test
     @DisplayName("Should find Lightning-type cards")
     void shouldFindLightningTypeCards() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("types", "Lightning"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.results").isArray())
@@ -189,7 +189,7 @@ class CardSearchCoreFiltersIntegrationTest extends AbstractIntegrationTest {
     @Test
     @DisplayName("Should find Fairy-type cards")
     void shouldFindFairyTypeCards() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("types", "Fairy"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.results").isArray())
@@ -204,7 +204,7 @@ class CardSearchCoreFiltersIntegrationTest extends AbstractIntegrationTest {
     @Test
     @DisplayName("Should find cards by single subtype: Basic")
     void shouldFindCardsBySingleSubtype() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("subtypes", "Basic"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.results").isArray())
@@ -215,7 +215,7 @@ class CardSearchCoreFiltersIntegrationTest extends AbstractIntegrationTest {
     @Test
     @DisplayName("Should find cards by subtype: Stage 1")
     void shouldFindCardsBySubtypeStage1() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("subtypes", "Stage 1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.results").isArray())
@@ -226,7 +226,7 @@ class CardSearchCoreFiltersIntegrationTest extends AbstractIntegrationTest {
     @Test
     @DisplayName("Should find cards by subtype: Stage 2")
     void shouldFindCardsBySubtypeStage2() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("subtypes", "Stage 2"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.results").isArray())
@@ -237,7 +237,7 @@ class CardSearchCoreFiltersIntegrationTest extends AbstractIntegrationTest {
     @Test
     @DisplayName("Should find cards by subtype: ex")
     void shouldFindCardsBySubtypeEx() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("subtypes", "ex"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.results").isArray())
@@ -249,7 +249,7 @@ class CardSearchCoreFiltersIntegrationTest extends AbstractIntegrationTest {
     @DisplayName("Should find cards by multiple subtypes with OR logic (default)")
     void shouldFindCardsByMultipleSubtypesOrLogic() throws Exception {
         // Default OR logic - cards with Basic OR Stage 1
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("subtypes", "Basic")
                         .param("subtypes", "Stage 1"))
                 .andExpect(status().isOk())
@@ -264,7 +264,7 @@ class CardSearchCoreFiltersIntegrationTest extends AbstractIntegrationTest {
     void shouldFindCardsByMultipleSubtypesAndLogic() throws Exception {
         // AND logic - cards with BOTH subtypes (e.g., Stage 2 AND ex if any exist)
         // Charizard ex should be Stage 2 AND ex
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("subtypes", "ex")
                         .param("subtypesMatchAll", "true"))
                 .andExpect(status().isOk())
@@ -280,7 +280,7 @@ class CardSearchCoreFiltersIntegrationTest extends AbstractIntegrationTest {
     @Test
     @DisplayName("Should find cards by set ID: base1")
     void shouldFindCardsBySetId() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("setId", "base1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.results").isArray())
@@ -291,7 +291,7 @@ class CardSearchCoreFiltersIntegrationTest extends AbstractIntegrationTest {
     @Test
     @DisplayName("Should find cards by set ID: swsh1")
     void shouldFindCardsBySetIdSwsh1() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("setId", "swsh1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.results").isArray())
@@ -306,7 +306,7 @@ class CardSearchCoreFiltersIntegrationTest extends AbstractIntegrationTest {
     @Test
     @DisplayName("Should find cards by rarity: Common")
     void shouldFindCardsByRarityCommon() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("rarity", "Common"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.results").isArray())
@@ -317,7 +317,7 @@ class CardSearchCoreFiltersIntegrationTest extends AbstractIntegrationTest {
     @Test
     @DisplayName("Should find cards by rarity: Rare Holo")
     void shouldFindCardsByRarityRareHolo() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("rarity", "Rare Holo"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.results").isArray())
@@ -332,7 +332,7 @@ class CardSearchCoreFiltersIntegrationTest extends AbstractIntegrationTest {
     @Test
     @DisplayName("Should find cards with HP >= 100 (hpMin)")
     void shouldFindCardsByMinHp() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("hpMin", "100"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.results").isArray())
@@ -344,7 +344,7 @@ class CardSearchCoreFiltersIntegrationTest extends AbstractIntegrationTest {
     @Test
     @DisplayName("Should find cards with HP <= 50 (hpMax)")
     void shouldFindCardsByMaxHp() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("hpMax", "50"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.results").isArray())
@@ -356,7 +356,7 @@ class CardSearchCoreFiltersIntegrationTest extends AbstractIntegrationTest {
     @Test
     @DisplayName("Should find cards within HP range (hpMin and hpMax)")
     void shouldFindCardsByHpRange() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("hpMin", "40")
                         .param("hpMax", "100"))
                 .andExpect(status().isOk())
@@ -372,7 +372,7 @@ class CardSearchCoreFiltersIntegrationTest extends AbstractIntegrationTest {
     @Test
     @DisplayName("Should return empty results for impossible HP range")
     void shouldReturnEmptyResultsForImpossibleHpRange() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("hpMin", "500")
                         .param("hpMax", "1000"))
                 .andExpect(status().isOk())
@@ -388,7 +388,7 @@ class CardSearchCoreFiltersIntegrationTest extends AbstractIntegrationTest {
     @Test
     @DisplayName("Should find Fire-type Basic Pokemon")
     void shouldFindFireTypeBasicPokemon() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("types", "Fire")
                         .param("subtypes", "Basic"))
                 .andExpect(status().isOk())
@@ -401,7 +401,7 @@ class CardSearchCoreFiltersIntegrationTest extends AbstractIntegrationTest {
     @Test
     @DisplayName("Should find Stage 2 Pokemon with HP >= 100")
     void shouldFindStage2PokemonWithHighHp() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("subtypes", "Stage 2")
                         .param("hpMin", "100"))
                 .andExpect(status().isOk())
@@ -414,7 +414,7 @@ class CardSearchCoreFiltersIntegrationTest extends AbstractIntegrationTest {
     @Test
     @DisplayName("Should find cards in base1 set with rarity Rare Holo")
     void shouldFindCardsInSetWithRarity() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("setId", "base1")
                         .param("rarity", "Rare Holo"))
                 .andExpect(status().isOk())
@@ -427,7 +427,7 @@ class CardSearchCoreFiltersIntegrationTest extends AbstractIntegrationTest {
     @Test
     @DisplayName("Should search with name filter and type filter combined")
     void shouldSearchWithNameAndTypeFilters() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("name", "char")
                         .param("types", "Fire"))
                 .andExpect(status().isOk())
@@ -444,7 +444,7 @@ class CardSearchCoreFiltersIntegrationTest extends AbstractIntegrationTest {
     @Test
     @DisplayName("Should paginate search results with filters")
     void shouldPaginateSearchResultsWithFilters() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("supertype", "Pokémon")
                         .param("page", "0")
                         .param("pageSize", "5"))

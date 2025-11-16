@@ -96,7 +96,7 @@ class InfrastructureSmokeTest extends AbstractIntegrationTest {
     @DisplayName("Should verify MockMvc is configured and working")
     void shouldVerifyMockMvcIsWorking() throws Exception {
         // Make a request to the features endpoint (should work even with no data)
-        MvcResult result = mockMvc.perform(get("/api/pokemon/features"))
+        MvcResult result = mockMvc.perform(get("/api/v1/pokemon/features"))
                 .andExpect(status().isOk())
                 .andReturn();
 

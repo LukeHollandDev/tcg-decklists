@@ -38,7 +38,7 @@ class CardSearchBooleanEvolutionIntegrationTest extends AbstractIntegrationTest 
     @Test
     @DisplayName("Should find cards with rule boxes (hasRuleBox=true)")
     void shouldFindCardsWithRuleBoxes() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("hasRuleBox", "true"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.results").isArray())
@@ -49,7 +49,7 @@ class CardSearchBooleanEvolutionIntegrationTest extends AbstractIntegrationTest 
     @Test
     @DisplayName("Should find cards without rule boxes (hasRuleBox=false)")
     void shouldFindCardsWithoutRuleBoxes() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("hasRuleBox", "false"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.results").isArray())
@@ -64,7 +64,7 @@ class CardSearchBooleanEvolutionIntegrationTest extends AbstractIntegrationTest 
     @Test
     @DisplayName("Should find cards with weaknesses (hasWeakness=true)")
     void shouldFindCardsWithWeaknesses() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("hasWeakness", "true"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.results").isArray())
@@ -75,7 +75,7 @@ class CardSearchBooleanEvolutionIntegrationTest extends AbstractIntegrationTest 
     @Test
     @DisplayName("Should find cards without weaknesses (hasWeakness=false)")
     void shouldFindCardsWithoutWeaknesses() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("hasWeakness", "false"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.results").isArray());
@@ -89,7 +89,7 @@ class CardSearchBooleanEvolutionIntegrationTest extends AbstractIntegrationTest 
     @Test
     @DisplayName("Should find cards with resistances (hasResistance=true)")
     void shouldFindCardsWithResistances() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("hasResistance", "true"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.results").isArray())
@@ -100,7 +100,7 @@ class CardSearchBooleanEvolutionIntegrationTest extends AbstractIntegrationTest 
     @Test
     @DisplayName("Should find cards without resistances (hasResistance=false)")
     void shouldFindCardsWithoutResistances() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("hasResistance", "false"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.results").isArray())
@@ -114,7 +114,7 @@ class CardSearchBooleanEvolutionIntegrationTest extends AbstractIntegrationTest 
     @Test
     @DisplayName("Should find cards that evolve from Pikachu")
     void shouldFindCardsEvolvingFromPikachu() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("evolvesFrom", "Pikachu"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.results").isArray())
@@ -125,7 +125,7 @@ class CardSearchBooleanEvolutionIntegrationTest extends AbstractIntegrationTest 
     @Test
     @DisplayName("Should find cards that evolve from Charmander")
     void shouldFindCardsEvolvingFromCharmander() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("evolvesFrom", "Charmander"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.results").isArray())
@@ -136,7 +136,7 @@ class CardSearchBooleanEvolutionIntegrationTest extends AbstractIntegrationTest 
     @Test
     @DisplayName("Should find cards with case-insensitive evolution search")
     void shouldFindCardsByEvolvesFromCaseInsensitive() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("evolvesFrom", "PIKACHU"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.results").isArray())
@@ -146,7 +146,7 @@ class CardSearchBooleanEvolutionIntegrationTest extends AbstractIntegrationTest 
     @Test
     @DisplayName("Should find cards with partial evolution name match")
     void shouldFindCardsByPartialEvolvesFrom() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("evolvesFrom", "Char"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.results").isArray());
@@ -156,7 +156,7 @@ class CardSearchBooleanEvolutionIntegrationTest extends AbstractIntegrationTest 
     @Test
     @DisplayName("Should return empty results for non-existent evolution source")
     void shouldReturnEmptyResultsForNonExistentEvolvesFrom() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("evolvesFrom", "NonExistentPokemon12345"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.results").isArray())
@@ -170,7 +170,7 @@ class CardSearchBooleanEvolutionIntegrationTest extends AbstractIntegrationTest 
     @Test
     @DisplayName("Should find cards that evolve to Raichu")
     void shouldFindCardsEvolvingToRaichu() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("evolvesTo", "Raichu"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.results").isArray());
@@ -180,7 +180,7 @@ class CardSearchBooleanEvolutionIntegrationTest extends AbstractIntegrationTest 
     @Test
     @DisplayName("Should find cards that evolve to Charizard")
     void shouldFindCardsEvolvingToCharizard() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("evolvesTo", "Charizard"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.results").isArray())
@@ -191,7 +191,7 @@ class CardSearchBooleanEvolutionIntegrationTest extends AbstractIntegrationTest 
     @Test
     @DisplayName("Should find cards with case-insensitive evolves to search")
     void shouldFindCardsByEvolvesToCaseInsensitive() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("evolvesTo", "RAICHU"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.results").isArray());
@@ -201,7 +201,7 @@ class CardSearchBooleanEvolutionIntegrationTest extends AbstractIntegrationTest 
     @Test
     @DisplayName("Should return empty results for non-existent evolution target")
     void shouldReturnEmptyResultsForNonExistentEvolvesTo() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("evolvesTo", "NonExistentPokemon12345"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.results").isArray())
@@ -215,7 +215,7 @@ class CardSearchBooleanEvolutionIntegrationTest extends AbstractIntegrationTest 
     @Test
     @DisplayName("Should find cards with rule text containing query")
     void shouldFindCardsByRuleText() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("ruleText", "ex"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.results").isArray());
@@ -225,7 +225,7 @@ class CardSearchBooleanEvolutionIntegrationTest extends AbstractIntegrationTest 
     @Test
     @DisplayName("Should find cards with rule text using case-insensitive search")
     void shouldFindCardsByRuleTextCaseInsensitive() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("ruleText", "WHEN"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.results").isArray());
@@ -234,7 +234,7 @@ class CardSearchBooleanEvolutionIntegrationTest extends AbstractIntegrationTest 
     @Test
     @DisplayName("Should return empty results for non-existent rule text")
     void shouldReturnEmptyResultsForNonExistentRuleText() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("ruleText", "NonExistentRuleText12345XYZ"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.results").isArray())
@@ -248,7 +248,7 @@ class CardSearchBooleanEvolutionIntegrationTest extends AbstractIntegrationTest 
     @Test
     @DisplayName("Should find cards with rule boxes and weaknesses")
     void shouldFindCardsWithRuleBoxesAndWeaknesses() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("hasRuleBox", "true")
                         .param("hasWeakness", "true"))
                 .andExpect(status().isOk())
@@ -258,7 +258,7 @@ class CardSearchBooleanEvolutionIntegrationTest extends AbstractIntegrationTest 
     @Test
     @DisplayName("Should find cards with weaknesses but no resistances")
     void shouldFindCardsWithWeaknessesButNoResistances() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("hasWeakness", "true")
                         .param("hasResistance", "false"))
                 .andExpect(status().isOk())
@@ -269,7 +269,7 @@ class CardSearchBooleanEvolutionIntegrationTest extends AbstractIntegrationTest 
     @Test
     @DisplayName("Should find Fire-type cards that evolve from Charmander")
     void shouldFindFireTypeCardsEvolvingFromCharmander() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("types", "Fire")
                         .param("evolvesFrom", "Charmander"))
                 .andExpect(status().isOk())
@@ -281,7 +281,7 @@ class CardSearchBooleanEvolutionIntegrationTest extends AbstractIntegrationTest 
     @Test
     @DisplayName("Should find evolution cards with high HP")
     void shouldFindEvolutionCardsWithHighHp() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("evolvesFrom", "Charmeleon")
                         .param("hpMin", "100"))
                 .andExpect(status().isOk())
@@ -292,7 +292,7 @@ class CardSearchBooleanEvolutionIntegrationTest extends AbstractIntegrationTest 
     @Test
     @DisplayName("Should combine boolean filters with core filters")
     void shouldCombineBooleanFiltersWithCoreFilters() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("hasWeakness", "true")
                         .param("hasResistance", "true")
                         .param("types", "Psychic")
@@ -304,7 +304,7 @@ class CardSearchBooleanEvolutionIntegrationTest extends AbstractIntegrationTest 
     @Test
     @DisplayName("Should find cards without weaknesses and without resistances")
     void shouldFindCardsWithoutWeaknessesOrResistances() throws Exception {
-        mockMvc.perform(get("/api/pokemon/search")
+        mockMvc.perform(get("/api/v1/pokemon/search")
                         .param("hasWeakness", "false")
                         .param("hasResistance", "false"))
                 .andExpect(status().isOk())

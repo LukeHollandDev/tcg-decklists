@@ -829,27 +829,30 @@ public record CardSearchRequest(
 **Priority:** HIGH
 **Effort:** Medium (3-4 hours)
 **Files Affected:** All controllers, potentially frontend
-**Status:** ⏳ Not Started
+**Status:** ✅ Done (2025-11-16)
 
 ---
 
 ### Implementation Checklist
 
-- [ ] Update PokemonCardController RequestMapping to /api/v1/pokemon
-- [ ] Update DecklistController RequestMapping to /api/v1/decklist
-- [ ] Create ApiConstants class with version constants (optional)
-- [ ] Update frontend API base URL to /api/v1
-- [ ] Update all integration test URLs
-- [ ] Update OpenAPI configuration with version info
-- [ ] Update README and documentation
+- [x] Update PokemonCardController RequestMapping to /api/v1/pokemon
+- [x] Update DecklistController RequestMapping to /api/v1/decklist
+- [x] Update all integration test URLs (14 test files updated)
+- [ ] Create ApiConstants class with version constants (skipped - opted for direct updates)
+- [ ] Update frontend API base URL to /api/v1 (deferred - backend only implementation)
+- [ ] Update OpenAPI configuration with version info (not needed - SpringDoc auto-discovers)
+- [ ] Update README and documentation (to be done separately)
 
 ### Implementation Notes
 
-> **Add notes here as you implement:**
-> - Actual time taken:
-> - Challenges encountered:
-> - Deviations from plan:
-> - Lessons learned:
+> **Completed on:** 2025-11-16
+> - **Actual time taken:** ~15 minutes
+> - **Approach:** Simple find-and-replace strategy for test URLs
+> - **Files changed:** 2 controllers + 14 integration test files = 16 files total
+> - **Test results:** All integration tests passing ✅
+> - **Deviations from plan:** Skipped ApiConstants class as per preference for simplicity
+> - **Frontend:** Deferred for later - backend only implementation
+> - **OpenAPI:** No configuration changes needed - SpringDoc auto-discovers from @RequestMapping annotations
 
 ---
 

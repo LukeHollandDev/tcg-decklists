@@ -35,7 +35,7 @@ class CardFeaturesAndAutocompleteIntegrationTest extends AbstractIntegrationTest
     @Test
     @DisplayName("Should return features endpoint with static data and filters")
     void shouldReturnFeaturesEndpoint() throws Exception {
-        mockMvc.perform(get("/api/pokemon/features"))
+        mockMvc.perform(get("/api/v1/pokemon/features"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.type").value("pokemon"))
                 .andExpect(jsonPath("$.static").exists())
@@ -53,7 +53,7 @@ class CardFeaturesAndAutocompleteIntegrationTest extends AbstractIntegrationTest
     @Test
     @DisplayName("Should return all supertypes in static data")
     void shouldReturnAllSupertypes() throws Exception {
-        mockMvc.perform(get("/api/pokemon/features"))
+        mockMvc.perform(get("/api/v1/pokemon/features"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.static.supertypes").isArray())
                 .andExpect(jsonPath("$.static.supertypes", hasSize(greaterThan(0))));
@@ -62,7 +62,7 @@ class CardFeaturesAndAutocompleteIntegrationTest extends AbstractIntegrationTest
     @Test
     @DisplayName("Should return all Pokemon types in static data")
     void shouldReturnAllPokemonTypes() throws Exception {
-        mockMvc.perform(get("/api/pokemon/features"))
+        mockMvc.perform(get("/api/v1/pokemon/features"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.static.types").isArray())
                 .andExpect(jsonPath("$.static.types", hasSize(greaterThan(0))));
@@ -71,7 +71,7 @@ class CardFeaturesAndAutocompleteIntegrationTest extends AbstractIntegrationTest
     @Test
     @DisplayName("Should return all subtypes in static data")
     void shouldReturnAllSubtypes() throws Exception {
-        mockMvc.perform(get("/api/pokemon/features"))
+        mockMvc.perform(get("/api/v1/pokemon/features"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.static.subtypes").isArray())
                 .andExpect(jsonPath("$.static.subtypes", hasSize(greaterThan(0))));
@@ -80,7 +80,7 @@ class CardFeaturesAndAutocompleteIntegrationTest extends AbstractIntegrationTest
     @Test
     @DisplayName("Should return all sets in static data")
     void shouldReturnAllSets() throws Exception {
-        mockMvc.perform(get("/api/pokemon/features"))
+        mockMvc.perform(get("/api/v1/pokemon/features"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.static.sets").isArray())
                 .andExpect(jsonPath("$.static.sets", hasSize(greaterThan(0))));
@@ -89,7 +89,7 @@ class CardFeaturesAndAutocompleteIntegrationTest extends AbstractIntegrationTest
     @Test
     @DisplayName("Should return all rarities in static data")
     void shouldReturnAllRarities() throws Exception {
-        mockMvc.perform(get("/api/pokemon/features"))
+        mockMvc.perform(get("/api/v1/pokemon/features"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.static.rarities").isArray())
                 .andExpect(jsonPath("$.static.rarities", hasSize(greaterThan(0))));
@@ -98,7 +98,7 @@ class CardFeaturesAndAutocompleteIntegrationTest extends AbstractIntegrationTest
     @Test
     @DisplayName("Should return all formats in static data")
     void shouldReturnAllFormats() throws Exception {
-        mockMvc.perform(get("/api/pokemon/features"))
+        mockMvc.perform(get("/api/v1/pokemon/features"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.static.formats").isArray())
                 .andExpect(jsonPath("$.static.formats", hasSize(greaterThan(0))));
@@ -107,7 +107,7 @@ class CardFeaturesAndAutocompleteIntegrationTest extends AbstractIntegrationTest
     @Test
     @DisplayName("Should return all regulation marks in static data")
     void shouldReturnAllRegulationMarks() throws Exception {
-        mockMvc.perform(get("/api/pokemon/features"))
+        mockMvc.perform(get("/api/v1/pokemon/features"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.static.regulationMarks").isArray());
         // May or may not have regulation marks depending on test data
@@ -116,7 +116,7 @@ class CardFeaturesAndAutocompleteIntegrationTest extends AbstractIntegrationTest
     @Test
     @DisplayName("Should return filter metadata for all filters")
     void shouldReturnFilterMetadata() throws Exception {
-        mockMvc.perform(get("/api/pokemon/features"))
+        mockMvc.perform(get("/api/v1/pokemon/features"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.filters").isMap())
                 .andExpect(jsonPath("$.filters.name").exists())
@@ -130,7 +130,7 @@ class CardFeaturesAndAutocompleteIntegrationTest extends AbstractIntegrationTest
     @Test
     @DisplayName("Should return correct metadata for string filter")
     void shouldReturnCorrectStringFilterMetadata() throws Exception {
-        mockMvc.perform(get("/api/pokemon/features"))
+        mockMvc.perform(get("/api/v1/pokemon/features"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.filters.name.type").value("string"))
                 .andExpect(jsonPath("$.filters.name.operator").value("contains"))
@@ -142,7 +142,7 @@ class CardFeaturesAndAutocompleteIntegrationTest extends AbstractIntegrationTest
     @Test
     @DisplayName("Should return correct metadata for enum filter")
     void shouldReturnCorrectEnumFilterMetadata() throws Exception {
-        mockMvc.perform(get("/api/pokemon/features"))
+        mockMvc.perform(get("/api/v1/pokemon/features"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.filters.supertype.type").value("enum"))
                 .andExpect(jsonPath("$.filters.supertype.operator").value("equals"))
@@ -153,7 +153,7 @@ class CardFeaturesAndAutocompleteIntegrationTest extends AbstractIntegrationTest
     @Test
     @DisplayName("Should return correct metadata for multiselect filter")
     void shouldReturnCorrectMultiselectFilterMetadata() throws Exception {
-        mockMvc.perform(get("/api/pokemon/features"))
+        mockMvc.perform(get("/api/v1/pokemon/features"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.filters.types.type").value("multiselect"))
                 .andExpect(jsonPath("$.filters.types.operator").value("anyOf"))
@@ -165,7 +165,7 @@ class CardFeaturesAndAutocompleteIntegrationTest extends AbstractIntegrationTest
     @Test
     @DisplayName("Should return correct metadata for range filter")
     void shouldReturnCorrectRangeFilterMetadata() throws Exception {
-        mockMvc.perform(get("/api/pokemon/features"))
+        mockMvc.perform(get("/api/v1/pokemon/features"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.filters.hp.type").value("range"))
                 .andExpect(jsonPath("$.filters.hp.operator").value("range"))
@@ -176,7 +176,7 @@ class CardFeaturesAndAutocompleteIntegrationTest extends AbstractIntegrationTest
     @Test
     @DisplayName("Should return correct metadata for boolean filter")
     void shouldReturnCorrectBooleanFilterMetadata() throws Exception {
-        mockMvc.perform(get("/api/pokemon/features"))
+        mockMvc.perform(get("/api/v1/pokemon/features"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.filters.hasAbility.type").value("boolean"))
                 .andExpect(jsonPath("$.filters.hasAbility.operator").value("equals"))
@@ -190,7 +190,7 @@ class CardFeaturesAndAutocompleteIntegrationTest extends AbstractIntegrationTest
     @Test
     @DisplayName("Should autocomplete artists with query")
     void shouldAutocompleteArtistsWithQuery() throws Exception {
-        mockMvc.perform(get("/api/pokemon/autocomplete/artist")
+        mockMvc.perform(get("/api/v1/pokemon/autocomplete/artist")
                         .param("query", "Ken"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.results").isArray())
@@ -202,7 +202,7 @@ class CardFeaturesAndAutocompleteIntegrationTest extends AbstractIntegrationTest
     @Test
     @DisplayName("Should autocomplete artists with custom limit")
     void shouldAutocompleteArtistsWithCustomLimit() throws Exception {
-        mockMvc.perform(get("/api/pokemon/autocomplete/artist")
+        mockMvc.perform(get("/api/v1/pokemon/autocomplete/artist")
                         .param("query", "a")
                         .param("limit", "5"))
                 .andExpect(status().isOk())
@@ -214,14 +214,14 @@ class CardFeaturesAndAutocompleteIntegrationTest extends AbstractIntegrationTest
     @Test
     @DisplayName("Should return 400 for artists without query")
     void shouldReturn400ForArtistsWithoutQuery() throws Exception {
-        mockMvc.perform(get("/api/pokemon/autocomplete/artist"))
+        mockMvc.perform(get("/api/v1/pokemon/autocomplete/artist"))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     @DisplayName("Should handle case-insensitive artist search")
     void shouldHandleCaseInsensitiveArtistSearch() throws Exception {
-        mockMvc.perform(get("/api/pokemon/autocomplete/artist")
+        mockMvc.perform(get("/api/v1/pokemon/autocomplete/artist")
                         .param("query", "ken"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.results").isArray());
@@ -234,7 +234,7 @@ class CardFeaturesAndAutocompleteIntegrationTest extends AbstractIntegrationTest
     @Test
     @DisplayName("Should autocomplete attacks with query")
     void shouldAutocompleteAttacksWithQuery() throws Exception {
-        mockMvc.perform(get("/api/pokemon/autocomplete/attack")
+        mockMvc.perform(get("/api/v1/pokemon/autocomplete/attack")
                         .param("query", "Fire"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.results").isArray())
@@ -246,7 +246,7 @@ class CardFeaturesAndAutocompleteIntegrationTest extends AbstractIntegrationTest
     @Test
     @DisplayName("Should autocomplete attacks with custom limit")
     void shouldAutocompleteAttacksWithCustomLimit() throws Exception {
-        mockMvc.perform(get("/api/pokemon/autocomplete/attack")
+        mockMvc.perform(get("/api/v1/pokemon/autocomplete/attack")
                         .param("query", "a")
                         .param("limit", "3"))
                 .andExpect(status().isOk())
@@ -258,14 +258,14 @@ class CardFeaturesAndAutocompleteIntegrationTest extends AbstractIntegrationTest
     @Test
     @DisplayName("Should return 400 for attacks without query")
     void shouldReturn400ForAttacksWithoutQuery() throws Exception {
-        mockMvc.perform(get("/api/pokemon/autocomplete/attack"))
+        mockMvc.perform(get("/api/v1/pokemon/autocomplete/attack"))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     @DisplayName("Should handle case-insensitive attack search")
     void shouldHandleCaseInsensitiveAttackSearch() throws Exception {
-        mockMvc.perform(get("/api/pokemon/autocomplete/attack")
+        mockMvc.perform(get("/api/v1/pokemon/autocomplete/attack")
                         .param("query", "FIRE"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.results").isArray());
@@ -278,7 +278,7 @@ class CardFeaturesAndAutocompleteIntegrationTest extends AbstractIntegrationTest
     @Test
     @DisplayName("Should autocomplete abilities with query")
     void shouldAutocompleteAbilitiesWithQuery() throws Exception {
-        mockMvc.perform(get("/api/pokemon/autocomplete/ability")
+        mockMvc.perform(get("/api/v1/pokemon/autocomplete/ability")
                         .param("query", "a"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.results").isArray())
@@ -290,7 +290,7 @@ class CardFeaturesAndAutocompleteIntegrationTest extends AbstractIntegrationTest
     @Test
     @DisplayName("Should autocomplete abilities with custom limit")
     void shouldAutocompleteAbilitiesWithCustomLimit() throws Exception {
-        mockMvc.perform(get("/api/pokemon/autocomplete/ability")
+        mockMvc.perform(get("/api/v1/pokemon/autocomplete/ability")
                         .param("query", "power")
                         .param("limit", "2"))
                 .andExpect(status().isOk())
@@ -302,14 +302,14 @@ class CardFeaturesAndAutocompleteIntegrationTest extends AbstractIntegrationTest
     @Test
     @DisplayName("Should return 400 for abilities without query")
     void shouldReturn400ForAbilitiesWithoutQuery() throws Exception {
-        mockMvc.perform(get("/api/pokemon/autocomplete/ability"))
+        mockMvc.perform(get("/api/v1/pokemon/autocomplete/ability"))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     @DisplayName("Should handle case-insensitive ability search")
     void shouldHandleCaseInsensitiveAbilitySearch() throws Exception {
-        mockMvc.perform(get("/api/pokemon/autocomplete/ability")
+        mockMvc.perform(get("/api/v1/pokemon/autocomplete/ability")
                         .param("query", "STATIC"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.results").isArray());
@@ -322,7 +322,7 @@ class CardFeaturesAndAutocompleteIntegrationTest extends AbstractIntegrationTest
     @Test
     @DisplayName("Should autocomplete set names with query")
     void shouldAutocompleteSetNamesWithQuery() throws Exception {
-        mockMvc.perform(get("/api/pokemon/autocomplete/set")
+        mockMvc.perform(get("/api/v1/pokemon/autocomplete/set")
                         .param("query", "Base"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.results").isArray())
@@ -334,7 +334,7 @@ class CardFeaturesAndAutocompleteIntegrationTest extends AbstractIntegrationTest
     @Test
     @DisplayName("Should autocomplete set names with custom limit")
     void shouldAutocompleteSetNamesWithCustomLimit() throws Exception {
-        mockMvc.perform(get("/api/pokemon/autocomplete/set")
+        mockMvc.perform(get("/api/v1/pokemon/autocomplete/set")
                         .param("query", "a")
                         .param("limit", "3"))
                 .andExpect(status().isOk())
@@ -346,14 +346,14 @@ class CardFeaturesAndAutocompleteIntegrationTest extends AbstractIntegrationTest
     @Test
     @DisplayName("Should return 400 for sets without query")
     void shouldReturn400ForSetsWithoutQuery() throws Exception {
-        mockMvc.perform(get("/api/pokemon/autocomplete/set"))
+        mockMvc.perform(get("/api/v1/pokemon/autocomplete/set"))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     @DisplayName("Should handle case-insensitive set search")
     void shouldHandleCaseInsensitiveSetSearch() throws Exception {
-        mockMvc.perform(get("/api/pokemon/autocomplete/set")
+        mockMvc.perform(get("/api/v1/pokemon/autocomplete/set")
                         .param("query", "BASE"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.results").isArray());
@@ -366,7 +366,7 @@ class CardFeaturesAndAutocompleteIntegrationTest extends AbstractIntegrationTest
     @Test
     @DisplayName("Should handle empty autocomplete results")
     void shouldHandleEmptyAutocompleteResults() throws Exception {
-        mockMvc.perform(get("/api/pokemon/autocomplete/artist")
+        mockMvc.perform(get("/api/v1/pokemon/autocomplete/artist")
                         .param("query", "NonExistentArtist12345XYZ"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.results").isArray())
@@ -377,7 +377,7 @@ class CardFeaturesAndAutocompleteIntegrationTest extends AbstractIntegrationTest
     @Test
     @DisplayName("Should enforce maximum limit for autocomplete")
     void shouldEnforceMaximumLimitForAutocomplete() throws Exception {
-        mockMvc.perform(get("/api/pokemon/autocomplete/artist")
+        mockMvc.perform(get("/api/v1/pokemon/autocomplete/artist")
                         .param("query", "a")
                         .param("limit", "1000"))
                 .andExpect(status().isOk())
@@ -389,7 +389,7 @@ class CardFeaturesAndAutocompleteIntegrationTest extends AbstractIntegrationTest
     @Test
     @DisplayName("Should return 400 with RFC 7807 Problem Details for invalid autocomplete field")
     void shouldReturn400ForInvalidField() throws Exception {
-        mockMvc.perform(get("/api/pokemon/autocomplete/invalid")
+        mockMvc.perform(get("/api/v1/pokemon/autocomplete/invalid")
                         .param("query", "test"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.type").value("/errors/validation"))
