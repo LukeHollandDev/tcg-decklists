@@ -5,9 +5,9 @@
     "context": "sets",
     "output": "data/pokemon/sets",
     "script": "scripts/pokemon/migrate-sets.py",
-    "version": "37d13b7cd2ff04c41a319ecf9b5d854328a8a390",
+    "version": "ab03aef938803f56be50c81c4b4a2f2aba715eb5",
     "successful": true,
-    "timestamp": "2025-09-26T15:37:58Z"
+    "timestamp": "2025-11-15T01:48:28Z"
   },
   {
     "name": "pokemon-cards",
@@ -15,8 +15,8 @@
     "context": "cards/en",
     "output": "data/pokemon/cards",
     "script": "scripts/pokemon/migrate-cards.py",
-    "version": "37d13b7cd2ff04c41a319ecf9b5d854328a8a390",
+    "version": "ab03aef938803f56be50c81c4b4a2f2aba715eb5",
     "successful": true,
-    "timestamp": "2025-09-26T15:37:58Z"
+    "timestamp": "2025-11-15T01:48:28Z"
   }
 ]
