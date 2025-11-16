@@ -62,6 +62,11 @@ public abstract class AbstractIntegrationTest {
         registry.add("spring.liquibase.enabled", () -> true);
         registry.add("spring.liquibase.change-log", () -> "classpath:db/changelog/db.changelog-master.yaml");
 
+        // Problem Details (RFC 7807) Configuration
+        registry.add("spring.mvc.problemdetails.enabled", () -> true);
+        registry.add("server.error.include-message", () -> "always");
+        registry.add("server.error.include-binding-errors", () -> "always");
+
         // HikariCP connection pool configuration for tests
         // Shorter lifetimes prevent stale connections when container is reused
         registry.add("spring.datasource.hikari.maximum-pool-size", () -> 5);

@@ -251,11 +251,12 @@ class DecklistIntegrationTest extends AbstractIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.type").value("/errors/invalid-argument"))
-                .andExpect(jsonPath("$.title").value("Invalid Argument"))
+                .andExpect(jsonPath("$.type").value("/errors/validation"))
+                .andExpect(jsonPath("$.title").value("Validation Error"))
                 .andExpect(jsonPath("$.status").value(400))
-                .andExpect(jsonPath("$.detail").value(containsString("name is required")))
-                .andExpect(jsonPath("$.timestamp").exists());
+                .andExpect(jsonPath("$.detail").value("Validation failed for one or more fields"))
+                .andExpect(jsonPath("$.timestamp").exists())
+                .andExpect(jsonPath("$.errors.name").value("Decklist name is required and cannot be blank"));
     }
 
     @Test
@@ -273,11 +274,12 @@ class DecklistIntegrationTest extends AbstractIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.type").value("/errors/invalid-argument"))
-                .andExpect(jsonPath("$.title").value("Invalid Argument"))
+                .andExpect(jsonPath("$.type").value("/errors/validation"))
+                .andExpect(jsonPath("$.title").value("Validation Error"))
                 .andExpect(jsonPath("$.status").value(400))
-                .andExpect(jsonPath("$.detail").value(containsString("name is required")))
-                .andExpect(jsonPath("$.timestamp").exists());
+                .andExpect(jsonPath("$.detail").value("Validation failed for one or more fields"))
+                .andExpect(jsonPath("$.timestamp").exists())
+                .andExpect(jsonPath("$.errors.name").value("Decklist name is required and cannot be blank"));
     }
 
     @Test
@@ -327,11 +329,12 @@ class DecklistIntegrationTest extends AbstractIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.type").value("/errors/invalid-argument"))
-                .andExpect(jsonPath("$.title").value("Invalid Argument"))
+                .andExpect(jsonPath("$.type").value("/errors/validation"))
+                .andExpect(jsonPath("$.title").value("Validation Error"))
                 .andExpect(jsonPath("$.status").value(400))
-                .andExpect(jsonPath("$.detail").value(containsString("at least one card")))
-                .andExpect(jsonPath("$.timestamp").exists());
+                .andExpect(jsonPath("$.detail").value("Validation failed for one or more fields"))
+                .andExpect(jsonPath("$.timestamp").exists())
+                .andExpect(jsonPath("$.errors.cards").value("Decklist must contain at least one card"));
     }
 
     @Test
@@ -349,11 +352,12 @@ class DecklistIntegrationTest extends AbstractIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.type").value("/errors/invalid-argument"))
-                .andExpect(jsonPath("$.title").value("Invalid Argument"))
+                .andExpect(jsonPath("$.type").value("/errors/validation"))
+                .andExpect(jsonPath("$.title").value("Validation Error"))
                 .andExpect(jsonPath("$.status").value(400))
-                .andExpect(jsonPath("$.detail").value(containsString("at least one card")))
-                .andExpect(jsonPath("$.timestamp").exists());
+                .andExpect(jsonPath("$.detail").value("Validation failed for one or more fields"))
+                .andExpect(jsonPath("$.timestamp").exists())
+                .andExpect(jsonPath("$.errors.cards").value("Decklist must contain at least one card"));
     }
 
     @Test

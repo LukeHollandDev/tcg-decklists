@@ -28,16 +28,6 @@ public class DecklistService {
 
     @Transactional
     public Decklist createDecklist(DecklistRequest request) {
-        if (request.name() == null || request.name().trim().isEmpty()) {
-            throw new IllegalArgumentException("Decklist name is required");
-        }
-        if (request.type() == null) {
-            throw new IllegalArgumentException("Decklist type is required");
-        }
-        if (request.cards() == null || request.cards().isEmpty()) {
-            throw new IllegalArgumentException("Decklist must contain at least one card");
-        }
-
         Set<String> uniqueCardIds = new HashSet<>(request.cards());
 
         List<String> invalidCardIds = uniqueCardIds.stream()

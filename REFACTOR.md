@@ -30,12 +30,12 @@ This document outlines comprehensive improvements to enhance the readability, ma
 ## Progress Tracking
 
 **Last Updated:** 2025-11-16
-**Overall Status:** 1/14 improvements completed (7%)
+**Overall Status:** 2/14 improvements completed (14%)
 
 | # | Improvement | Priority | Status | Completed | Notes |
 |---|-------------|----------|--------|-----------|-------|
 | 1 | Exception Handling (RFC 7807) | HIGH | ✅ Done | 2025-11-16 | All tests passing |
-| 2 | Bean Validation | HIGH | ⏳ Not Started | - | - |
+| 2 | Bean Validation | HIGH | ✅ Done | 2025-11-16 | All tests passing |
 | 3 | API Versioning | HIGH | ⏳ Not Started | - | - |
 | 4 | CardSearchRequest to Record | HIGH | ⏳ Not Started | - | - |
 | 5 | Spring Boot Actuator | HIGH | ⏳ Not Started | - | - |
@@ -58,7 +58,7 @@ This document outlines comprehensive improvements to enhance the readability, ma
 - 🔄 **Needs Revision** - Completed but needs changes
 
 **Sprint Progress:**
-- **Sprint 1 (High Priority):** 1/6 completed
+- **Sprint 1 (High Priority):** 2/6 completed
 - **Sprint 2 (Medium Priority):** 0/4 completed
 - **Additional Improvements:** 0/4 completed
 
@@ -529,27 +529,51 @@ Example error response for not found:
 **Priority:** HIGH
 **Effort:** Medium (3-5 hours)
 **Files Affected:** All DTOs, Controllers, build.gradle.kts
-**Status:** ⏳ Not Started
+**Status:** ✅ Done (2025-11-16)
 
 ---
 
 ### Implementation Checklist
 
-- [ ] Add spring-boot-starter-validation dependency to build.gradle.kts
-- [ ] Update DecklistRequest with validation annotations
-- [ ] Update DecklistController to use @Valid
-- [ ] Remove manual validation from DecklistService
-- [ ] Create validated CardSearchRequest (preview for Improvement #4)
-- [ ] Test validation error responses
-- [ ] Update integration tests
+- [x] Add spring-boot-starter-validation dependency to build.gradle.kts
+- [x] Update DecklistRequest with validation annotations
+- [x] Update DecklistController to use @Valid
+- [x] Remove manual validation from DecklistService
+- [ ] Create validated CardSearchRequest (preview for Improvement #4 - deferred)
+- [x] Test validation error responses
+- [x] Update integration tests
 
 ### Implementation Notes
 
-> **Add notes here as you implement:**
-> - Actual time taken:
-> - Challenges encountered:
-> - Deviations from plan:
-> - Lessons learned:
+**Completed:** 2025-11-16
+
+**Actual time taken:** ~2 hours
+
+**What was implemented:**
+- Added spring-boot-starter-validation dependency to build.gradle.kts
+- Updated DecklistRequest with @NotBlank, @NotNull, and @NotEmpty validation annotations
+- Added @Valid annotation to DecklistController.createDecklist method
+- Removed manual input validation from DecklistService (kept business logic validation for card IDs)
+- Extended GlobalExceptionHandler from ResponseEntityExceptionHandler
+- Overrode handleMethodArgumentNotValid to provide custom RFC 7807 error format with field-specific errors
+- Updated 4 integration tests to expect new Bean Validation error format
+- Added Problem Details configuration to test setup (AbstractIntegrationTest)
+- All 274 tests passing ✅
+
+**Challenges encountered:**
+- Initial implementation using @ExceptionHandler didn't work because Spring Boot's built-in handlers took precedence
+- Solution: Extended ResponseEntityExceptionHandler and overrode handleMethodArgumentNotValid instead
+- Tests were failing with type="about:blank" until proper override was implemented
+
+**Deviations from plan:**
+- CardSearchRequest validation deferred to Improvement #4 as planned
+- Had to extend ResponseEntityExceptionHandler instead of just using @RestControllerAdvice
+
+**Lessons learned:**
+- When spring.mvc.problemdetails.enabled=true, must extend ResponseEntityExceptionHandler and override methods rather than using @ExceptionHandler for Spring-handled exceptions
+- Bean Validation integrates seamlessly with RFC 7807 Problem Details
+- Service layer is much cleaner with only business logic validation remaining
+- Field-specific validation errors provide excellent API consumer experience
 
 ---
 

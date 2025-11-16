@@ -6,6 +6,7 @@ import dev.lukeholland.tcg.decklists.api.decklist.dto.DecklistResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,7 +28,7 @@ public class DecklistController {
             description = "Creates a decklist with a name, card game type, and list of card IDs (duplicates allowed)")
     @PostMapping
     public ResponseEntity<Map<String, Integer>> createDecklist(
-            @Parameter(description = "Decklist creation request") @RequestBody DecklistRequest request) {
+            @Parameter(description = "Decklist creation request") @Valid @RequestBody DecklistRequest request) {
         var decklist = decklistService.createDecklist(request);
         return ResponseEntity
                 .status(HttpStatus.CREATED)

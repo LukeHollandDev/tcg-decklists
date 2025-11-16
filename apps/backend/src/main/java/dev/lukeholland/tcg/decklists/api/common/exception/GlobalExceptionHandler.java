@@ -2,13 +2,18 @@ package dev.lukeholland.tcg.decklists.api.common.exception;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ProblemDetail;
+import org.springframework.http.*;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.net.URI;
 import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Global exception handler for all REST controllers.
@@ -16,12 +21,16 @@ import java.time.Instant;
  * <p>
  * This handler provides consistent error responses across the entire API,
  * following the RFC 7807 standard for HTTP API error responses.
+ * <p>
+ * Extends ResponseEntityExceptionHandler to properly customize Spring's built-in
+ * exception handling when problem details are enabled.
  */
 @RestControllerAdvice
-public class GlobalExceptionHandler {
+public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(GlobalExceptionHandler.class);
     private static final String TIMESTAMP_PROPERTY = "timestamp";
+    private static final String ERRORS_PROPERTY = "errors";
 
     /**
      * Handle entity not found exceptions (404).
@@ -66,6 +75,46 @@ public class GlobalExceptionHandler {
         problemDetail.setProperty(TIMESTAMP_PROPERTY, Instant.now());
 
         return problemDetail;
+    }
+
+    /**
+     * Handle Bean Validation errors (400).
+     * <p>
+     * Triggered when @Valid fails on request bodies, providing field-specific
+     * error messages for each validation constraint violation.
+     * <p>
+     * Overrides the default Spring Boot handler to provide custom error format.
+     *
+     * @param ex      the MethodArgumentNotValidException
+     * @param headers the HTTP headers
+     * @param status  the HTTP status code
+     * @param request the current web request
+     * @return ResponseEntity with RFC 7807 Problem Detail and field errors
+     */
+    @Override
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(
+            MethodArgumentNotValidException ex,
+            HttpHeaders headers,
+            HttpStatusCode status,
+            WebRequest request) {
+
+        Map<String, String> errors = new HashMap<>();
+        ex.getBindingResult().getAllErrors().forEach(error -> {
+            String fieldName = ((FieldError) error).getField();
+            String errorMessage = error.getDefaultMessage();
+            errors.put(fieldName, errorMessage);
+        });
+
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
+                HttpStatus.BAD_REQUEST,
+                "Validation failed for one or more fields"
+        );
+        problemDetail.setTitle("Validation Error");
+        problemDetail.setType(URI.create("/errors/validation"));
+        problemDetail.setProperty(TIMESTAMP_PROPERTY, Instant.now());
+        problemDetail.setProperty(ERRORS_PROPERTY, errors);
+
+        return ResponseEntity.badRequest().body(problemDetail);
     }
 
     /**
