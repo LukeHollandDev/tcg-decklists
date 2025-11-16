@@ -1175,10 +1175,12 @@ Accept: application/vnd.tcg-decklists.v1+json
 > - **Actual time taken:** ~30 minutes
 > - **Challenges encountered:** None - conversion was straightforward
 > - **Deviations from plan:**
->   - No builder pattern needed for tests as integration tests use HTTP request parameters directly
+    >
+- No builder pattern needed for tests as integration tests use HTTP request parameters directly
 >   - No test file changes required
 > - **Lessons learned:**
->   - Record conversion significantly reduced code from 498 lines to 156 lines (-69%)
+    >
+- Record conversion significantly reduced code from 498 lines to 156 lines (-69%)
 >   - Compact constructor cleanly handles default values and bounds enforcement
 >   - Bean Validation annotations work seamlessly with @ModelAttribute binding
 >   - All 45 fields successfully converted with validation preserved
@@ -1544,28 +1546,58 @@ CardSearchRequest request = CardSearchRequestBuilder.builder()
 **Priority:** HIGH
 **Effort:** Small (1-2 hours)
 **Files Affected:** build.gradle.kts, application.properties
-**Status:** ⏳ Not Started
+**Status:** ✅ Done (2025-11-16)
 
 ---
 
 ### Implementation Checklist
 
-- [ ] Add spring-boot-starter-actuator dependency to build.gradle.kts
-- [ ] Add micrometer-registry-prometheus dependency (optional)
-- [ ] Configure actuator endpoints in application.properties
-- [ ] Add application info properties
-- [ ] Test /actuator/health endpoint
-- [ ] Test /actuator/info endpoint
-- [ ] Test /actuator/metrics endpoint
-- [ ] Test /actuator/prometheus endpoint (if added)
+- [x] Add spring-boot-starter-actuator dependency to build.gradle.kts
+- [x] Add micrometer-registry-prometheus dependency (optional)
+- [x] Configure actuator endpoints in application.properties
+- [x] Add application info properties
+- [x] Test /actuator/health endpoint
+- [x] Test /actuator/info endpoint
+- [x] Test /actuator/metrics endpoint
+- [x] Test /actuator/prometheus endpoint (if added)
 
 ### Implementation Notes
 
-> **Add notes here as you implement:**
-> - Actual time taken:
-> - Challenges encountered:
-> - Deviations from plan:
-> - Lessons learned:
+**Completed:** 2025-11-16
+
+**Actual time taken:** ~30 minutes
+
+**What was implemented:**
+
+- Added `spring-boot-starter-actuator` dependency to build.gradle.kts
+- Added `micrometer-registry-prometheus` dependency for Prometheus metrics
+- Configured actuator endpoints in application.properties:
+    - Exposed endpoints: health, info, metrics, prometheus
+    - Enabled liveness and readiness probes
+    - Enabled database and disk space health checks
+    - Configured info endpoint with app details, Java version, and OS info
+- Added application info properties (name, description, version)
+- Tested all endpoints successfully:
+    - `/actuator/health` - Returns UP status with liveness/readiness groups
+    - `/actuator/health/liveness` - Returns UP
+    - `/actuator/health/readiness` - Returns UP
+    - `/actuator/info` - Shows app info, Java 21.0.9, and OS details
+    - `/actuator/metrics` - Lists available metrics
+    - `/actuator/prometheus` - Returns Prometheus-formatted metrics
+
+**Challenges encountered:**
+
+- Backend needed to be restarted for new dependencies to load
+
+**Deviations from plan:**
+
+- None - followed the plan exactly as specified
+
+**Lessons learned:**
+
+- Spring Boot Actuator integrates seamlessly with minimal configuration
+- Prometheus metrics are available immediately after adding the dependency
+- Liveness and readiness probes are essential for Kubernetes/Docker deployments
 
 ---
 
