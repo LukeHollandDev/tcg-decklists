@@ -1,0 +1,15 @@
+game: pokemon
+version: 1.0
+
+sources:
+  - name: pokemon-tcg-data
+    type: git
+    url: https://github.com/PokemonTCG/pokemon-tcg-data
+    update_check: github_commits
+    outputs:
+      - name: sets
+        path: sets
+        destination: data/pokemon/sets
+      - name: cards
+        path: cards/en
+        destination: data/pokemon/cards

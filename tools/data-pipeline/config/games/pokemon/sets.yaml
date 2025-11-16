@@ -1,0 +1,66 @@
+entity: pokemon_sets
+version: 1.0
+
+# Data source
+source:
+  type: json
+  location: data/pokemon/sets/en.json
+  is_array: true
+
+# Primary table
+table: pokemon_set
+
+# Primary key config
+primary_key:
+  field: id
+  column: set_id
+  type: text
+
+# Upsert strategy
+strategy: upsert
+conflict_target: set_id
+
+# Simple field mappings (JSON field → DB column)
+fields:
+  - json_path: id
+    column: set_id
+    type: text
+    required: true
+
+  - json_path: name
+    column: name
+    type: text
+
+  - json_path: series
+    column: series
+    type: text
+
+  - json_path: printedTotal
+    column: printed_total
+    type: integer
+
+  - json_path: total
+    column: total
+    type: integer
+
+  - json_path: ptcgoCode
+    column: ptcgo_code
+    type: text
+
+  - json_path: releaseDate
+    column: release_date
+    type: text
+
+  - json_path: updatedAt
+    column: updated_at
+    type: text
+
+# Nested object mappings
+nested_fields:
+  - json_path: images.symbol
+    column: image_symbol
+    type: text
+
+  - json_path: images.logo
+    column: image_logo
+    type: text

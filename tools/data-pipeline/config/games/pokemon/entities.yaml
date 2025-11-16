@@ -1,0 +1,13 @@
+game: pokemon
+version: 1.0
+
+# Entity loading order (respects dependencies)
+entities:
+  - name: sets
+    config: sets.yaml
+    dependencies: []
+
+  - name: cards
+    config: cards.yaml
+    dependencies:
+      - sets  # Cards must load after sets (foreign key dependency)

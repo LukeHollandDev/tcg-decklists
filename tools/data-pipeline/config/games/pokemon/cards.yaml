@@ -1,0 +1,151 @@
+entity: pokemon_cards
+version: 1.0
+
+source:
+  type: json_multi
+  location: data/pokemon/cards/*.json
+  is_array: true
+  consolidate: true
+
+table: pokemon_card
+
+primary_key:
+  field: id
+  column: id
+  type: text
+
+strategy: upsert
+conflict_target: id
+
+# Simple fields
+fields:
+  - json_path: id
+    column: id
+    type: text
+    required: true
+
+  - json_path: name
+    column: name
+    type: text
+    required: true
+
+  - json_path: supertype
+    column: supertype
+    type: text
+
+  - json_path: number
+    column: number
+    type: text
+
+  - json_path: flavorText
+    column: flavor_text
+    type: text
+
+  - json_path: level
+    column: level
+    type: text
+
+  - json_path: regulationMark
+    column: regulation_mark
+    type: text
+
+  - json_path: convertedRetreatCost
+    column: converted_retreat_cost
+    type: integer
+
+# Nested simple fields
+nested_fields:
+  - json_path: images.small
+    column: image_low
+    type: text
+
+  - json_path: images.large
+    column: image_high
+    type: text
+
+# Fields requiring transformation
+transformed_fields:
+  - json_path: hp
+    column: hp
+    type: text
+    transform: none
+
+  - json_path: hp
+    column: hp_numeric
+    type: integer
+    transform: parse_integer
+    nullable: true
+
+# Foreign key lookups
+lookups:
+  - json_path: id
+    column: set_id
+    lookup_table: pokemon_set
+    lookup_column: set_id
+    transform: extract_set_id
+
+  - json_path: artist
+    column: artist_id
+    lookup_table: pokemon_artist
+    lookup_column: name
+    create_if_missing: true
+
+  - json_path: rarity
+    column: rarity_id
+    lookup_table: pokemon_rarity
+    lookup_column: name
+    create_if_missing: true
+
+# Array fields → junction tables
+array_junctions:
+  # Simple array: types → card_type junction
+  - json_path: types
+    junction_table: pokemon_card_type
+    lookup_table: pokemon_type
+    lookup_column: name
+    create_if_missing: true
+
+  # Simple array: subtypes → card_subtype junction
+  - json_path: subtypes
+    junction_table: pokemon_card_subtype
+    lookup_table: pokemon_subtype
+    lookup_column: name
+    create_if_missing: true
+
+  # Integer array: nationalPokedexNumbers → card_pokedex junction
+  - json_path: nationalPokedexNumbers
+    junction_table: pokemon_card_pokedex
+    lookup_table: pokemon_pokedex
+    lookup_column: number
+    create_if_missing: true
+
+  # String array: rules → card_rule junction
+  - json_path: rules
+    junction_table: pokemon_card_rule
+    lookup_table: pokemon_rule
+    lookup_column: text
+    create_if_missing: true
+
+# Array with quantity tracking
+array_with_quantity:
+  # retreatCost: ["Colorless", "Colorless"] → quantities per type
+  - json_path: retreatCost
+    junction_table: pokemon_card_retreat_cost
+    lookup_table: pokemon_type
+    lookup_column: name
+    create_if_missing: true
+    count_occurrences: true
+
+# Dynamic legality fields (object with unknown keys)
+dynamic_object_mapping:
+  - json_path: legalities
+    junction_table: pokemon_card_legality
+    key_lookup_table: pokemon_format
+    key_lookup_column: name
+    value_column: status
+    value_transform: lowercase
+    create_keys_if_missing: true
+
+# NOTE: Complex nested array entities (attacks, abilities, weaknesses, resistances)
+# and evolution mappings will be added in a future iteration. For now, this config
+# handles the core card data and simple relationships.
