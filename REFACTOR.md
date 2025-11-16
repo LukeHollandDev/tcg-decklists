@@ -9,15 +9,19 @@
 
 ## Executive Summary
 
-This document outlines comprehensive improvements to enhance the readability, maintainability, and modernization of the TCG Decklists backend API. The codebase currently demonstrates solid architecture and modern Java practices, but several enhancements will bring it to production-ready, enterprise-grade quality.
+This document outlines comprehensive improvements to enhance the readability, maintainability, and modernization of the
+TCG Decklists backend API. The codebase currently demonstrates solid architecture and modern Java practices, but several
+enhancements will bring it to production-ready, enterprise-grade quality.
 
 ### Current Assessment
+
 - **Architecture:** Strong foundation with feature-based packaging (B+/A-)
 - **Readability:** 9/10 - Clean, well-organized code
 - **Maintainability:** 8/10 - Good structure, some technical debt areas
 - **Modernization:** 7.5/10 - Uses Java 21+ but missing key Spring Boot 3.5 patterns
 
 ### Goals
+
 1. Implement industry-standard error handling (RFC 7807)
 2. Adopt declarative validation patterns
 3. Enable production monitoring and observability
@@ -32,24 +36,25 @@ This document outlines comprehensive improvements to enhance the readability, ma
 **Last Updated:** 2025-11-16
 **Overall Status:** 2/14 improvements completed (14%)
 
-| # | Improvement | Priority | Status | Completed | Notes |
-|---|-------------|----------|--------|-----------|-------|
-| 1 | Exception Handling (RFC 7807) | HIGH | ✅ Done | 2025-11-16 | All tests passing |
-| 2 | Bean Validation | HIGH | ✅ Done | 2025-11-16 | All tests passing |
-| 3 | API Versioning | HIGH | ⏳ Not Started | - | - |
-| 4 | CardSearchRequest to Record | HIGH | ⏳ Not Started | - | - |
-| 5 | Spring Boot Actuator | HIGH | ⏳ Not Started | - | - |
-| 6 | Application Properties | HIGH | ⏳ Not Started | - | - |
-| 7 | Caching Strategy | MEDIUM | ⏳ Not Started | - | - |
-| 8 | Virtual Threads | MEDIUM | ⏳ Not Started | - | - |
-| 9 | Clean Up Common Package | MEDIUM | ⏳ Not Started | - | - |
-| 10 | Standardize Validation | MEDIUM | ⏳ Not Started | - | - |
-| 11 | Enhanced OpenAPI Config | LOW | ⏳ Not Started | - | - |
-| 12 | Query Optimization | LOW | ⏳ Not Started | - | - |
-| 13 | Modern Java 21 Patterns | LOW | ⏳ Not Started | - | - |
-| 14 | Structured Logging | LOW | ⏳ Not Started | - | - |
+| #  | Improvement                   | Priority | Status        | Completed  | Notes             |
+|----|-------------------------------|----------|---------------|------------|-------------------|
+| 1  | Exception Handling (RFC 7807) | HIGH     | ✅ Done        | 2025-11-16 | All tests passing |
+| 2  | Bean Validation               | HIGH     | ✅ Done        | 2025-11-16 | All tests passing |
+| 3  | API Versioning                | HIGH     | ✅ Done        | 2025-11-16 | All tests passing |
+| 4  | CardSearchRequest to Record   | HIGH     | ⏳ Not Started | -          | -                 |
+| 5  | Spring Boot Actuator          | HIGH     | ⏳ Not Started | -          | -                 |
+| 6  | Application Properties        | HIGH     | ⏳ Not Started | -          | -                 |
+| 7  | Caching Strategy              | MEDIUM   | ⏳ Not Started | -          | -                 |
+| 8  | Virtual Threads               | MEDIUM   | ⏳ Not Started | -          | -                 |
+| 9  | Clean Up Common Package       | MEDIUM   | ⏳ Not Started | -          | -                 |
+| 10 | Standardize Validation        | MEDIUM   | ⏳ Not Started | -          | -                 |
+| 11 | Enhanced OpenAPI Config       | LOW      | ⏳ Not Started | -          | -                 |
+| 12 | Query Optimization            | LOW      | ⏳ Not Started | -          | -                 |
+| 13 | Modern Java 21 Patterns       | LOW      | ⏳ Not Started | -          | -                 |
+| 14 | Structured Logging            | LOW      | ⏳ Not Started | -          | -                 |
 
 **Status Legend:**
+
 - ✅ **Done** - Completed and tested
 - 🚧 **In Progress** - Currently being implemented
 - ⏸️ **Blocked** - Waiting on dependencies or decisions
@@ -58,6 +63,7 @@ This document outlines comprehensive improvements to enhance the readability, ma
 - 🔄 **Needs Revision** - Completed but needs changes
 
 **Sprint Progress:**
+
 - **Sprint 1 (High Priority):** 2/6 completed
 - **Sprint 2 (Medium Priority):** 0/4 completed
 - **Additional Improvements:** 0/4 completed
@@ -67,6 +73,7 @@ This document outlines comprehensive improvements to enhance the readability, ma
 ## How to Use This Document
 
 Each improvement is structured as follows:
+
 - **Priority & Effort:** High/Medium/Low priority, Effort estimate
 - **Rationale:** Why this improvement matters
 - **Current State:** What exists today
@@ -76,13 +83,15 @@ Each improvement is structured as follows:
 - **Code Examples:** Working examples you can adapt
 - **Impact Assessment:** Expected benefits and risks
 
-**Recommended Approach:** Implement improvements in order, completing all High Priority items first. Each improvement is self-contained and can be implemented independently.
+**Recommended Approach:** Implement improvements in order, completing all High Priority items first. Each improvement is
+self-contained and can be implemented independently.
 
 ---
 
 ## Table of Contents
 
 ### High Priority (Sprint 1)
+
 1. [Centralized Exception Handling with RFC 7807](#1-centralized-exception-handling-with-rfc-7807)
 2. [Jakarta Bean Validation Implementation](#2-jakarta-bean-validation-implementation)
 3. [API Versioning Strategy](#3-api-versioning-strategy)
@@ -91,12 +100,14 @@ Each improvement is structured as follows:
 6. [Application Properties Configuration](#6-application-properties-configuration)
 
 ### Medium Priority (Sprint 2)
+
 7. [Caching Strategy Implementation](#7-caching-strategy-implementation)
 8. [Enable Virtual Threads](#8-enable-virtual-threads)
 9. [Clean Up Common Package Structure](#9-clean-up-common-package-structure)
 10. [Standardize Validation Layer](#10-standardize-validation-layer)
 
 ### Additional Improvements
+
 11. [Enhanced OpenAPI Configuration](#11-enhanced-openapi-configuration)
 12. [Query Optimization Recommendations](#12-query-optimization-recommendations)
 13. [Modern Java 21 Patterns](#13-modern-java-21-patterns)
@@ -135,27 +146,30 @@ Each improvement is structured as follows:
 **Actual time taken:** ~3 hours
 
 **What was implemented:**
+
 - Created 2 custom exception classes (EntityNotFoundException, ValidationException)
 - Note: Did NOT implement DuplicateEntityException as duplicate decklist names are acceptable
 - Created GlobalExceptionHandler with @RestControllerAdvice handling 4 exception types:
-  - EntityNotFoundException → 404
-  - ValidationException → 400
-  - IllegalArgumentException → 400 (backward compatibility)
-  - Generic Exception → 500
+    - EntityNotFoundException → 404
+    - ValidationException → 400
+    - IllegalArgumentException → 400 (backward compatibility)
+    - Generic Exception → 500
 - Updated PokemonCardController: Removed ResponseEntity.notFound() and .badRequest() patterns
 - Updated DecklistController: Removed all try-catch blocks, simplified return types
 - Updated application.properties with RFC 7807 Problem Details configuration
 - Updated 2 integration test files with comprehensive RFC 7807 validation:
-  - CardErrorHandlingIntegrationTest.java
-  - DecklistIntegrationTest.java
-  - CardFeaturesAndAutocompleteIntegrationTest.java (1 test)
+    - CardErrorHandlingIntegrationTest.java
+    - DecklistIntegrationTest.java
+    - CardFeaturesAndAutocompleteIntegrationTest.java (1 test)
 - All integration tests passing ✅
 
 **Deviations from plan:**
+
 - Frontend error handling deferred to separate task (backend-only focus)
 - Did not create DuplicateEntityException (not needed per user requirements)
 
 **Lessons learned:**
+
 - Breaking change approach simplified implementation significantly
 - Spring Boot 3.5's built-in RFC 7807 support made implementation straightforward
 - Controllers are now much cleaner without ResponseEntity error handling
@@ -166,11 +180,13 @@ Each improvement is structured as follows:
 ### Rationale
 
 Currently, error handling is inconsistent across controllers:
+
 - `PokemonCardController` uses Optional/ResponseEntity pattern
 - `DecklistController` uses try-catch with `Map.of("error", message)`
 - Exceptions leak implementation details to API consumers
 
 **RFC 7807 (Problem Details)** is the industry standard for REST API error responses, providing:
+
 - Consistent error format across all endpoints
 - Machine-readable error types
 - Human-readable error details
@@ -179,7 +195,9 @@ Currently, error handling is inconsistent across controllers:
 ### Current State
 
 **PokemonCardController:**
+
 ```java
+
 @GetMapping("/autocomplete")
 public ResponseEntity<List<String>> autocomplete(...) {
     if (query == null || query.trim().isEmpty()) {
@@ -190,14 +208,16 @@ public ResponseEntity<List<String>> autocomplete(...) {
 ```
 
 **DecklistController:**
+
 ```java
+
 @PostMapping
 public ResponseEntity<?> createDecklist(@RequestBody DecklistRequest request) {
     try {
         // ...
     } catch (IllegalArgumentException e) {
         return ResponseEntity.badRequest()
-            .body(Map.of("error", e.getMessage()));  // Inconsistent format
+                .body(Map.of("error", e.getMessage()));  // Inconsistent format
     }
 }
 ```
@@ -294,8 +314,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(EntityNotFoundException.class)
     public ProblemDetail handleEntityNotFound(EntityNotFoundException ex) {
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
-            HttpStatus.NOT_FOUND,
-            ex.getMessage()
+                HttpStatus.NOT_FOUND,
+                ex.getMessage()
         );
         problemDetail.setTitle("Entity Not Found");
         problemDetail.setType(URI.create("/errors/not-found"));
@@ -312,8 +332,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ValidationException.class)
     public ProblemDetail handleValidation(ValidationException ex) {
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
-            HttpStatus.BAD_REQUEST,
-            ex.getMessage()
+                HttpStatus.BAD_REQUEST,
+                ex.getMessage()
         );
         problemDetail.setTitle("Validation Error");
         problemDetail.setType(URI.create("/errors/validation"));
@@ -336,8 +356,8 @@ public class GlobalExceptionHandler {
         });
 
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
-            HttpStatus.BAD_REQUEST,
-            "Validation failed for one or more fields"
+                HttpStatus.BAD_REQUEST,
+                "Validation failed for one or more fields"
         );
         problemDetail.setTitle("Validation Error");
         problemDetail.setType(URI.create("/errors/validation"));
@@ -353,8 +373,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(IllegalArgumentException.class)
     public ProblemDetail handleIllegalArgument(IllegalArgumentException ex) {
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
-            HttpStatus.BAD_REQUEST,
-            ex.getMessage()
+                HttpStatus.BAD_REQUEST,
+                ex.getMessage()
         );
         problemDetail.setTitle("Invalid Argument");
         problemDetail.setType(URI.create("/errors/invalid-argument"));
@@ -369,8 +389,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ProblemDetail handleGenericException(Exception ex) {
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
-            HttpStatus.INTERNAL_SERVER_ERROR,
-            "An unexpected error occurred"
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                "An unexpected error occurred"
         );
         problemDetail.setTitle("Internal Server Error");
         problemDetail.setType(URI.create("/errors/internal"));
@@ -388,7 +408,9 @@ public class GlobalExceptionHandler {
 #### Step 3: Update Controllers to Use Custom Exceptions
 
 **Before (PokemonCardController):**
+
 ```java
+
 @GetMapping("/{id}")
 public ResponseEntity<CardResponse> getCardById(@PathVariable String id) {
     return service.findById(id)
@@ -399,7 +421,9 @@ public ResponseEntity<CardResponse> getCardById(@PathVariable String id) {
 ```
 
 **After:**
+
 ```java
+
 @GetMapping("/{id}")
 public CardResponse getCardById(@PathVariable String id) {
     return service.findById(id)
@@ -409,7 +433,9 @@ public CardResponse getCardById(@PathVariable String id) {
 ```
 
 **Before (DecklistController):**
+
 ```java
+
 @PostMapping
 public ResponseEntity<?> createDecklist(@RequestBody DecklistRequest request) {
     try {
@@ -422,7 +448,9 @@ public ResponseEntity<?> createDecklist(@RequestBody DecklistRequest request) {
 ```
 
 **After:**
+
 ```java
+
 @PostMapping
 public DecklistResponse createDecklist(@Valid @RequestBody DecklistRequest request) {
     Decklist decklist = decklistService.createDecklist(request);
@@ -435,6 +463,7 @@ public DecklistResponse createDecklist(@Valid @RequestBody DecklistRequest reque
 Remove try-catch blocks and let exceptions propagate to the global handler.
 
 **Before (DecklistService):**
+
 ```java
 public Decklist createDecklist(DecklistRequest request) {
     if (request.name() == null || request.name().trim().isEmpty()) {
@@ -445,6 +474,7 @@ public Decklist createDecklist(DecklistRequest request) {
 ```
 
 **After:**
+
 ```java
 public Decklist createDecklist(DecklistRequest request) {
     // Validation now handled by @Valid in controller
@@ -507,6 +537,7 @@ Example error response for not found:
 ### Impact Assessment
 
 **Benefits:**
+
 - All errors now have consistent structure
 - Better API consumer experience
 - Easier to debug with structured error information
@@ -514,10 +545,12 @@ Example error response for not found:
 - Follows REST best practices
 
 **Risks:**
+
 - Frontend may need updates to handle new error format
 - Existing API consumers need to adapt (breaking change)
 
 **Migration Notes:**
+
 - Update frontend error handling to parse ProblemDetail format
 - Document new error format in OpenAPI spec
 - Consider running old and new format in parallel during migration
@@ -550,6 +583,7 @@ Example error response for not found:
 **Actual time taken:** ~2 hours
 
 **What was implemented:**
+
 - Added spring-boot-starter-validation dependency to build.gradle.kts
 - Updated DecklistRequest with @NotBlank, @NotNull, and @NotEmpty validation annotations
 - Added @Valid annotation to DecklistController.createDecklist method
@@ -561,16 +595,20 @@ Example error response for not found:
 - All 274 tests passing ✅
 
 **Challenges encountered:**
+
 - Initial implementation using @ExceptionHandler didn't work because Spring Boot's built-in handlers took precedence
 - Solution: Extended ResponseEntityExceptionHandler and overrode handleMethodArgumentNotValid instead
 - Tests were failing with type="about:blank" until proper override was implemented
 
 **Deviations from plan:**
+
 - CardSearchRequest validation deferred to Improvement #4 as planned
 - Had to extend ResponseEntityExceptionHandler instead of just using @RestControllerAdvice
 
 **Lessons learned:**
-- When spring.mvc.problemdetails.enabled=true, must extend ResponseEntityExceptionHandler and override methods rather than using @ExceptionHandler for Spring-handled exceptions
+
+- When spring.mvc.problemdetails.enabled=true, must extend ResponseEntityExceptionHandler and override methods rather
+  than using @ExceptionHandler for Spring-handled exceptions
 - Bean Validation integrates seamlessly with RFC 7807 Problem Details
 - Service layer is much cleaner with only business logic validation remaining
 - Field-specific validation errors provide excellent API consumer experience
@@ -580,11 +618,13 @@ Example error response for not found:
 ### Rationale
 
 Currently, validation is scattered across layers:
+
 - DTOs have validation logic in getters (e.g., `CardSearchRequest.getPageSize()`)
 - Services validate manually with if-statements
 - Controllers have ad-hoc validation checks
 
 **Jakarta Bean Validation** provides declarative, annotation-based validation that's:
+
 - Standardized and well-documented
 - Automatically integrated with Spring
 - Testable and reusable
@@ -593,6 +633,7 @@ Currently, validation is scattered across layers:
 ### Current State
 
 **CardSearchRequest (current class implementation):**
+
 ```java
 public class CardSearchRequest {
     private Integer pageSize;
@@ -607,6 +648,7 @@ public class CardSearchRequest {
 ```
 
 **DecklistService:**
+
 ```java
 public Decklist createDecklist(DecklistRequest request) {
     if (request.name() == null || request.name().trim().isEmpty()) {
@@ -655,15 +697,18 @@ Then run: `./gradlew build --refresh-dependencies`
 **File:** `apps/backend/src/main/java/dev/lukeholland/tcg/decklists/api/decklist/dto/DecklistRequest.java`
 
 **Before:**
+
 ```java
 public record DecklistRequest(
-    String name,
-    CardGame type,
-    List<String> cards
-) { }
+        String name,
+        CardGame type,
+        List<String> cards
+) {
+}
 ```
 
 **After:**
+
 ```java
 package dev.lukeholland.tcg.decklists.api.decklist.dto;
 
@@ -675,15 +720,16 @@ import jakarta.validation.constraints.NotNull;
 import java.util.List;
 
 public record DecklistRequest(
-    @NotBlank(message = "Decklist name is required and cannot be blank")
-    String name,
+        @NotBlank(message = "Decklist name is required and cannot be blank")
+        String name,
 
-    @NotNull(message = "Card game type is required")
-    CardGame type,
+        @NotNull(message = "Card game type is required")
+        CardGame type,
 
-    @NotEmpty(message = "Decklist must contain at least one card")
-    List<@NotBlank(message = "Card ID cannot be blank") String> cards
-) { }
+        @NotEmpty(message = "Decklist must contain at least one card")
+        List<@NotBlank(message = "Card ID cannot be blank") String> cards
+) {
+}
 ```
 
 #### Step 3: Update Controllers with @Valid
@@ -691,7 +737,9 @@ public record DecklistRequest(
 **File:** `apps/backend/src/main/java/dev/lukeholland/tcg/decklists/api/decklist/DecklistController.java`
 
 **Before:**
+
 ```java
+
 @PostMapping
 public ResponseEntity<?> createDecklist(@RequestBody DecklistRequest request) {
     try {
@@ -704,7 +752,9 @@ public ResponseEntity<?> createDecklist(@RequestBody DecklistRequest request) {
 ```
 
 **After:**
+
 ```java
+
 @PostMapping
 public DecklistResponse createDecklist(@Valid @RequestBody DecklistRequest request) {
     Decklist decklist = decklistService.createDecklist(request);
@@ -717,6 +767,7 @@ public DecklistResponse createDecklist(@Valid @RequestBody DecklistRequest reque
 **File:** `apps/backend/src/main/java/dev/lukeholland/tcg/decklists/api/decklist/DecklistService.java`
 
 **Before:**
+
 ```java
 public Decklist createDecklist(DecklistRequest request) {
     if (request.name() == null || request.name().trim().isEmpty()) {
@@ -730,6 +781,7 @@ public Decklist createDecklist(DecklistRequest request) {
 ```
 
 **After:**
+
 ```java
 public Decklist createDecklist(DecklistRequest request) {
     // Validation already done by @Valid in controller
@@ -754,19 +806,19 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Pattern;
 
 public record CardSearchRequest(
-    String name,
+        String name,
 
-    @Min(value = 0, message = "Page number must be 0 or greater")
-    Integer page,
+        @Min(value = 0, message = "Page number must be 0 or greater")
+        Integer page,
 
-    @Min(value = 1, message = "Page size must be at least 1")
-    @Max(value = 100, message = "Page size cannot exceed 100")
-    Integer pageSize,
+        @Min(value = 1, message = "Page size must be at least 1")
+        @Max(value = 100, message = "Page size cannot exceed 100")
+        Integer pageSize,
 
-    @Pattern(regexp = "asc|desc", message = "Sort order must be 'asc' or 'desc'")
-    String sortOrder,
+        @Pattern(regexp = "asc|desc", message = "Sort order must be 'asc' or 'desc'")
+        String sortOrder,
 
-    // ... other fields
+        // ... other fields
 ) {
     // Compact constructor for defaults
     public CardSearchRequest {
@@ -784,8 +836,8 @@ public record CardSearchRequest(
 @NotNull        // Must not be null
 @NotBlank       // Must not be null, empty, or whitespace-only
 @NotEmpty       // Must not be null or empty (but can be whitespace)
-@Size(min=1, max=100)  // String length or collection size
-@Pattern(regexp="...")  // Regex pattern match
+@Size(min = 1, max = 100)  // String length or collection size
+@Pattern(regexp = "...")  // Regex pattern match
 @Email          // Must be valid email format
 
 // Number validations
@@ -797,7 +849,7 @@ public record CardSearchRequest(
 
 // Collection validations
 @NotEmpty       // Collection must not be empty
-@Size(min=1, max=10)  // Collection size constraints
+@Size(min = 1, max = 10)  // Collection size constraints
 
 // Custom messages
 @NotNull(message = "Custom error message")
@@ -806,6 +858,7 @@ public record CardSearchRequest(
 ### Impact Assessment
 
 **Benefits:**
+
 - Cleaner service layer (only business logic)
 - Consistent validation across all endpoints
 - Better error messages for API consumers
@@ -813,11 +866,13 @@ public record CardSearchRequest(
 - Reduced boilerplate code
 
 **Risks:**
+
 - Need to update all DTOs that currently have manual validation
 - May require updating existing tests
 - Custom validation messages need to be consistent
 
 **Migration Notes:**
+
 - Review all service methods for manual validation and remove
 - Update DTOs one at a time to minimize risk
 - Ensure all controllers use @Valid on validated request bodies
@@ -859,6 +914,7 @@ public record CardSearchRequest(
 ### Rationale
 
 Currently, API endpoints use `/api/pokemon` and `/api/decklist` without versioning. Adding versioning now:
+
 - Allows breaking changes in the future without disrupting existing consumers
 - Follows REST best practices
 - Makes API evolution easier
@@ -867,13 +923,16 @@ Currently, API endpoints use `/api/pokemon` and `/api/decklist` without versioni
 ### Current State
 
 ```java
+
 @RestController
 @RequestMapping("/api/pokemon")
-public class PokemonCardController { }
+public class PokemonCardController {
+}
 
 @RestController
 @RequestMapping("/api/decklist")
-public class DecklistController { }
+public class DecklistController {
+}
 ```
 
 ### Proposed Solution
@@ -895,7 +954,9 @@ Add `/v1/` prefix to all API endpoints: `/api/v1/pokemon`, `/api/v1/decklist`
 **File:** `apps/backend/src/main/java/dev/lukeholland/tcg/decklists/api/pokemon/PokemonCardController.java`
 
 **Before:**
+
 ```java
+
 @RestController
 @RequestMapping("/api/pokemon")
 @Tag(name = "Pokemon Cards", description = "Endpoints for searching and retrieving Pokemon TCG cards")
@@ -905,7 +966,9 @@ public class PokemonCardController {
 ```
 
 **After:**
+
 ```java
+
 @RestController
 @RequestMapping("/api/v1/pokemon")
 @Tag(name = "Pokemon Cards", description = "Endpoints for searching and retrieving Pokemon TCG cards")
@@ -919,7 +982,9 @@ public class PokemonCardController {
 **File:** `apps/backend/src/main/java/dev/lukeholland/tcg/decklists/api/decklist/DecklistController.java`
 
 **Before:**
+
 ```java
+
 @RestController
 @RequestMapping("/api/decklist")
 @Tag(name = "Decklists", description = "Endpoints for managing decklists")
@@ -929,7 +994,9 @@ public class DecklistController {
 ```
 
 **After:**
+
 ```java
+
 @RestController
 @RequestMapping("/api/v1/decklist")
 @Tag(name = "Decklists", description = "Endpoints for managing decklists")
@@ -943,15 +1010,16 @@ public class DecklistController {
 If you create an OpenAPI config class (see [Improvement #11](#11-enhanced-openapi-configuration)):
 
 ```java
+
 @Configuration
 public class OpenApiConfig {
     @Bean
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
-            .info(new Info()
-                .title("TCG Decklists API")
-                .version("1.0")
-                .description("Version 1 of the TCG Decklists API"));
+                .info(new Info()
+                        .title("TCG Decklists API")
+                        .version("1.0")
+                        .description("Version 1 of the TCG Decklists API"));
     }
 }
 ```
@@ -996,11 +1064,13 @@ Update the frontend base URL from `/api/` to `/api/v1/`:
 **File:** `apps/frontend/src/config/api.ts` (or wherever API base URL is defined)
 
 **Before:**
+
 ```typescript
 export const API_BASE_URL = 'http://localhost:8080/api';
 ```
 
 **After:**
+
 ```typescript
 export const API_BASE_URL = 'http://localhost:8080/api/v1';
 ```
@@ -1010,36 +1080,44 @@ export const API_BASE_URL = 'http://localhost:8080/api/v1';
 Update all test URLs to include `/v1`:
 
 **Before:**
+
 ```java
 mockMvc.perform(get("/api/pokemon/{id}", cardId))
 ```
 
 **After:**
+
 ```java
 mockMvc.perform(get("/api/v1/pokemon/{id}", cardId))
 ```
 
 Consider creating a test constant:
+
 ```java
 private static final String BASE_URL = "/api/v1/pokemon";
 
-mockMvc.perform(get(BASE_URL + "/{id}", cardId))
+mockMvc.
+
+perform(get(BASE_URL+"/{id}", cardId))
 ```
 
 ### Impact Assessment
 
 **Benefits:**
+
 - Can introduce breaking changes in v2 without disrupting v1 users
 - Clear API version in URLs makes debugging easier
 - Follows industry best practices
 - Prepares for future growth
 
 **Risks:**
+
 - Requires frontend updates
 - All existing API consumers need to update URLs
 - Need to update all tests
 
 **Migration Notes:**
+
 - This is a **breaking change** - existing API consumers will need to update
 - Consider supporting both `/api/pokemon` and `/api/v1/pokemon` temporarily
 - Update all documentation, Swagger UI, and README files
@@ -1050,16 +1128,20 @@ mockMvc.perform(get(BASE_URL + "/{id}", cardId))
 For reference, other versioning approaches exist but are not recommended for this project:
 
 **Header-based versioning:**
+
 ```http
 Accept: application/vnd.tcg-decklists.v1+json
 ```
+
 - Pros: Cleaner URLs
 - Cons: Less discoverable, harder to test with curl/Postman
 
 **Query parameter versioning:**
+
 ```
 /api/pokemon?version=1
 ```
+
 - Pros: Easy to change version
 - Cons: Not RESTful, easy to forget
 
@@ -1099,7 +1181,9 @@ Accept: application/vnd.tcg-decklists.v1+json
 
 ### Rationale
 
-`CardSearchRequest` is currently the only DTO still using a class instead of a record. It has validation logic embedded in getters, which is an anti-pattern. Converting it to a record with Bean Validation:
+`CardSearchRequest` is currently the only DTO still using a class instead of a record. It has validation logic embedded
+in getters, which is an anti-pattern. Converting it to a record with Bean Validation:
+
 - Makes it consistent with other DTOs
 - Separates validation from data access
 - Uses modern Java 21 features
@@ -1142,6 +1226,7 @@ public class CardSearchRequest {
 ### Proposed Solution
 
 Convert to a record with:
+
 - Compact constructor for default values
 - Bean Validation annotations for constraints
 - No validation logic in accessors
@@ -1160,6 +1245,7 @@ Convert to a record with:
 #### Step 1: Analyze Current Fields
 
 Current `CardSearchRequest` has these fields:
+
 - Pagination: page, pageSize, sortField, sortOrder
 - Search: name
 - Filters: types, subtypes, supertypes, rarities, sets, marks, artists, hp, retreatCost, etc.
@@ -1174,65 +1260,66 @@ package dev.lukeholland.tcg.decklists.api.pokemon.dto;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Pattern;
+
 import java.util.List;
 
 public record CardSearchRequest(
-    // Search criteria
-    String name,
+        // Search criteria
+        String name,
 
-    // Pagination
-    @Min(value = 0, message = "Page number must be 0 or greater")
-    Integer page,
+        // Pagination
+        @Min(value = 0, message = "Page number must be 0 or greater")
+        Integer page,
 
-    @Min(value = 1, message = "Page size must be at least 1")
-    @Max(value = 100, message = "Page size cannot exceed 100")
-    Integer pageSize,
+        @Min(value = 1, message = "Page size must be at least 1")
+        @Max(value = 100, message = "Page size cannot exceed 100")
+        Integer pageSize,
 
-    String sortField,
+        String sortField,
 
-    @Pattern(regexp = "asc|desc", message = "Sort order must be 'asc' or 'desc'")
-    String sortOrder,
+        @Pattern(regexp = "asc|desc", message = "Sort order must be 'asc' or 'desc'")
+        String sortOrder,
 
-    // Type filters
-    List<String> types,
-    List<String> subtypes,
-    List<String> supertypes,
+        // Type filters
+        List<String> types,
+        List<String> subtypes,
+        List<String> supertypes,
 
-    // Card attributes
-    List<String> rarities,
-    List<String> sets,
-    List<String> marks,
-    List<String> artists,
+        // Card attributes
+        List<String> rarities,
+        List<String> sets,
+        List<String> marks,
+        List<String> artists,
 
-    // Numeric filters
-    @Min(value = 0, message = "HP minimum must be 0 or greater")
-    Integer hpMin,
+        // Numeric filters
+        @Min(value = 0, message = "HP minimum must be 0 or greater")
+        Integer hpMin,
 
-    @Min(value = 0, message = "HP maximum must be 0 or greater")
-    Integer hpMax,
+        @Min(value = 0, message = "HP maximum must be 0 or greater")
+        Integer hpMax,
 
-    @Min(value = 0, message = "Retreat cost minimum must be 0 or greater")
-    Integer retreatCostMin,
+        @Min(value = 0, message = "Retreat cost minimum must be 0 or greater")
+        Integer retreatCostMin,
 
-    @Min(value = 0, message = "Retreat cost maximum must be 0 or greater")
-    Integer retreatCostMax,
+        @Min(value = 0, message = "Retreat cost maximum must be 0 or greater")
+        Integer retreatCostMax,
 
-    @Min(value = 0, message = "Attack cost minimum must be 0 or greater")
-    Integer attackCostMin,
+        @Min(value = 0, message = "Attack cost minimum must be 0 or greater")
+        Integer attackCostMin,
 
-    @Min(value = 0, message = "Attack cost maximum must be 0 or greater")
-    Integer attackCostMax,
+        @Min(value = 0, message = "Attack cost maximum must be 0 or greater")
+        Integer attackCostMax,
 
-    @Min(value = 0, message = "Attack damage minimum must be 0 or greater")
-    Integer attackDamageMin,
+        @Min(value = 0, message = "Attack damage minimum must be 0 or greater")
+        Integer attackDamageMin,
 
-    @Min(value = 0, message = "Attack damage maximum must be 0 or greater")
-    Integer attackDamageMax,
+        @Min(value = 0, message = "Attack damage maximum must be 0 or greater")
+        Integer attackDamageMax,
 
-    // Boolean filters
-    Boolean hasAbility,
-    Boolean hasAttack,
-    Boolean hasRule
+        // Boolean filters
+        Boolean hasAbility,
+        Boolean hasAttack,
+        Boolean hasRule
 ) {
     /**
      * Compact constructor to apply default values.
@@ -1256,7 +1343,7 @@ public record CardSearchRequest(
      */
     public CardSearchRequest(String name) {
         this(name, null, null, null, null, null, null, null, null, null, null, null,
-             null, null, null, null, null, null, null, null, null, null, null);
+                null, null, null, null, null, null, null, null, null, null, null);
     }
 }
 ```
@@ -1266,7 +1353,9 @@ public record CardSearchRequest(
 **File:** `apps/backend/src/main/java/dev/lukeholland/tcg/decklists/api/pokemon/PokemonCardController.java`
 
 **Before:**
+
 ```java
+
 @GetMapping("/search")
 public ResponseEntity<CardSearchResponse> searchCards(@ModelAttribute CardSearchRequest request) {
     return ResponseEntity.ok(service.searchCards(request));
@@ -1274,10 +1363,12 @@ public ResponseEntity<CardSearchResponse> searchCards(@ModelAttribute CardSearch
 ```
 
 **After:**
+
 ```java
+
 @GetMapping("/search")
 public ResponseEntity<CardSearchResponse> searchCards(
-    @Valid @ModelAttribute CardSearchRequest request
+        @Valid @ModelAttribute CardSearchRequest request
 ) {
     return ResponseEntity.ok(service.searchCards(request));
 }
@@ -1288,12 +1379,14 @@ public ResponseEntity<CardSearchResponse> searchCards(
 **File:** `apps/backend/src/main/java/dev/lukeholland/tcg/decklists/api/pokemon/PokemonCardService.java`
 
 The service can now trust that:
+
 - `page` is >= 0
 - `pageSize` is between 1 and 100
 - `sortOrder` is "asc" or "desc"
 - All constraints have been validated
 
 **Before:**
+
 ```java
 public CardSearchResponse searchCards(CardSearchRequest request) {
     int page = request.getPage();  // This applied validation/defaults
@@ -1303,6 +1396,7 @@ public CardSearchResponse searchCards(CardSearchRequest request) {
 ```
 
 **After:**
+
 ```java
 public CardSearchResponse searchCards(CardSearchRequest request) {
     // No need to call getters - direct field access on records
@@ -1318,21 +1412,27 @@ public CardSearchResponse searchCards(CardSearchRequest request) {
 Test builders may need updating:
 
 **Before:**
+
 ```java
 CardSearchRequest request = new CardSearchRequest();
-request.setName("Pikachu");
-request.setPage(0);
+request.
+
+setName("Pikachu");
+request.
+
+setPage(0);
 ```
 
 **After:**
+
 ```java
 CardSearchRequest request = new CardSearchRequest(
-    "Pikachu",  // name
-    0,          // page
-    20,         // pageSize
-    null,       // sortField (will default to "name")
-    null,       // sortOrder (will default to "asc")
-    // ... rest of fields
+        "Pikachu",  // name
+        0,          // page
+        20,         // pageSize
+        null,       // sortField (will default to "name")
+        null,       // sortOrder (will default to "asc")
+        // ... rest of fields
 );
 
 // Or use the convenience constructor if only name is needed
@@ -1349,6 +1449,7 @@ For complex test scenarios, consider a builder pattern:
 package dev.lukeholland.tcg.decklists.api.pokemon.builders;
 
 import dev.lukeholland.tcg.decklists.api.pokemon.dto.CardSearchRequest;
+
 import java.util.List;
 
 public class CardSearchRequestBuilder {
@@ -1388,26 +1489,28 @@ public class CardSearchRequestBuilder {
 
     public CardSearchRequest build() {
         return new CardSearchRequest(
-            name, page, pageSize, sortField, sortOrder,
-            types, null, null, null, null, null, null,
-            null, null, null, null, null, null, null, null, null, null, null
+                name, page, pageSize, sortField, sortOrder,
+                types, null, null, null, null, null, null,
+                null, null, null, null, null, null, null, null, null, null, null
         );
     }
 }
 ```
 
 Usage in tests:
+
 ```java
 CardSearchRequest request = CardSearchRequestBuilder.builder()
-    .name("Pikachu")
-    .types(List.of("Electric"))
-    .pageSize(50)
-    .build();
+        .name("Pikachu")
+        .types(List.of("Electric"))
+        .pageSize(50)
+        .build();
 ```
 
 ### Impact Assessment
 
 **Benefits:**
+
 - Consistent with all other DTOs
 - Uses modern Java 21 records
 - Cleaner, more maintainable code
@@ -1415,11 +1518,13 @@ CardSearchRequest request = CardSearchRequestBuilder.builder()
 - Better separation of concerns
 
 **Risks:**
+
 - Need to update all places that create CardSearchRequest
 - Tests may need updating
 - Getters change from `getPage()` to `page()`
 
 **Migration Notes:**
+
 - Search for all usages of `CardSearchRequest` in the codebase
 - Update from setter-based construction to constructor-based
 - Update from `request.getPage()` to `request.page()`
@@ -1460,6 +1565,7 @@ CardSearchRequest request = CardSearchRequestBuilder.builder()
 ### Rationale
 
 Spring Boot Actuator provides production-ready features for monitoring and managing your application:
+
 - Health checks for readiness/liveness probes
 - Metrics for performance monitoring
 - Info endpoint for build/version information
@@ -1515,12 +1621,10 @@ management.endpoints.web.exposure.include=health,info,metrics,prometheus
 management.endpoints.web.base-path=/actuator
 management.endpoint.health.show-details=when-authorized
 management.endpoint.health.probes.enabled=true
-
 # Health check configuration
 management.health.defaults.enabled=true
 management.health.db.enabled=true
 management.health.diskspace.enabled=true
-
 # Info endpoint
 management.info.env.enabled=true
 management.info.java.enabled=true
@@ -1547,10 +1651,10 @@ info.app.java.version=${java.version}
 For production, you'll want to secure sensitive endpoints. For now, we're only exposing safe endpoints.
 
 **Future consideration** - when adding Spring Security:
+
 ```properties
 management.endpoints.web.exposure.include=health,info
 management.endpoint.health.show-details=never
-
 # Require authentication for actuator
 management.security.enabled=true
 ```
@@ -1560,11 +1664,13 @@ management.security.enabled=true
 Start the application and test:
 
 **Health Check:**
+
 ```bash
 curl http://localhost:8080/actuator/health
 ```
 
 Response:
+
 ```json
 {
   "status": "UP",
@@ -1593,11 +1699,13 @@ Response:
 ```
 
 **Application Info:**
+
 ```bash
 curl http://localhost:8080/actuator/info
 ```
 
 Response:
+
 ```json
 {
   "app": {
@@ -1613,11 +1721,13 @@ Response:
 ```
 
 **Metrics:**
+
 ```bash
 curl http://localhost:8080/actuator/metrics
 ```
 
 Response:
+
 ```json
 {
   "names": [
@@ -1625,18 +1735,20 @@ Response:
     "jvm.memory.max",
     "http.server.requests",
     "hikaricp.connections.active",
-    "system.cpu.usage",
+    "system.cpu.usage"
     // ... many more
   ]
 }
 ```
 
 **Specific Metric:**
+
 ```bash
 curl http://localhost:8080/actuator/metrics/http.server.requests
 ```
 
 **Prometheus Format (if micrometer-registry-prometheus added):**
+
 ```bash
 curl http://localhost:8080/actuator/prometheus
 ```
@@ -1652,38 +1764,39 @@ metadata:
   name: tcg-decklists-api
 spec:
   containers:
-  - name: api
-    image: tcg-decklists-api:1.0
-    livenessProbe:
-      httpGet:
-        path: /actuator/health/liveness
-        port: 8080
-      initialDelaySeconds: 30
-      periodSeconds: 10
-    readinessProbe:
-      httpGet:
-        path: /actuator/health/readiness
-        port: 8080
-      initialDelaySeconds: 10
-      periodSeconds: 5
+    - name: api
+      image: tcg-decklists-api:1.0
+      livenessProbe:
+        httpGet:
+          path: /actuator/health/liveness
+          port: 8080
+        initialDelaySeconds: 30
+        periodSeconds: 10
+      readinessProbe:
+        httpGet:
+          path: /actuator/health/readiness
+          port: 8080
+        initialDelaySeconds: 10
+        periodSeconds: 5
 ```
 
 ### Available Actuator Endpoints
 
-| Endpoint | Purpose | Expose? |
-|----------|---------|---------|
-| `/actuator/health` | Application health status | ✅ Yes |
-| `/actuator/info` | Application information | ✅ Yes |
-| `/actuator/metrics` | Application metrics | ✅ Yes |
-| `/actuator/prometheus` | Prometheus-formatted metrics | ✅ Yes |
-| `/actuator/env` | Environment properties | ❌ No (sensitive) |
-| `/actuator/loggers` | Logging configuration | ❌ No (unless secured) |
-| `/actuator/heapdump` | JVM heap dump | ❌ No (unless secured) |
-| `/actuator/threaddump` | JVM thread dump | ❌ No (unless secured) |
+| Endpoint               | Purpose                      | Expose?               |
+|------------------------|------------------------------|-----------------------|
+| `/actuator/health`     | Application health status    | ✅ Yes                 |
+| `/actuator/info`       | Application information      | ✅ Yes                 |
+| `/actuator/metrics`    | Application metrics          | ✅ Yes                 |
+| `/actuator/prometheus` | Prometheus-formatted metrics | ✅ Yes                 |
+| `/actuator/env`        | Environment properties       | ❌ No (sensitive)      |
+| `/actuator/loggers`    | Logging configuration        | ❌ No (unless secured) |
+| `/actuator/heapdump`   | JVM heap dump                | ❌ No (unless secured) |
+| `/actuator/threaddump` | JVM thread dump              | ❌ No (unless secured) |
 
 ### Impact Assessment
 
 **Benefits:**
+
 - Production-ready monitoring out of the box
 - Easy integration with monitoring tools (Prometheus, Grafana, Datadog)
 - Health checks for load balancers
@@ -1691,10 +1804,12 @@ spec:
 - Debugging capabilities
 
 **Risks:**
+
 - Exposing too many endpoints can leak sensitive information
 - Actuator endpoints add minor overhead (negligible)
 
 **Migration Notes:**
+
 - Start with basic endpoints (health, info, metrics)
 - Add Prometheus support when ready to set up monitoring
 - Secure sensitive endpoints in production
@@ -1736,6 +1851,7 @@ spec:
 ### Rationale
 
 The current `application.properties` file is minimal. Adding explicit configuration:
+
 - Makes behavior predictable and documented
 - Prevents unexpected defaults
 - Improves performance with specific settings
@@ -1776,10 +1892,8 @@ Add comprehensive configuration for JPA, Jackson, logging, and error handling.
 # ===================================================================
 # TCG Decklists API - Application Configuration
 # ===================================================================
-
 # Application
 spring.application.name=tcg.decklists.api
-
 # ===================================================================
 # Database Configuration
 # ===================================================================
@@ -1787,14 +1901,12 @@ spring.datasource.url=jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${D
 spring.datasource.username=${DB_USER:postgres}
 spring.datasource.password=${DB_PASSWORD:testing1234}
 spring.datasource.driver-class-name=org.postgresql.Driver
-
 # HikariCP Connection Pool
 spring.datasource.hikari.maximum-pool-size=10
 spring.datasource.hikari.minimum-idle=5
 spring.datasource.hikari.connection-timeout=30000
 spring.datasource.hikari.idle-timeout=600000
 spring.datasource.hikari.max-lifetime=1800000
-
 # ===================================================================
 # JPA / Hibernate Configuration
 # ===================================================================
@@ -1802,22 +1914,18 @@ spring.jpa.database-platform=org.hibernate.dialect.PostgreSQLDialect
 spring.jpa.show-sql=false
 spring.jpa.properties.hibernate.format_sql=true
 spring.jpa.properties.hibernate.use_sql_comments=true
-
 # CRITICAL: Disable open-in-view to prevent lazy loading issues
 spring.jpa.open-in-view=false
-
 # Hibernate performance
 spring.jpa.properties.hibernate.jdbc.batch_size=20
 spring.jpa.properties.hibernate.order_inserts=true
 spring.jpa.properties.hibernate.order_updates=true
 spring.jpa.properties.hibernate.query.in_clause_parameter_padding=true
-
 # ===================================================================
 # Liquibase Configuration
 # ===================================================================
 spring.liquibase.enabled=true
 spring.liquibase.change-log=classpath:db/changelog/db.changelog-master.yaml
-
 # ===================================================================
 # Jackson (JSON) Configuration
 # ===================================================================
@@ -1825,23 +1933,19 @@ spring.jackson.default-property-inclusion=non_null
 spring.jackson.deserialization.fail-on-unknown-properties=false
 spring.jackson.serialization.write-dates-as-timestamps=false
 spring.jackson.time-zone=UTC
-
 # ===================================================================
 # Server Configuration
 # ===================================================================
 server.port=8080
 server.compression.enabled=true
 server.compression.mime-types=application/json,application/xml,text/html,text/xml,text/plain
-
 # Error handling
 server.error.include-message=always
 server.error.include-binding-errors=always
 server.error.include-exception=false
 server.error.include-stacktrace=never
-
 # Problem Details (RFC 7807)
 spring.mvc.problemdetails.enabled=true
-
 # ===================================================================
 # Logging Configuration
 # ===================================================================
@@ -1852,7 +1956,6 @@ logging.level.org.springframework.security=INFO
 logging.level.org.hibernate.SQL=DEBUG
 logging.level.org.hibernate.type.descriptor.sql.BasicBinder=TRACE
 logging.pattern.console=%d{yyyy-MM-dd HH:mm:ss} - %msg%n
-
 # ===================================================================
 # Actuator Configuration
 # ===================================================================
@@ -1862,14 +1965,12 @@ management.endpoint.health.show-details=when-authorized
 management.endpoint.health.probes.enabled=true
 management.health.defaults.enabled=true
 management.health.db.enabled=true
-
 # Application info for /actuator/info
 info.app.name=TCG Decklists API
 info.app.description=Pokemon TCG deck builder and viewer API
 info.app.version=1.0.0
 info.app.encoding=${file.encoding}
 info.app.java.version=${java.version}
-
 # ===================================================================
 # Cache Configuration (if implementing caching)
 # ===================================================================
@@ -1902,6 +2003,7 @@ management.endpoints.web.exposure.include=health,info,prometheus
 ```
 
 Activate profiles via environment variable:
+
 ```bash
 # Development
 export SPRING_PROFILES_ACTIVE=dev
@@ -1915,7 +2017,8 @@ java -jar app.jar
 #### Step 3: Important Property Explanations
 
 **`spring.jpa.open-in-view=false`**
-**CRITICAL:** This prevents the infamous "LazyInitializationException" and improves performance. With this disabled, all database fetching must happen within transactional boundaries (in the service layer).
+**CRITICAL:** This prevents the infamous "LazyInitializationException" and improves performance. With this disabled, all
+database fetching must happen within transactional boundaries (in the service layer).
 
 **`spring.jackson.default-property-inclusion=non_null`**
 Prevents null fields from appearing in JSON responses, reducing response size.
@@ -1935,16 +2038,19 @@ In development, shows actual parameter values in SQL queries (helpful for debugg
 ### Impact Assessment
 
 **Benefits:**
+
 - Better performance (open-in-view=false, connection pooling, batching)
 - Clearer behavior (explicit configuration)
 - Better debugging (proper logging levels)
 - Production-ready error handling
 
 **Risks:**
+
 - Disabling open-in-view may expose lazy loading issues
 - Need to ensure all database access happens in @Transactional methods
 
 **Migration Notes:**
+
 - Test thoroughly after disabling open-in-view
 - May need to add @Transactional or eager fetching in some places
 - Review logging levels in production
@@ -1989,7 +2095,9 @@ In development, shows actual parameter values in SQL queries (helpful for debugg
 
 ### Rationale
 
-The `getFilterOptions()` method performs expensive database queries to fetch all possible filter values (types, subtypes, rarities, sets, etc.). This data:
+The `getFilterOptions()` method performs expensive database queries to fetch all possible filter values (types,
+subtypes, rarities, sets, etc.). This data:
+
 - Changes infrequently (only when new sets are added)
 - Is requested on every page load
 - Is identical for all users
@@ -2004,13 +2112,13 @@ Caching this data can **dramatically improve performance** and **reduce database
 ```java
 public FilterOptionsResponse getFilterOptions() {
     return new FilterOptionsResponse(
-        repository.findAllTypeNames(),      // Database query
-        repository.findAllSubtypeNames(),   // Database query
-        repository.findAllSupertypeNames(), // Database query
-        repository.findAllRarityNames(),    // Database query
-        repository.findAllSetNames(),       // Database query
-        repository.findAllMarkNames(),      // Database query
-        repository.findAllArtistNames()     // Database query
+            repository.findAllTypeNames(),      // Database query
+            repository.findAllSubtypeNames(),   // Database query
+            repository.findAllSupertypeNames(), // Database query
+            repository.findAllRarityNames(),    // Database query
+            repository.findAllSetNames(),       // Database query
+            repository.findAllMarkNames(),      // Database query
+            repository.findAllArtistNames()     // Database query
     );
 }
 ```
@@ -2080,6 +2188,7 @@ spring.cache.caffeine.spec=maximumSize=100,expireAfterWrite=1h
 ```
 
 Explanation:
+
 - `maximumSize=100`: Cache up to 100 entries
 - `expireAfterWrite=1h`: Entries expire 1 hour after being written
 
@@ -2102,13 +2211,13 @@ public class PokemonCardService {
     @Cacheable(value = "filterOptions", key = "'all'")
     public FilterOptionsResponse getFilterOptions() {
         return new FilterOptionsResponse(
-            repository.findAllTypeNames(),
-            repository.findAllSubtypeNames(),
-            repository.findAllSupertypeNames(),
-            repository.findAllRarityNames(),
-            repository.findAllSetNames(),
-            repository.findAllMarkNames(),
-            repository.findAllArtistNames()
+                repository.findAllTypeNames(),
+                repository.findAllSubtypeNames(),
+                repository.findAllSupertypeNames(),
+                repository.findAllRarityNames(),
+                repository.findAllSetNames(),
+                repository.findAllMarkNames(),
+                repository.findAllArtistNames()
         );
     }
 
@@ -2156,8 +2265,8 @@ public class CacheConfig {
     @Bean
     public CacheManager cacheManager() {
         CaffeineCacheManager cacheManager = new CaffeineCacheManager(
-            "filterOptions",
-            "cardDetails"
+                "filterOptions",
+                "cardDetails"
         );
         cacheManager.setCaffeine(caffeineCacheBuilder());
         return cacheManager;
@@ -2165,9 +2274,9 @@ public class CacheConfig {
 
     private Caffeine<Object, Object> caffeineCacheBuilder() {
         return Caffeine.newBuilder()
-            .maximumSize(500)
-            .expireAfterWrite(1, TimeUnit.HOURS)
-            .recordStats();  // Enable cache statistics
+                .maximumSize(500)
+                .expireAfterWrite(1, TimeUnit.HOURS)
+                .recordStats();  // Enable cache statistics
     }
 }
 ```
@@ -2181,6 +2290,7 @@ curl http://localhost:8080/actuator/metrics/cache.gets
 ```
 
 Response:
+
 ```json
 {
   "name": "cache.gets",
@@ -2193,11 +2303,17 @@ Response:
   "availableTags": [
     {
       "tag": "result",
-      "values": ["hit", "miss"]
+      "values": [
+        "hit",
+        "miss"
+      ]
     },
     {
       "tag": "name",
-      "values": ["filterOptions", "cardDetails"]
+      "values": [
+        "filterOptions",
+        "cardDetails"
+      ]
     }
   ]
 }
@@ -2208,6 +2324,7 @@ Response:
 **Test that caching works:**
 
 ```java
+
 @SpringBootTest
 @AutoConfigureMockMvc
 class CachingIntegrationTest extends AbstractIntegrationTest {
@@ -2257,44 +2374,58 @@ Different caching strategies for different scenarios:
 ```java
 // Simple caching - same for all users
 @Cacheable(value = "filterOptions", key = "'all'")
-public FilterOptionsResponse getFilterOptions() { }
+public FilterOptionsResponse getFilterOptions() {
+}
 
 // Cache by ID - different cache entry per card
 @Cacheable(value = "cardDetails", key = "#id")
-public Optional<Card> findById(String id) { }
+public Optional<Card> findById(String id) {
+}
 
 // Cache by multiple parameters
 @Cacheable(value = "searchResults", key = "#setId + '-' + #rarity")
-public List<Card> findBySetAndRarity(String setId, String rarity) { }
+public List<Card> findBySetAndRarity(String setId, String rarity) {
+}
 
 // Conditional caching - only cache if result is not empty
 @Cacheable(value = "searchResults", unless = "#result.isEmpty()")
-public List<Card> searchCards(String query) { }
+public List<Card> searchCards(String query) {
+}
 ```
 
 #### Step 9: Cache Eviction Strategies
 
 **Time-based eviction:**
+
 ```properties
 spring.cache.caffeine.spec=expireAfterWrite=1h
 ```
 
 **Manual eviction:**
+
 ```java
+
 @CacheEvict(value = "filterOptions", key = "'all'")
-public void updateFilterOptions() { }
+public void updateFilterOptions() {
+}
 ```
 
 **Evict all entries:**
+
 ```java
+
 @CacheEvict(value = "filterOptions", allEntries = true)
-public void clearAllFilters() { }
+public void clearAllFilters() {
+}
 ```
 
 **Evict multiple caches:**
+
 ```java
+
 @CacheEvict(value = {"filterOptions", "cardDetails"}, allEntries = true)
-public void clearAllCaches() { }
+public void clearAllCaches() {
+}
 ```
 
 ### Advanced: When to Evict Caches
@@ -2302,6 +2433,7 @@ public void clearAllCaches() { }
 If you have data import processes, evict caches after imports:
 
 ```java
+
 @Service
 public class DataImportService {
 
@@ -2340,6 +2472,7 @@ spring.redis.port=6379
 Warm up caches at application startup:
 
 ```java
+
 @Component
 public class CacheWarmer implements ApplicationListener<ContextRefreshedEvent> {
 
@@ -2356,17 +2489,20 @@ public class CacheWarmer implements ApplicationListener<ContextRefreshedEvent> {
 ### Impact Assessment
 
 **Benefits:**
+
 - **Huge performance improvement** - 7 queries → 0 queries
 - **Better user experience** - Faster page loads
 - **Reduced database load** - Better scalability
 - **Easy to implement** - Just annotations
 
 **Risks:**
+
 - Stale data if cache isn't evicted when data changes
 - Memory usage increases (but Caffeine has limits)
 - Need to test cache eviction scenarios
 
 **Migration Notes:**
+
 - Start with conservative TTL (1 hour)
 - Monitor cache hit rates with Actuator metrics
 - Implement cache eviction when importing new card data
@@ -2405,9 +2541,11 @@ public class CacheWarmer implements ApplicationListener<ContextRefreshedEvent> {
 
 ### Rationale
 
-Java 21 introduced **Virtual Threads** (Project Loom), which are lightweight threads that improve concurrency and scalability. Spring Boot 3.2+ has built-in support.
+Java 21 introduced **Virtual Threads** (Project Loom), which are lightweight threads that improve concurrency and
+scalability. Spring Boot 3.2+ has built-in support.
 
 Virtual Threads are particularly beneficial for:
+
 - I/O-bound operations (database queries, API calls)
 - Applications with many concurrent requests
 - Reducing thread pool contention
@@ -2447,6 +2585,7 @@ That's it! Spring Boot will now use virtual threads for all web requests.
 Create a test endpoint to verify:
 
 ```java
+
 @RestController
 @RequestMapping("/api/v1/debug")
 public class DebugController {
@@ -2455,15 +2594,16 @@ public class DebugController {
     public Map<String, String> getThreadInfo() {
         Thread currentThread = Thread.currentThread();
         return Map.of(
-            "threadName", currentThread.getName(),
-            "isVirtual", String.valueOf(currentThread.isVirtual()),
-            "threadClass", currentThread.getClass().getName()
+                "threadName", currentThread.getName(),
+                "isVirtual", String.valueOf(currentThread.isVirtual()),
+                "threadClass", currentThread.getClass().getName()
         );
     }
 }
 ```
 
 Response with virtual threads enabled:
+
 ```json
 {
   "threadName": "virtual-1234",
@@ -2475,18 +2615,21 @@ Response with virtual threads enabled:
 #### Step 3: Understand Virtual Thread Benefits
 
 **Before (Platform Threads):**
+
 - Limited by thread pool size (typically 200 threads)
 - Each thread consumes ~1MB of memory
 - Thread creation is expensive
 - Thread parking/unparking has overhead
 
 **After (Virtual Threads):**
+
 - Can create millions of virtual threads
 - Virtual threads use very little memory
 - Cheap to create and destroy
 - Automatically managed by JVM
 
 **Example scenario:**
+
 ```java
 // With platform threads: Limited by pool size
 // With virtual threads: Can handle 10,000+ concurrent requests easily
@@ -2529,17 +2672,20 @@ public class AsyncConfig {
 #### Step 5: Test Performance Impact
 
 **Load test with platform threads:**
+
 ```bash
 ab -n 10000 -c 100 http://localhost:8080/api/v1/pokemon/search?name=Pikachu
 ```
 
 **Load test with virtual threads:**
+
 ```bash
 # Same test after enabling virtual threads
 ab -n 10000 -c 100 http://localhost:8080/api/v1/pokemon/search?name=Pikachu
 ```
 
 Expected improvements:
+
 - Higher throughput (requests/second)
 - Lower latency under high load
 - Better CPU utilization
@@ -2547,16 +2693,19 @@ Expected improvements:
 ### Things to Note
 
 **Virtual threads work best with:**
+
 - Blocking I/O (database, HTTP calls)
 - High concurrency scenarios
 - Spring MVC (not WebFlux - WebFlux is already non-blocking)
 
 **Virtual threads are NOT beneficial for:**
+
 - CPU-intensive tasks
 - Applications with very few concurrent requests
 - Code already using reactive programming (WebFlux)
 
 **Potential Issues:**
+
 - Thread-local variables still work but may have performance implications
 - Synchronized blocks can pin virtual threads to platform threads
 - Some libraries may not be fully compatible
@@ -2564,17 +2713,20 @@ Expected improvements:
 ### Impact Assessment
 
 **Benefits:**
+
 - Significantly better scalability with no code changes
 - Better resource utilization
 - Handle more concurrent users
 - Simplified concurrency model
 
 **Risks:**
+
 - Relatively new feature (Java 21)
 - Some edge cases with thread-locals and synchronized blocks
 - Need to test thoroughly under load
 
 **Migration Notes:**
+
 - Enable in development first
 - Run load tests to verify improvement
 - Monitor thread usage with JVM metrics
@@ -2614,6 +2766,7 @@ Expected improvements:
 ### Rationale
 
 The codebase has empty folders in the common package:
+
 - `common/config/` - empty
 - `common/dto/` - empty
 - `common/exception/` - empty (though we'll populate this with GlobalExceptionHandler)
@@ -2650,20 +2803,24 @@ Recommendation: **Option 1** - Populate with common components created in other 
 The common package will be populated with:
 
 **`common/exception/`**
+
 - `GlobalExceptionHandler.java` (from Improvement #1)
 - `EntityNotFoundException.java` (from Improvement #1)
 - `ValidationException.java` (from Improvement #1)
 
 **`common/config/`**
+
 - `OpenApiConfig.java` (from Improvement #11)
 - `CacheConfig.java` (from Improvement #7)
 - `WebConfig.java` (if CORS needed)
 
 **`common/dto/`**
+
 - Currently no common DTOs needed
 - Could add: `PageResponse.java`, `ErrorResponse.java` if standardizing pagination
 
 **`common/`** (root level)
+
 - `ApiConstants.java` (API version constants from Improvement #3)
 
 #### Final Structure
@@ -2684,11 +2841,13 @@ dev.lukeholland.tcg.decklists.api/
 ### Impact Assessment
 
 **Benefits:**
+
 - Cleaner project structure
 - Clear home for cross-cutting concerns
 - Better organization
 
 **Risks:**
+
 - None - just organizational
 
 ---
@@ -2724,11 +2883,13 @@ dev.lukeholland.tcg.decklists.api/
 
 ### Rationale
 
-After implementing Bean Validation (Improvement #2), validation logic should be removed from the service layer. Services should focus on business logic only.
+After implementing Bean Validation (Improvement #2), validation logic should be removed from the service layer. Services
+should focus on business logic only.
 
 ### Current State
 
 **DecklistService has validation:**
+
 ```java
 public Decklist createDecklist(DecklistRequest request) {
     if (request.name() == null || request.name().trim().isEmpty()) {
@@ -2756,12 +2917,14 @@ Move all input validation to DTOs with Bean Validation. Services only handle bus
 #### Step 1: Identify Validation Types
 
 **Input Validation:** (belongs in DTOs)
+
 - Required fields
 - Format validation
 - Range validation
 - Pattern validation
 
 **Business Validation:** (belongs in services)
+
 - "Card ID doesn't exist in database"
 - "User already has a decklist with this name"
 - "Cannot exceed 60 cards in deck"
@@ -2773,6 +2936,7 @@ Already covered in Improvement #2.
 #### Step 3: Keep Business Validation in Services
 
 ```java
+
 @Service
 public class DecklistService {
 
@@ -2786,12 +2950,12 @@ public class DecklistService {
 
         // Check that all card IDs exist
         List<String> invalidCardIds = request.cards().stream()
-            .filter(cardId -> !cardRepository.existsById(cardId))
-            .toList();
+                .filter(cardId -> !cardRepository.existsById(cardId))
+                .toList();
 
         if (!invalidCardIds.isEmpty()) {
             throw new ValidationException(
-                "Invalid card IDs: " + String.join(", ", invalidCardIds)
+                    "Invalid card IDs: " + String.join(", ", invalidCardIds)
             );
         }
 
@@ -2806,6 +2970,7 @@ public class DecklistService {
 ### Impact Assessment
 
 **Benefits:**
+
 - Clearer separation of validation types
 - Easier to test and maintain
 - Better error messages
@@ -2848,6 +3013,7 @@ public class DecklistService {
 ### Rationale
 
 Currently using default OpenAPI/Swagger configuration. Custom configuration provides:
+
 - Better API documentation
 - Contact information
 - License details
@@ -2877,44 +3043,44 @@ public class OpenApiConfig {
     @Bean
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
-            .info(apiInfo())
-            .servers(servers());
+                .info(apiInfo())
+                .servers(servers());
     }
 
     private Info apiInfo() {
         return new Info()
-            .title("TCG Decklists API")
-            .version("1.0")
-            .description("""
-                REST API for Pokemon TCG deck builder and viewer.
-
-                Features:
-                - Comprehensive card search with multiple filters
-                - Decklist creation and management
-                - Autocomplete for card attributes
-                - Filter options for building search UIs
-
-                This API is designed to support multiple trading card games,
-                with Pokemon TCG as the first implementation.
-                """)
-            .contact(new Contact()
-                .name("Luke Holland")
-                .url("https://github.com/lukeholland/tcg-decklists")
-            )
-            .license(new License()
-                .name("MIT License")
-                .url("https://opensource.org/licenses/MIT")
-            );
+                .title("TCG Decklists API")
+                .version("1.0")
+                .description("""
+                        REST API for Pokemon TCG deck builder and viewer.
+                        
+                        Features:
+                        - Comprehensive card search with multiple filters
+                        - Decklist creation and management
+                        - Autocomplete for card attributes
+                        - Filter options for building search UIs
+                        
+                        This API is designed to support multiple trading card games,
+                        with Pokemon TCG as the first implementation.
+                        """)
+                .contact(new Contact()
+                        .name("Luke Holland")
+                        .url("https://github.com/lukeholland/tcg-decklists")
+                )
+                .license(new License()
+                        .name("MIT License")
+                        .url("https://opensource.org/licenses/MIT")
+                );
     }
 
     private List<Server> servers() {
         return List.of(
-            new Server()
-                .url("http://localhost:8080")
-                .description("Local development server"),
-            new Server()
-                .url("https://api.tcg-decklists.example.com")
-                .description("Production server")
+                new Server()
+                        .url("http://localhost:8080")
+                        .description("Local development server"),
+                new Server()
+                        .url("https://api.tcg-decklists.example.com")
+                        .description("Production server")
         );
     }
 }
@@ -2983,11 +3149,10 @@ For filter options, create a database view:
 
 ```sql
 CREATE VIEW filter_options AS
-SELECT
-    (SELECT json_agg(DISTINCT name) FROM type) as types,
-    (SELECT json_agg(DISTINCT name) FROM subtype) as subtypes,
-    (SELECT json_agg(DISTINCT name) FROM rarity) as rarities,
-    (SELECT json_agg(DISTINCT name) FROM set) as sets;
+SELECT (SELECT json_agg(DISTINCT name) FROM type)    as types,
+       (SELECT json_agg(DISTINCT name) FROM subtype) as subtypes,
+       (SELECT json_agg(DISTINCT name) FROM rarity)  as rarities,
+       (SELECT json_agg(DISTINCT name) FROM set)     as sets;
 ```
 
 #### 3. Add Database Indexes
@@ -3098,31 +3263,34 @@ Card last = cards.getLast();    // Instead of cards.get(cards.size() - 1)
 ### Use SLF4J Parameterized Logging
 
 **Before:**
+
 ```java
-log.info("Searching cards with name: " + name);
+log.info("Searching cards with name: "+name);
 ```
 
 **After:**
+
 ```java
-log.info("Searching cards with name: {}", name);
+log.info("Searching cards with name: {}",name);
 ```
 
 ### Add Contextual Logging
 
 ```java
+
 @Service
 @Slf4j  // Lombok annotation
 public class PokemonCardService {
 
     public CardSearchResponse searchCards(CardSearchRequest request) {
         log.debug("Search request received: page={}, size={}, filters={}",
-            request.page(), request.pageSize(), request.name());
+                request.page(), request.pageSize(), request.name());
 
         Specification<Card> spec = buildSpecification(request);
         Page<Card> results = repository.findAll(spec, pageable);
 
         log.info("Search completed: found {} results in {}ms",
-            results.getTotalElements(), duration);
+                results.getTotalElements(), duration);
 
         return new CardSearchResponse(results);
     }
@@ -3132,13 +3300,14 @@ public class PokemonCardService {
 ### Add Request Logging Filter
 
 ```java
+
 @Component
 public class RequestLoggingFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
-                                   HttpServletResponse response,
-                                   FilterChain filterChain) {
+                                    HttpServletResponse response,
+                                    FilterChain filterChain) {
         long startTime = System.currentTimeMillis();
 
         try {
@@ -3146,10 +3315,10 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
         } finally {
             long duration = System.currentTimeMillis() - startTime;
             log.info("{} {} - {} - {}ms",
-                request.getMethod(),
-                request.getRequestURI(),
-                response.getStatus(),
-                duration);
+                    request.getMethod(),
+                    request.getRequestURI(),
+                    response.getStatus(),
+                    duration);
         }
     }
 }
@@ -3160,6 +3329,7 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
 # Implementation Roadmap
 
 ## Sprint 1 (Week 1)
+
 1. ✅ Centralized Exception Handling with RFC 7807
 2. ✅ Jakarta Bean Validation Implementation
 3. ✅ API Versioning Strategy
@@ -3170,6 +3340,7 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
 **Outcome:** Production-ready error handling, validation, and monitoring
 
 ## Sprint 2 (Week 2)
+
 7. ✅ Caching Strategy Implementation
 8. ✅ Enable Virtual Threads
 9. ✅ Clean Up Common Package Structure
@@ -3178,6 +3349,7 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
 **Outcome:** Optimized performance and cleaner architecture
 
 ## Future Enhancements
+
 11. Enhanced OpenAPI Configuration
 12. Query Optimization
 13. Modern Java 21 Patterns
@@ -3214,6 +3386,7 @@ After each improvement:
 # Additional Resources
 
 ## Documentation
+
 - [RFC 7807 Problem Details](https://datatracker.ietf.org/doc/html/rfc7807)
 - [Jakarta Bean Validation](https://beanvalidation.org/3.0/)
 - [Spring Boot Actuator](https://docs.spring.io/spring-boot/docs/current/reference/html/actuator.html)
@@ -3222,6 +3395,7 @@ After each improvement:
 - [Spring Boot 3.5 Reference](https://docs.spring.io/spring-boot/docs/3.5.x/reference/html/)
 
 ## Tools
+
 - [JMeter](https://jmeter.apache.org/) - Load testing
 - [Prometheus](https://prometheus.io/) - Metrics collection
 - [Grafana](https://grafana.com/) - Metrics visualization
@@ -3230,7 +3404,8 @@ After each improvement:
 
 # Conclusion
 
-This refactoring plan provides a comprehensive path to transform your backend from a solid foundation into a production-ready, enterprise-grade API. The improvements focus on:
+This refactoring plan provides a comprehensive path to transform your backend from a solid foundation into a
+production-ready, enterprise-grade API. The improvements focus on:
 
 1. **Standards Compliance:** RFC 7807, Jakarta EE, REST best practices
 2. **Performance:** Caching, virtual threads, query optimization
@@ -3238,10 +3413,12 @@ This refactoring plan provides a comprehensive path to transform your backend fr
 4. **Observability:** Actuator, metrics, structured logging
 5. **Future-Proofing:** API versioning, extensible architecture
 
-Each improvement is self-contained and can be implemented independently, allowing you to prioritize based on your immediate needs.
+Each improvement is self-contained and can be implemented independently, allowing you to prioritize based on your
+immediate needs.
 
 **Estimated Total Effort:** 3-4 days for all high and medium priority improvements.
 
-**Questions or need clarification on any section?** Each improvement includes detailed implementation steps and code examples to guide you through the process.
+**Questions or need clarification on any section?** Each improvement includes detailed implementation steps and code
+examples to guide you through the process.
 
 Happy coding! 🚀
