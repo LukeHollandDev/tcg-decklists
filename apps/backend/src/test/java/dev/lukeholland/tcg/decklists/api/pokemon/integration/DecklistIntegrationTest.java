@@ -170,7 +170,7 @@ class DecklistIntegrationTest extends AbstractIntegrationTest {
                     "type": "pokemon",
                     "cards": %s
                 }
-                """, cardsJson.toString());
+                """, cardsJson);
 
         String createResponse = mockMvc.perform(post("/api/decklist")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -193,7 +193,7 @@ class DecklistIntegrationTest extends AbstractIntegrationTest {
     // ============================================================================
 
     @Test
-    @DisplayName("Should return 400 for invalid card ID")
+    @DisplayName("Should return 400 with RFC 7807 Problem Details for invalid card ID")
     void shouldReturn400ForInvalidCardId() throws Exception {
         String requestBody = """
                 {
@@ -207,13 +207,16 @@ class DecklistIntegrationTest extends AbstractIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").exists())
-                .andExpect(jsonPath("$.error").value(containsString("Invalid card IDs")))
-                .andExpect(jsonPath("$.error").value(containsString("invalid-card-id")));
+                .andExpect(jsonPath("$.type").value("/errors/invalid-argument"))
+                .andExpect(jsonPath("$.title").value("Invalid Argument"))
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.detail").value(containsString("Invalid card IDs")))
+                .andExpect(jsonPath("$.detail").value(containsString("invalid-card-id")))
+                .andExpect(jsonPath("$.timestamp").exists());
     }
 
     @Test
-    @DisplayName("Should return 400 for multiple invalid card IDs")
+    @DisplayName("Should return 400 with RFC 7807 Problem Details for multiple invalid card IDs")
     void shouldReturn400ForMultipleInvalidCardIds() throws Exception {
         String requestBody = """
                 {
@@ -227,12 +230,15 @@ class DecklistIntegrationTest extends AbstractIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").exists())
-                .andExpect(jsonPath("$.error").value(containsString("Invalid card IDs")));
+                .andExpect(jsonPath("$.type").value("/errors/invalid-argument"))
+                .andExpect(jsonPath("$.title").value("Invalid Argument"))
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.detail").value(containsString("Invalid card IDs")))
+                .andExpect(jsonPath("$.timestamp").exists());
     }
 
     @Test
-    @DisplayName("Should return 400 for missing name")
+    @DisplayName("Should return 400 with RFC 7807 Problem Details for missing name")
     void shouldReturn400ForMissingName() throws Exception {
         String requestBody = """
                 {
@@ -245,12 +251,15 @@ class DecklistIntegrationTest extends AbstractIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").exists())
-                .andExpect(jsonPath("$.error").value(containsString("name is required")));
+                .andExpect(jsonPath("$.type").value("/errors/invalid-argument"))
+                .andExpect(jsonPath("$.title").value("Invalid Argument"))
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.detail").value(containsString("name is required")))
+                .andExpect(jsonPath("$.timestamp").exists());
     }
 
     @Test
-    @DisplayName("Should return 400 for empty name")
+    @DisplayName("Should return 400 with RFC 7807 Problem Details for empty name")
     void shouldReturn400ForEmptyName() throws Exception {
         String requestBody = """
                 {
@@ -264,8 +273,11 @@ class DecklistIntegrationTest extends AbstractIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").exists())
-                .andExpect(jsonPath("$.error").value(containsString("name is required")));
+                .andExpect(jsonPath("$.type").value("/errors/invalid-argument"))
+                .andExpect(jsonPath("$.title").value("Invalid Argument"))
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.detail").value(containsString("name is required")))
+                .andExpect(jsonPath("$.timestamp").exists());
     }
 
     @Test
@@ -302,7 +314,7 @@ class DecklistIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
-    @DisplayName("Should return 400 for missing cards")
+    @DisplayName("Should return 400 with RFC 7807 Problem Details for missing cards")
     void shouldReturn400ForMissingCards() throws Exception {
         String requestBody = """
                 {
@@ -315,12 +327,15 @@ class DecklistIntegrationTest extends AbstractIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").exists())
-                .andExpect(jsonPath("$.error").value(containsString("at least one card")));
+                .andExpect(jsonPath("$.type").value("/errors/invalid-argument"))
+                .andExpect(jsonPath("$.title").value("Invalid Argument"))
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.detail").value(containsString("at least one card")))
+                .andExpect(jsonPath("$.timestamp").exists());
     }
 
     @Test
-    @DisplayName("Should return 400 for empty cards array")
+    @DisplayName("Should return 400 with RFC 7807 Problem Details for empty cards array")
     void shouldReturn400ForEmptyCardsArray() throws Exception {
         String requestBody = """
                 {
@@ -334,21 +349,38 @@ class DecklistIntegrationTest extends AbstractIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").exists())
-                .andExpect(jsonPath("$.error").value(containsString("at least one card")));
+                .andExpect(jsonPath("$.type").value("/errors/invalid-argument"))
+                .andExpect(jsonPath("$.title").value("Invalid Argument"))
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.detail").value(containsString("at least one card")))
+                .andExpect(jsonPath("$.timestamp").exists());
     }
 
     @Test
-    @DisplayName("Should return 404 for non-existent decklist ID")
+    @DisplayName("Should return 404 with RFC 7807 Problem Details for non-existent decklist ID")
     void shouldReturn404ForNonExistentDecklistId() throws Exception {
         mockMvc.perform(get("/api/decklist/999999"))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.type").value("/errors/not-found"))
+                .andExpect(jsonPath("$.title").value("Entity Not Found"))
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.detail").value("Decklist not found with id: 999999"))
+                .andExpect(jsonPath("$.timestamp").exists())
+                .andExpect(jsonPath("$.entityType").value("Decklist"))
+                .andExpect(jsonPath("$.entityId").value("999999"));
     }
 
     @Test
-    @DisplayName("Should return 404 for negative decklist ID")
+    @DisplayName("Should return 404 with RFC 7807 Problem Details for negative decklist ID")
     void shouldReturn404ForNegativeDecklistId() throws Exception {
         mockMvc.perform(get("/api/decklist/-1"))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.type").value("/errors/not-found"))
+                .andExpect(jsonPath("$.title").value("Entity Not Found"))
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.detail").value("Decklist not found with id: -1"))
+                .andExpect(jsonPath("$.timestamp").exists())
+                .andExpect(jsonPath("$.entityType").value("Decklist"))
+                .andExpect(jsonPath("$.entityId").value("-1"));
     }
 }

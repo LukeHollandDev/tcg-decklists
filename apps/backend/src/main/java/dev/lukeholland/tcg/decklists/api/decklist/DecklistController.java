@@ -1,5 +1,6 @@
 package dev.lukeholland.tcg.decklists.api.decklist;
 
+import dev.lukeholland.tcg.decklists.api.common.exception.EntityNotFoundException;
 import dev.lukeholland.tcg.decklists.api.decklist.dto.DecklistRequest;
 import dev.lukeholland.tcg.decklists.api.decklist.dto.DecklistResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -25,27 +26,20 @@ public class DecklistController {
     @Operation(summary = "Create a new decklist",
             description = "Creates a decklist with a name, card game type, and list of card IDs (duplicates allowed)")
     @PostMapping
-    public ResponseEntity<?> createDecklist(
+    public ResponseEntity<Map<String, Integer>> createDecklist(
             @Parameter(description = "Decklist creation request") @RequestBody DecklistRequest request) {
-        try {
-            var decklist = decklistService.createDecklist(request);
-            return ResponseEntity
-                    .status(HttpStatus.CREATED)
-                    .body(Map.of("id", decklist.getId()));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity
-                    .badRequest()
-                    .body(Map.of("error", e.getMessage()));
-        }
+        var decklist = decklistService.createDecklist(request);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(Map.of("id", decklist.getId()));
     }
 
     @Operation(summary = "Get decklist by ID")
     @GetMapping("/{id}")
-    public ResponseEntity<DecklistResponse> getDecklistById(
+    public DecklistResponse getDecklistById(
             @Parameter(description = "Decklist ID") @PathVariable Integer id) {
         return decklistService.findById(id)
                 .map(DecklistResponse::new)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+                .orElseThrow(() -> new EntityNotFoundException("Decklist", id.toString()));
     }
 }

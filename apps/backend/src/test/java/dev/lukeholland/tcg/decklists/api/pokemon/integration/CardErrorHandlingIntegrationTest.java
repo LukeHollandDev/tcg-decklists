@@ -37,17 +37,36 @@ class CardErrorHandlingIntegrationTest extends AbstractIntegrationTest {
     // ============================================================================
 
     @Test
-    @DisplayName("Should return 404 for non-existent card ID")
+    @DisplayName("Should return 404 with RFC 7807 Problem Details for non-existent card ID")
     void shouldReturn404ForNonExistentCardId() throws Exception {
-        mockMvc.perform(get("/api/pokemon/nonexistent-card-123"))
-                .andExpect(status().isNotFound());
+        String nonExistentId = "nonexistent-card-123";
+
+        mockMvc.perform(get("/api/pokemon/" + nonExistentId))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.type").value("/errors/not-found"))
+                .andExpect(jsonPath("$.title").value("Entity Not Found"))
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.detail").value("Card not found with id: " + nonExistentId))
+                .andExpect(jsonPath("$.instance").value("/api/pokemon/" + nonExistentId))
+                .andExpect(jsonPath("$.timestamp").exists())
+                .andExpect(jsonPath("$.entityType").value("Card"))
+                .andExpect(jsonPath("$.entityId").value(nonExistentId));
     }
 
     @Test
-    @DisplayName("Should return 404 for malformed card ID")
+    @DisplayName("Should return 404 with RFC 7807 Problem Details for malformed card ID")
     void shouldReturn404ForMalformedCardId() throws Exception {
-        mockMvc.perform(get("/api/pokemon/!!!invalid!!!"))
-                .andExpect(status().isNotFound());
+        String malformedId = "!!!invalid!!!";
+
+        mockMvc.perform(get("/api/pokemon/" + malformedId))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.type").value("/errors/not-found"))
+                .andExpect(jsonPath("$.title").value("Entity Not Found"))
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.detail").value("Card not found with id: " + malformedId))
+                .andExpect(jsonPath("$.timestamp").exists())
+                .andExpect(jsonPath("$.entityType").value("Card"))
+                .andExpect(jsonPath("$.entityId").value(malformedId));
     }
 
     // ============================================================================

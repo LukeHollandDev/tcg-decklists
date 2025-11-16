@@ -387,10 +387,15 @@ class CardFeaturesAndAutocompleteIntegrationTest extends AbstractIntegrationTest
     }
 
     @Test
-    @DisplayName("Should return 400 for invalid autocomplete field")
+    @DisplayName("Should return 400 with RFC 7807 Problem Details for invalid autocomplete field")
     void shouldReturn400ForInvalidField() throws Exception {
         mockMvc.perform(get("/api/pokemon/autocomplete/invalid")
                         .param("query", "test"))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.type").value("/errors/validation"))
+                .andExpect(jsonPath("$.title").value("Validation Error"))
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.detail").value("Invalid autocomplete field: invalid. Valid fields are: artist, attack, ability, set"))
+                .andExpect(jsonPath("$.timestamp").exists());
     }
 }

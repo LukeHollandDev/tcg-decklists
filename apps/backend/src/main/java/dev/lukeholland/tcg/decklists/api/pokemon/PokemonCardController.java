@@ -1,5 +1,7 @@
 package dev.lukeholland.tcg.decklists.api.pokemon;
 
+import dev.lukeholland.tcg.decklists.api.common.exception.EntityNotFoundException;
+import dev.lukeholland.tcg.decklists.api.common.exception.ValidationException;
 import dev.lukeholland.tcg.decklists.api.pokemon.dto.*;
 import dev.lukeholland.tcg.decklists.api.pokemon.enums.AutocompleteField;
 import io.swagger.v3.oas.annotations.Operation;
@@ -25,12 +27,11 @@ public class PokemonCardController {
 
     @Operation(summary = "Get a Pokémon card by ID")
     @GetMapping("/{id}")
-    public ResponseEntity<CardResponse> getCardById(
+    public CardResponse getCardById(
             @Parameter(description = "Card ID") @PathVariable String id) {
         return service.findById(id)
                 .map(CardResponse::new)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+                .orElseThrow(() -> new EntityNotFoundException("Card", id));
     }
 
     @Operation(summary = "Search Pokemon cards",
@@ -53,25 +54,24 @@ public class PokemonCardController {
     @Operation(summary = "Autocomplete for search fields",
             description = "Provides autocomplete suggestions for artist, attack, ability, and set fields. Uses prefix-first matching strategy.")
     @GetMapping("/autocomplete/{field}")
-    public ResponseEntity<AutocompleteResponse> autocomplete(
+    public AutocompleteResponse autocomplete(
             @Parameter(description = "Field to autocomplete (artist, attack, ability, set)") @PathVariable String field,
-            @Parameter(description = "Search query") @RequestParam(required = true) String query,
+            @Parameter(description = "Search query") @RequestParam String query,
             @Parameter(description = "Maximum results (max: 50)") @RequestParam(required = false, defaultValue = "10") int limit) {
 
         AutocompleteField autocompleteField;
         try {
             autocompleteField = AutocompleteField.fromString(field);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
+            throw new ValidationException("Invalid autocomplete field: " + field + ". Valid fields are: artist, attack, ability, set");
         }
 
         if (query == null || query.trim().isEmpty()) {
-            return ResponseEntity.badRequest().build();
+            throw new ValidationException("Search query cannot be null or empty");
         }
 
         int effectiveLimit = Math.min(limit, MAX_AUTOCOMPLETE_LIMIT);
         List<String> results = service.autocomplete(autocompleteField, query, effectiveLimit);
-        AutocompleteResponse response = new AutocompleteResponse(results, query, effectiveLimit);
-        return ResponseEntity.ok(response);
+        return new AutocompleteResponse(results, query, effectiveLimit);
     }
 }

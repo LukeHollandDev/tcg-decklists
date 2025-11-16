@@ -30,11 +30,11 @@ This document outlines comprehensive improvements to enhance the readability, ma
 ## Progress Tracking
 
 **Last Updated:** 2025-11-16
-**Overall Status:** 0/14 improvements completed (0%)
+**Overall Status:** 1/14 improvements completed (7%)
 
 | # | Improvement | Priority | Status | Completed | Notes |
 |---|-------------|----------|--------|-----------|-------|
-| 1 | Exception Handling (RFC 7807) | HIGH | ⏳ Not Started | - | - |
+| 1 | Exception Handling (RFC 7807) | HIGH | ✅ Done | 2025-11-16 | All tests passing |
 | 2 | Bean Validation | HIGH | ⏳ Not Started | - | - |
 | 3 | API Versioning | HIGH | ⏳ Not Started | - | - |
 | 4 | CardSearchRequest to Record | HIGH | ⏳ Not Started | - | - |
@@ -58,7 +58,7 @@ This document outlines comprehensive improvements to enhance the readability, ma
 - 🔄 **Needs Revision** - Completed but needs changes
 
 **Sprint Progress:**
-- **Sprint 1 (High Priority):** 0/6 completed
+- **Sprint 1 (High Priority):** 1/6 completed
 - **Sprint 2 (Medium Priority):** 0/4 completed
 - **Additional Improvements:** 0/4 completed
 
@@ -113,28 +113,53 @@ Each improvement is structured as follows:
 **Priority:** HIGH
 **Effort:** Medium (4-6 hours)
 **Files Affected:** New GlobalExceptionHandler, all controllers
-**Status:** ⏳ Not Started
+**Status:** ✅ Done (2025-11-16)
 
 ---
 
 ### Implementation Checklist
 
-- [ ] Create custom exception classes (EntityNotFoundException, ValidationException)
-- [ ] Create GlobalExceptionHandler with @RestControllerAdvice
-- [ ] Update PokemonCardController to use exceptions
-- [ ] Update DecklistController to use exceptions
-- [ ] Update application.properties with Problem Details config
-- [ ] Test error responses with curl/Postman
-- [ ] Update frontend error handling to parse ProblemDetail format
-- [ ] Update integration tests for new error format
+- [x] Create custom exception classes (EntityNotFoundException, ValidationException)
+- [x] Create GlobalExceptionHandler with @RestControllerAdvice
+- [x] Update PokemonCardController to use exceptions
+- [x] Update DecklistController to use exceptions
+- [x] Update application.properties with Problem Details config
+- [x] Test error responses with curl/Postman
+- [ ] Update frontend error handling to parse ProblemDetail format (Deferred - backend only)
+- [x] Update integration tests for new error format
 
 ### Implementation Notes
 
-> **Add notes here as you implement:**
-> - Actual time taken:
-> - Challenges encountered:
-> - Deviations from plan:
-> - Lessons learned:
+**Completed:** 2025-11-16
+
+**Actual time taken:** ~3 hours
+
+**What was implemented:**
+- Created 2 custom exception classes (EntityNotFoundException, ValidationException)
+- Note: Did NOT implement DuplicateEntityException as duplicate decklist names are acceptable
+- Created GlobalExceptionHandler with @RestControllerAdvice handling 4 exception types:
+  - EntityNotFoundException → 404
+  - ValidationException → 400
+  - IllegalArgumentException → 400 (backward compatibility)
+  - Generic Exception → 500
+- Updated PokemonCardController: Removed ResponseEntity.notFound() and .badRequest() patterns
+- Updated DecklistController: Removed all try-catch blocks, simplified return types
+- Updated application.properties with RFC 7807 Problem Details configuration
+- Updated 2 integration test files with comprehensive RFC 7807 validation:
+  - CardErrorHandlingIntegrationTest.java
+  - DecklistIntegrationTest.java
+  - CardFeaturesAndAutocompleteIntegrationTest.java (1 test)
+- All integration tests passing ✅
+
+**Deviations from plan:**
+- Frontend error handling deferred to separate task (backend-only focus)
+- Did not create DuplicateEntityException (not needed per user requirements)
+
+**Lessons learned:**
+- Breaking change approach simplified implementation significantly
+- Spring Boot 3.5's built-in RFC 7807 support made implementation straightforward
+- Controllers are now much cleaner without ResponseEntity error handling
+- Comprehensive test updates were critical to verify RFC 7807 compliance
 
 ---
 
