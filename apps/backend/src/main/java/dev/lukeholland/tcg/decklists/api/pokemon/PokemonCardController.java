@@ -7,6 +7,7 @@ import dev.lukeholland.tcg.decklists.api.pokemon.enums.AutocompleteField;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,7 +39,7 @@ public class PokemonCardController {
             description = "Search for cards with comprehensive filters including name, type, HP, attacks, abilities, format legality, and more. Supports pagination and sorting.")
     @GetMapping("/search")
     public ResponseEntity<CardSearchResponse> searchCards(
-            @Parameter(description = "Search filters, pagination, and sorting parameters") @ModelAttribute CardSearchRequest request) {
+            @Parameter(description = "Search filters, pagination, and sorting parameters") @Valid @ModelAttribute CardSearchRequest request) {
         CardSearchResponse response = service.search(request);
         return ResponseEntity.ok(response);
     }
