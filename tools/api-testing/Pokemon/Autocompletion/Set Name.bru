@@ -5,13 +5,13 @@ meta {
 }
 
 get {
-  url: {{BASE_URL}}/pokemon/autocomplete/set?query=base
+  url: {{BASE_URL}}/pokemon/autocomplete/set?query=me
   body: none
   auth: inherit
 }
 
 params:query {
-  query: base
+  query: me
   ~limit: 10
 }
 

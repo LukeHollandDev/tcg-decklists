@@ -24,8 +24,9 @@ public class PokemonCardService {
         this.repository = pokemonCardRepository;
     }
 
-    public Optional<Card> findById(String id) {
-        return repository.findById(id);
+    public Optional<CardResponse> findById(String id) {
+        return repository.findById(id)
+                .map(CardResponse::new);
     }
 
     public boolean existsById(String id) {

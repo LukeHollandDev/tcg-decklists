@@ -31,7 +31,6 @@ public class PokemonCardController {
     public CardResponse getCardById(
             @Parameter(description = "Card ID") @PathVariable String id) {
         return service.findById(id)
-                .map(CardResponse::new)
                 .orElseThrow(() -> new EntityNotFoundException("Card", id));
     }
 

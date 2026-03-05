@@ -25,7 +25,7 @@ const {validateCard} = require('./lib/validators');
 // Parse command line arguments
 const args = process.argv.slice(2);
 const config = {
-    baseUrl: 'http://localhost:8080/api',
+    baseUrl: 'http://localhost:8080/api/v1',
     limit: null,
     cardId: null,
     concurrency: 10

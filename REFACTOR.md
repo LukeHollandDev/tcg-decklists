@@ -33,8 +33,8 @@ enhancements will bring it to production-ready, enterprise-grade quality.
 
 ## Progress Tracking
 
-**Last Updated:** 2025-11-16
-**Overall Status:** 4/14 improvements completed (29%)
+**Last Updated:** 2025-11-17
+**Overall Status:** 6/14 improvements completed (43%)
 
 | #  | Improvement                   | Priority | Status        | Completed  | Notes             |
 |----|-------------------------------|----------|---------------|------------|-------------------|
@@ -42,8 +42,8 @@ enhancements will bring it to production-ready, enterprise-grade quality.
 | 2  | Bean Validation               | HIGH     | ✅ Done        | 2025-11-16 | All tests passing |
 | 3  | API Versioning                | HIGH     | ✅ Done        | 2025-11-16 | All tests passing |
 | 4  | CardSearchRequest to Record   | HIGH     | ✅ Done        | 2025-11-16 | All tests passing |
-| 5  | Spring Boot Actuator          | HIGH     | ⏳ Not Started | -          | -                 |
-| 6  | Application Properties        | HIGH     | ⏳ Not Started | -          | -                 |
+| 5  | Spring Boot Actuator          | HIGH     | ✅ Done        | 2025-11-16 | All tests passing |
+| 6  | Application Properties        | HIGH     | ✅ Done        | 2025-11-17 | Minimal approach  |
 | 7  | Caching Strategy              | MEDIUM   | ⏳ Not Started | -          | -                 |
 | 8  | Virtual Threads               | MEDIUM   | ⏳ Not Started | -          | -                 |
 | 9  | Clean Up Common Package       | MEDIUM   | ⏳ Not Started | -          | -                 |
@@ -64,7 +64,7 @@ enhancements will bring it to production-ready, enterprise-grade quality.
 
 **Sprint Progress:**
 
-- **Sprint 1 (High Priority):** 4/6 completed
+- **Sprint 1 (High Priority):** 6/6 completed
 - **Sprint 2 (Medium Priority):** 0/4 completed
 - **Additional Improvements:** 0/4 completed
 
@@ -1176,13 +1176,18 @@ Accept: application/vnd.tcg-decklists.v1+json
 > - **Challenges encountered:** None - conversion was straightforward
 > - **Deviations from plan:**
     >
+
 - No builder pattern needed for tests as integration tests use HTTP request parameters directly
->   - No test file changes required
+
+> - No test file changes required
 > - **Lessons learned:**
     >
+
 - Record conversion significantly reduced code from 498 lines to 156 lines (-69%)
->   - Compact constructor cleanly handles default values and bounds enforcement
->   - Bean Validation annotations work seamlessly with @ModelAttribute binding
+
+> - Compact constructor cleanly handles default values and bounds enforcement
+    >
+- Bean Validation annotations work seamlessly with @ModelAttribute binding
 >   - All 45 fields successfully converted with validation preserved
 >   - Tests passed without modification, confirming backward compatibility
 
@@ -1860,30 +1865,73 @@ spec:
 **Priority:** HIGH
 **Effort:** Small (30 minutes)
 **Files Affected:** application.properties
-**Status:** ⏳ Not Started
+**Status:** ✅ Done (2025-11-17)
 
 ---
 
 ### Implementation Checklist
 
-- [ ] Add comprehensive database/HikariCP configuration
-- [ ] Add JPA/Hibernate configuration (including open-in-view=false)
-- [ ] Add Liquibase configuration
-- [ ] Add Jackson (JSON) configuration
-- [ ] Add server configuration
-- [ ] Add logging configuration
-- [ ] Add actuator configuration (from Improvement #5)
+- [x] Add comprehensive database/HikariCP configuration
+- [x] Add JPA/Hibernate configuration (including open-in-view=false)
+- [x] Add Liquibase configuration
+- [ ] Add Jackson (JSON) configuration (deferred - not critical)
+- [ ] Add server configuration (deferred - not critical)
+- [x] Add logging configuration (development-friendly with colors)
+- [x] Add actuator configuration (already completed in previous work)
 - [ ] Add cache configuration (preview for Improvement #7)
-- [ ] Test application startup with new properties
-- [ ] Create profile-specific properties (dev, prod) if needed
+- [x] Test application startup with new properties
+- [ ] Create profile-specific properties (dev, prod) if needed (deferred)
 
 ### Implementation Notes
 
-> **Add notes here as you implement:**
-> - Actual time taken:
-> - Challenges encountered:
-> - Deviations from plan:
-> - Lessons learned:
+**Actual time taken:** ~25 minutes (including bug fix)
+
+**Approach taken:** Minimal implementation focusing on critical configurations only
+
+- Added well-organized sections with clear comments
+- Implemented HikariCP connection pool tuning
+- **Most important:** Set `spring.jpa.open-in-view=false`
+- Added explicit Liquibase changelog path
+- Implemented development-friendly logging with ANSI colors
+- Deferred Jackson, server compression, and profile-specific configs (not critical for current needs)
+
+**Challenges encountered:**
+
+- Setting `open-in-view=false` immediately exposed a `LazyInitializationException` in the `/api/v1/pokemon/{id}`
+  endpoint
+- Error occurred because `CardResponse` DTO was being constructed in the controller (outside transaction) instead of the
+  service layer (inside transaction)
+- The Card entity has many lazy-loaded collections (retreatCosts, abilities, attacks, etc.) that were being accessed
+  after the Hibernate session closed
+
+**Fix applied:**
+
+- Changed `PokemonCardService.findById()` to return `Optional<CardResponse>` instead of `Optional<Card>`
+- Moved DTO construction inside the `@Transactional` service method
+- Updated `PokemonCardController.getCardById()` to receive the already-constructed DTO
+- This ensures all lazy collections are loaded while the Hibernate session is still open
+
+**Deviations from plan:**
+
+- Skipped Jackson JSON configuration (non_null, date formatting) - not needed currently
+- Skipped server compression - low priority optimization
+- Skipped cache configuration preview - will do in Improvement #7
+- Skipped profile-specific properties - single environment currently
+
+**Lessons learned:**
+
+- `open-in-view=false` is excellent for exposing lazy loading anti-patterns early
+- The bug was actually beneficial - it revealed a hidden N+1 query risk
+- Services should return DTOs, not entities (better architecture)
+- The fix aligns with the pattern already used in `search()` method which constructs DTOs inside the transaction
+- Development-friendly logging with colors significantly improves debugging experience
+
+**Benefits achieved:**
+✅ Eliminated potential N+1 query problems with `open-in-view=false`
+✅ Optimized database connection pooling with HikariCP tuning
+✅ Improved code architecture (service layer returns DTOs)
+✅ Better developer experience with colored, timestamped logs
+✅ Explicit configuration prevents unexpected Spring Boot defaults
 
 ---
 

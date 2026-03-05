@@ -5,13 +5,13 @@ meta {
 }
 
 get {
-  url: {{BASE_URL}}/pokemon/search
+  url: {{BASE_URL}}/pokemon/search?q=pikachu
   body: none
   auth: inherit
 }
 
 params:query {
-  ~q: pikachu
+  q: pikachu
   ~excludeName: false
   ~excludeAttacks: false
   ~excludeAbilities: false
